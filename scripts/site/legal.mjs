@@ -71,6 +71,10 @@ export function cgv() {
   return wrap("/cgv/", "Conditions générales de vente", "Conditions générales de vente et d'utilisation de KAZONLY : abonnement, essai, rétractation, résiliation, responsabilité.", `
 <h2>1. Objet</h2>
 <p>Les présentes conditions régissent l'abonnement au service en ligne KAZONLY, outil de suivi de gestion locative, proposé par ${val("publisherName")} (SIRET ${val("siret")}).</p>
+<h2>1 bis. Résiliation</h2>
+<p>Vous pouvez résilier votre abonnement à tout moment, en ligne, depuis « Mon abonnement » dans l'application ou depuis la page <a href="/resilier/">Résilier mon abonnement</a>, sans avoir à créer ou à consulter un espace client. La résiliation prend effet à la fin de la période déjà payée. Un accusé de réception indiquant la date de fin vous est envoyé par e-mail. Source : <a href="https://entreprendre.service-public.gouv.fr/actualites/A16599">service-public.gouv.fr, résiliation des contrats (loi n° 2022-1158 du 16 août 2022, article L. 215-1-1 du Code de la consommation)</a>.</p>
+<h2>1 ter. Droit de rétractation</h2>
+<p>Vous disposez d'un délai de 14 jours calendaires à compter de la conclusion du contrat pour vous rétracter, sans motif. Vous pouvez exercer ce droit en ligne, depuis votre compte, pendant tout ce délai. Si vous demandez à commencer le service avant la fin de ce délai, vous le consentez expressément : le droit de rétractation disparaît une fois le service entièrement exécuté. [À VALIDER] : modalités de remboursement de la part de service déjà utilisée. Sources : <a href="https://www.service-public.gouv.fr/particuliers/vosdroits/F10485">service-public.gouv.fr (F10485)</a> ; <a href="https://entreprendre.service-public.gouv.fr/vosdroits/F23455">entreprendre.service-public.gouv.fr (F23455)</a>.</p>
 <h2>2. Nature du service</h2>
 <p>KAZONLY est un outil de suivi. Il ne reçoit, ne détient ni ne transmet aucun loyer ou fonds, et ne fournit aucun conseil juridique, fiscal ou comptable. L'utilisateur reste responsable de ses déclarations et de ses obligations de bailleur.</p>
 <h2>3. Prix et facturation</h2>

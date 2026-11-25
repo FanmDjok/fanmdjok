@@ -163,3 +163,32 @@
     io.observe(how);
   } else if (how) how.classList.add("in");
 })();
+
+// Page « Résilier mon abonnement » : lien de connexion envoyé si le compte existe (réponse identique dans tous les cas).
+(function () {
+  var f = document.getElementById("resil-form");
+  if (!f) return;
+  var msg = document.getElementById("resil-msg"), btn = f.querySelector("button"), slot = document.getElementById("resil-ts");
+  var key = f.dataset.sitekey, token = "", wid = null, tries = 0;
+  var s = document.createElement("script");
+  s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js"; s.async = true; document.head.appendChild(s);
+  function mount() {
+    if (!key) { msg.textContent = "Le formulaire n'est pas encore disponible. Résiliez depuis « Mon abonnement » dans l'application."; btn.disabled = true; return; }
+    if (!window.turnstile) { if (++tries < 40) setTimeout(mount, 250); return; }
+    wid = window.turnstile.render(slot, { sitekey: key, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; }, "error-callback": function () { token = ""; } });
+  }
+  mount();
+  f.addEventListener("submit", function (e) {
+    e.preventDefault(); msg.textContent = "";
+    var email = String(new FormData(f).get("email") || "").trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = "Entrez une adresse e-mail valide."; return; }
+    if (!token) { msg.textContent = "Validez la vérification anti-robot."; return; }
+    btn.disabled = true;
+    fetch("/api/resiliation-lien", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email, turnstileToken: token }) })
+      .then(function (r) { if (r.status === 403) throw new Error("robot"); if (!r.ok && r.status !== 400) throw new Error("http"); f.hidden = true; msg.textContent = "Si un compte existe pour cette adresse, un lien de connexion vient d'être envoyé. Ouvrez-le pour accéder à la résiliation."; })
+      .catch(function (err) {
+        msg.textContent = err.message === "robot" ? "La vérification a expiré. Validez-la à nouveau." : "Envoi impossible. Réessayez dans un instant.";
+        btn.disabled = false; token = ""; if (wid !== null && window.turnstile) window.turnstile.reset(wid);
+      });
+  });
+})();

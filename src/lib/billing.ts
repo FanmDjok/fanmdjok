@@ -52,7 +52,8 @@ export async function fetchSubscription(): Promise<Subscription | null> {
   };
 }
 
-async function post(path: string, body?: unknown): Promise<{ url?: string; error?: string }> {
+type PostResult = { url?: string; error?: string; ok?: boolean; fin?: string; rembourse_centimes?: number };
+async function post(path: string, body?: unknown): Promise<PostResult> {
   if (!supabase) return { error: "non_configure" };
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
@@ -69,7 +70,10 @@ async function post(path: string, body?: unknown): Promise<{ url?: string; error
   }
 }
 
-export const startCheckout = (plan: PlanId, interval: Interval, currency: Currency = "EUR") => post("/api/create-checkout", { plan, interval, currency });
+export const startCheckout = (plan: PlanId, interval: Interval, currency: Currency = "EUR", startNow = false) =>
+  post("/api/create-checkout", { plan, interval, currency, startNow });
+export const resilier = () => post("/api/resiliation", { action: "resilier" });
+export const retracter = () => post("/api/resiliation", { action: "retracter" });
 export const openPortal = () => post("/api/customer-portal");
 
 export const errorMessage = (code?: string): string => {
@@ -77,6 +81,8 @@ export const errorMessage = (code?: string): string => {
     case "abonnement_existant": return "Vous avez déjà un abonnement : gérez-le depuis « Mon abonnement ».";
     case "formule_invalide": return "Cette formule n'est pas disponible pour le moment.";
     case "aucun_abonnement": return "Aucun abonnement à gérer pour l'instant.";
+    case "consentement_requis": return "Cochez la case pour commencer tout de suite, puis réessayez.";
+    case "delai_depasse": return "Le délai de rétractation de 14 jours est dépassé. Vous pouvez résilier votre abonnement.";
     case "reseau": return "Connexion impossible. Vérifiez votre réseau et réessayez.";
     default: return "Une erreur est survenue. Réessayez dans un instant.";
   }

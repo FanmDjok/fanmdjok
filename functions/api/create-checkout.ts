@@ -7,8 +7,10 @@ async function handle(req: Request): Promise<Response> {
 
   const raw = await readBounded(req, 2048);
   if (raw === null) return json({ error: "requete_trop_grande" }, 413);
-  let body: { plan?: string; interval?: string; currency?: string };
+  let body: { plan?: string; interval?: string; currency?: string; startNow?: boolean };
   try { body = JSON.parse(raw); } catch { return json({ error: "requete_invalide" }, 400); }
+  // Consentement exprès à commencer tout de suite (non pré-coché côté interface) : sans lui, pas de souscription.
+  if (body.startNow !== true) return json({ error: "consentement_requis" }, 400);
 
   const price = priceIdFor(String(body.plan), String(body.interval), body.currency === "XPF" ? "XPF" : "EUR");
   if (!price) return json({ error: "formule_invalide" }, 400);

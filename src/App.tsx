@@ -6,6 +6,7 @@ import { ACTIVE, analysisLevel, errorMessage, fetchSubscription, openPortal, pla
 import type { Expense, Payment, Property } from "./data/types";
 import Auth, { NouveauMotDePasse } from "./components/Auth";
 import Paywall from "./components/Paywall";
+import Resiliation from "./components/Resiliation";
 import Accueil from "./pages/Accueil";
 import Biens from "./pages/Biens";
 import Paiements from "./pages/Paiements";
@@ -76,6 +77,7 @@ function Shell({ limit, sub, free, onPlans }: { limit: number; sub?: Subscriptio
   const [payments, setPayments] = useState<Payment[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [notice, setNotice] = useState<string | null>(null);
+  const [vue, setVue] = useState<"resilier" | null>(() => (new URLSearchParams(window.location.search).get("mode") === "resilier" ? "resilier" : null));
 
   const load = useCallback(async () => {
     setProperties(await repo.listProperties());
@@ -112,7 +114,8 @@ function Shell({ limit, sub, free, onPlans }: { limit: number; sub?: Subscriptio
             Le dernier paiement a échoué. <button className="font-semibold underline" onClick={manage}>Mettre à jour ma carte</button> pour éviter l'interruption du service.
           </p>
         )}
-        {tab.split(":")[0] === "accueil" && <Accueil properties={properties} payments={payments} expenses={expenses} go={setTab} />}
+        {vue === "resilier" && sub && <Resiliation sub={sub} onClose={() => setVue(null)} />}
+        {vue !== "resilier" && tab.split(":")[0] === "accueil" && <Accueil properties={properties} payments={payments} expenses={expenses} go={setTab} />}
         {tab.split(":")[0] === "biens" && (
           <Biens properties={properties} limit={limit} onUpgrade={manage}
             onSave={async (p) => {
@@ -124,6 +127,7 @@ function Shell({ limit, sub, free, onPlans }: { limit: number; sub?: Subscriptio
         {tab === "depenses" && <Depenses properties={properties} expenses={expenses} onSave={async (e) => { await repo.saveExpense(e); await load(); }} />}
         {tab === "analyses" && <Analyses properties={properties} level={free ? 1 : analysisLevel(sub)} onUpgrade={manage} goBiens={() => setTab("biens")} />}
         {tab === "rapports" && <Rapports properties={properties} payments={payments} expenses={expenses} level={free ? 1 : analysisLevel(sub)} onUpgrade={manage} />}
+        {sub && vue !== "resilier" && <button className="mt-6 text-sm text-primary" onClick={() => setVue("resilier")}>Résilier mon abonnement</button>}
         <p className="mt-8 border-t border-line pt-4 text-xs text-muted">KAZONLY · La gestion locative pensée pour les Outre-mer · <a className="underline" href="/cgv/">CGV</a> · <a className="underline" href="/confidentialite/">Confidentialité</a></p>
       </main>
       <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-white" aria-label="Navigation principale">

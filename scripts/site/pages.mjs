@@ -278,6 +278,18 @@ ${crumbs([["Accueil", "/"], ["Tarifs", "/tarifs/"]])}
 
 <section><div class="wrap prose">
   <h2>Questions sur la facturation</h2>
+  <section class="soft" id="avant-commande"><div class="wrap prose">
+    <h2>Informations avant commande</h2>
+    <ul>
+      <li>Prix affichés TTC. ${esc(cfg.tvaMention)}.</li>
+      <li>Formules payantes : essai de ${TRIAL} jours, puis abonnement mensuel ou annuel [À VALIDER : reconduction automatique à chaque échéance].</li>
+      <li>Résiliation en ligne possible à tout moment, depuis « Mon abonnement » ou la page <a href="/resilier/">Résilier mon abonnement</a>. Elle prend effet à la fin de la période déjà payée.</li>
+      <li>Droit de rétractation de 14 jours, exercé en ligne depuis votre compte. Si vous demandez à commencer le service avant la fin de ce délai, le droit disparaît une fois le service entièrement exécuté.</li>
+      <li>Réclamation : ${val("contactEmail")}. Médiateur de la consommation : ${val("mediator")}.</li>
+    </ul>
+    <p class="fine">Sources : <a href="https://entreprendre.service-public.gouv.fr/vosdroits/F23455">service-public.gouv.fr (F23455)</a>.</p>
+  </div></section>
+
   ${faqHtml(FAQ_BILLING)}
 </div></section>`;
 
@@ -498,5 +510,29 @@ ${crumbs([["Accueil", "/"], ["Contact", "/contact/"]])}
     description: "Agence, gestionnaire ou gros portefeuille en Outre-mer : contactez KAZONLY pour une offre Agence / Scale sur mesure.",
     body,
     ld: [breadcrumbLd([["Accueil", "/"], ["Contact", "/contact/"]])],
+  });
+}
+
+/* ---------- Résilier mon abonnement, sans compte : lien envoyé par e-mail ---------- */
+export function resilierPage() {
+  const body = `
+<section class="legal wrap prose" style="padding-top:48px">
+  <p class="eyebrow">Résiliation</p>
+  <h1>Résilier mon abonnement</h1>
+  <p class="lead">Indiquez l'adresse e-mail de votre compte. Si un compte existe, nous vous envoyons un lien de connexion qui ouvre directement la page de résiliation. Vous n'avez pas besoin d'être connecté.</p>
+  <form class="cform" id="resil-form" novalidate data-sitekey="${esc(process.env.TURNSTILE_SITE_KEY || "")}">
+    <div class="fld"><label for="r-email">Adresse e-mail de votre compte</label><input id="r-email" name="email" type="email" autocomplete="email" required maxlength="320"></div>
+    <div id="resil-ts" class="ts-slot"></div>
+    <button class="btn btn-primary btn-block" type="submit">Envoyer le lien</button>
+  </form>
+  <p class="err" id="resil-msg" role="status" aria-live="polite"></p>
+  <p class="fine">Vous pouvez aussi résilier depuis « Mon abonnement » dans l'application. Informations : <a href="https://entreprendre.service-public.gouv.fr/actualites/A16599">service-public.gouv.fr</a>.</p>
+</section>`;
+  return page({
+    path: "/resilier/",
+    title: "Résilier mon abonnement | KAZONLY",
+    description: "Résiliez votre abonnement KAZONLY en ligne, sans avoir à ouvrir un espace client.",
+    body,
+    noindex: true,
   });
 }

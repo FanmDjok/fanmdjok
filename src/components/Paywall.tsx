@@ -13,9 +13,10 @@ export default function Paywall({ hasSubscriptionRecord, onFree }: { hasSubscrip
     params.get("abonnement") === "annule" ? "Paiement annulé : aucun montant n'a été débité." : null,
   );
 
+  const [startNow, setStartNow] = useState(false);
   const go = async (plan: PlanId) => {
     setBusy(plan); setMsg(null);
-    const r = await startCheckout(plan, interval, cur);
+    const r = await startCheckout(plan, interval, cur, startNow);
     if (r.url) { window.location.assign(r.url); return; }
     setMsg(errorMessage(r.error)); setBusy(null);
   };
@@ -28,6 +29,10 @@ export default function Paywall({ hasSubscriptionRecord, onFree }: { hasSubscrip
 
   return (
     <div className="mx-auto max-w-xl px-5 py-8">
+      <label className="mb-4 flex items-start gap-2 rounded-xl border border-line bg-white p-3 text-sm">
+        <input type="checkbox" className="mt-1" checked={startNow} onChange={(e) => setStartNow(e.target.checked)} />
+        <span>Je demande à commencer l'accès à KAZONLY tout de suite. Je sais que mon droit de rétractation de 14 jours prend fin lorsque le service est entièrement exécuté. Pendant ces 14 jours, je peux me rétracter depuis mon compte.</span>
+      </label>
       <Eyebrow>Dernière étape</Eyebrow>
       <h1 className="mt-1 text-2xl font-bold leading-tight">
         {hasSubscriptionRecord ? "Votre abonnement n'est plus actif." : `Choisissez votre formule : ${TRIAL_DAYS} jours d'essai.`}
@@ -69,7 +74,7 @@ export default function Paywall({ hasSubscriptionRecord, onFree }: { hasSubscrip
               </div>
               <p className="text-sm text-muted">{p.tagline}</p>
               <ul className="mt-3 space-y-1 text-sm">{p.features.map((f) => <li key={f}>• {f}</li>)}</ul>
-              <Btn className="mt-4 w-full" variant={chosen ? "primary" : "ghost"} disabled={busy !== null} onClick={() => go(p.id as PlanId)}>
+              <Btn className="mt-4 w-full" variant={chosen ? "primary" : "ghost"} disabled={busy !== null || !startNow} onClick={() => go(p.id as PlanId)}>
                 {busy === p.id ? "Redirection…" : hasSubscriptionRecord ? `Choisir ${p.name}` : `Essayer ${TRIAL_DAYS} jours`}
               </Btn>
             </Card>
