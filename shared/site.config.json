@@ -3,13 +3,13 @@
   "siteUrl": "https://kazonly.pages.dev",
   "locale": "fr-FR",
   "legalReviewed": false,
-  "contactEmail": "",
-  "publisherName": "",
+  "contactEmail": "Contact-Kazonly@gmail.com",
+  "publisherName": "Drussila Dolly",
   "publisherStatus": "Entrepreneur individuel (micro-entreprise)",
-  "siret": "",
-  "publisherAddress": "",
+  "siret": "10317607900012",
+  "publisherAddress": "1 rue d'Enghien, 75010 Paris",
   "tvaMention": "TVA non applicable, article 293 B du CGI",
   "mediator": "",
   "hostingNote": "Cloudflare, Inc. (États-Unis) pour le site et les fonctions ; Supabase pour la base de données",
-  "dbRegion": ""
+  "dbRegion": "Irlande (Union européenne, eu-west-1)"
 }
