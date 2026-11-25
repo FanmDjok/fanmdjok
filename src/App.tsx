@@ -8,6 +8,7 @@ import Auth, { NouveauMotDePasse } from "./components/Auth";
 import Paywall from "./components/Paywall";
 import Resiliation from "./components/Resiliation";
 import MesDonnees from "./components/MesDonnees";
+import { MfaChallenge } from "./components/Mfa";
 import Accueil from "./pages/Accueil";
 import Biens from "./pages/Biens";
 import Paiements from "./pages/Paiements";
@@ -29,6 +30,14 @@ const repo = supabase ? supabaseRepository : localRepository;
 export default function App() {
   const [session, setSession] = useState<unknown>(supabase ? undefined : "local");
   const [recovery, setRecovery] = useState(false);
+  const [mfaRequis, setMfaRequis] = useState(false);
+  useEffect(() => {
+    if (!supabase || !session) { setMfaRequis(false); return; }
+    // Double authentification : si un facteur est actif, il faut un niveau de confiance aal2 après le mot de passe.
+    supabase.auth.mfa.getAuthenticatorAssuranceLevel().then(({ data }) => {
+      setMfaRequis(Boolean(data && data.nextLevel === "aal2" && data.currentLevel !== "aal2"));
+    });
+  }, [session]);
   useEffect(() => {
     if (!supabase) return;
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
@@ -40,6 +49,7 @@ export default function App() {
   }, []);
   if (session === undefined) return null;
   if (recovery) return <NouveauMotDePasse onDone={() => setRecovery(false)} />;
+  if (session && mfaRequis) return <MfaChallenge onDone={() => setMfaRequis(false)} onCancel={() => supabase?.auth.signOut()} />;
   if (!session) return <Auth />;
   return supabase ? <Gate /> : <Shell limit={Infinity} />;
 }

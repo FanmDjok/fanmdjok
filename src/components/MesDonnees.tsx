@@ -2,6 +2,7 @@ import { useState } from "react";
 import { supabase } from "../lib/supabase";
 import { supprimerCompte, telechargerDonnees } from "../lib/billing";
 import { Btn, Card, PageTitle, inputCls } from "./ui";
+import { MfaReglages } from "./Mfa";
 
 /** Export de toutes les données et suppression du compte, accessibles depuis le compte. */
 export default function MesDonnees() {
@@ -26,6 +27,7 @@ export default function MesDonnees() {
   return (
     <div className="space-y-4">
       <PageTitle eyebrow="Mon compte" title="Mes données" sub="Vos données vous appartiennent : vous pouvez les télécharger ou supprimer votre compte." />
+      <MfaReglages />
       <Card className="space-y-3">
         <h2 className="font-semibold">Télécharger mes données</h2>
         <p className="text-sm text-muted">Un fichier JSON contient tout votre compte, vos biens, locataires, baux et mouvements. Un CSV liste vos mouvements pour un tableur.</p>
