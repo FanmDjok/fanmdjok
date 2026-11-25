@@ -1,6 +1,5 @@
-import type { Config } from "@netlify/functions";
-import type Stripe from "stripe";
-import { admin, env, json, planFromPriceId, stripe } from "./_lib";
+import Stripe from "stripe";
+import { admin, bindEnv, env, json, planFromPriceId, stripe, type Env } from "../../server/lib";
 
 const iso = (ts: number | null | undefined) => (ts ? new Date(ts * 1000).toISOString() : null);
 
@@ -38,9 +37,7 @@ async function syncSubscription(sub: Stripe.Subscription): Promise<void> {
   }
 }
 
-export default async (req: Request): Promise<Response> => {
-  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
-
+async function handle(req: Request): Promise<Response> {
   const signature = req.headers.get("stripe-signature");
   if (!signature) return json({ error: "signature_absente" }, 400);
 
@@ -48,7 +45,8 @@ export default async (req: Request): Promise<Response> => {
   const s = stripe();
   let event: Stripe.Event;
   try {
-    event = s.webhooks.constructEvent(raw, signature, env("STRIPE_WEBHOOK_SECRET"));
+    // Version asynchrone : indispensable dans un environnement Workers (WebCrypto).
+    event = await s.webhooks.constructEventAsync(raw, signature, env("STRIPE_WEBHOOK_SECRET"), undefined, Stripe.createSubtleCryptoProvider());
   } catch {
     return json({ error: "signature_invalide" }, 400);
   }
@@ -85,6 +83,9 @@ export default async (req: Request): Promise<Response> => {
   }
 
   return json({ received: true });
-};
+}
 
-export const config: Config = { path: "/api/stripe-webhook" };
+export async function onRequestPost(ctx: { request: Request; env: Env }): Promise<Response> {
+  bindEnv(ctx.env);
+  return handle(ctx.request);
+}

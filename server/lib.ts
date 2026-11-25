@@ -1,11 +1,16 @@
 import Stripe from "stripe";
 import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js";
-import plans from "../../shared/plans.json";
+import plans from "../shared/plans.json";
 
 export type PlanId = "essentiel" | "proprietaire" | "portefeuille";
 export type Interval = "month" | "year";
+export type Env = Record<string, string | undefined>;
 
 const PLAN_IDS = plans.plans.map((p) => p.id) as PlanId[];
+
+// Cloudflare Pages ne remplit pas process.env : chaque route transmet ses variables via bindEnv().
+let ENV: Env = {};
+export const bindEnv = (e: Env): void => { ENV = e; };
 
 export const json = (body: unknown, status = 200): Response =>
   new Response(JSON.stringify(body), {
@@ -14,24 +19,25 @@ export const json = (body: unknown, status = 200): Response =>
   });
 
 export const env = (key: string): string => {
-  const v = process.env[key];
+  const v = ENV[key];
   if (!v) throw new Error(`Variable d'environnement manquante : ${key}`);
   return v;
 };
 
-export const stripe = (): Stripe => new Stripe(env("STRIPE_SECRET_KEY"));
+export const stripe = (): Stripe =>
+  new Stripe(env("STRIPE_SECRET_KEY"), { httpClient: Stripe.createFetchHttpClient() });
 
 export const admin = (): SupabaseClient =>
   createClient(env("SUPABASE_URL"), env("SUPABASE_SERVICE_ROLE_KEY"), { auth: { persistSession: false } });
 
-export const siteUrl = (): string => (process.env.SITE_URL || process.env.URL || "").replace(/\/$/, "");
+export const siteUrl = (): string => (ENV.SITE_URL || "").replace(/\/$/, "");
 
 /** Liste blanche : l'identifiant de prix ne vient jamais du navigateur. */
 export function priceIdFor(plan: string, interval: string, currency = "EUR"): string | null {
   if (!PLAN_IDS.includes(plan as PlanId) || (interval !== "month" && interval !== "year")) return null;
   if (currency !== "EUR" && currency !== "XPF") return null;
   const key = `STRIPE_PRICE_${plan.toUpperCase()}_${interval === "month" ? "MONTHLY" : "YEARLY"}${currency === "XPF" ? "_XPF" : ""}`;
-  return process.env[key] || null;
+  return ENV[key] || null;
 }
 
 /** Retrouve la formule à partir d'un identifiant de prix Stripe. */

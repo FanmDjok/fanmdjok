@@ -75,7 +75,7 @@ if (cfg.contactEmail) {
   write(".well-known/security.txt", `Contact: mailto:${cfg.contactEmail}\nExpires: ${exp}\nPreferred-Languages: fr, en\nCanonical: ${abs("/.well-known/security.txt")}\n`);
 } else warnings.push("security.txt non généré (contactEmail vide)");
 
-// Réglages équivalents à netlify.toml, pour un dépôt par glisser-déposer du seul dossier dist/
+// Réglages de sécurité et de cache pour Cloudflare Pages (fichiers _headers et _redirects lus à la publication)
 write("_redirects", "/app/*  /app/index.html  200\n");
 write("_headers", `/*
   Content-Security-Policy: default-src 'self'; script-src 'self'; style-src-elem 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
@@ -90,6 +90,8 @@ write("_headers", `/*
   Cache-Control: public, max-age=31536000, immutable
 /site.*
   Cache-Control: public, max-age=31536000, immutable
+/api/*
+  Cache-Control: no-store
 `);
 
 console.log(`Site vitrine : ${pages.length + 1} pages, ${indexable.length} dans le sitemap.`);

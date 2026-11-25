@@ -48,7 +48,7 @@ export function confidentialite() {
 <ul>
 <li>Stripe Payments Europe, Ltd. — paiement et facturation.</li>
 <li>Supabase — base de données et authentification (région : ${val("dbRegion")}).</li>
-<li>Netlify, Inc. — hébergement du site (États-Unis).</li>
+<li>Cloudflare, Inc. — hébergement du site et des fonctions de paiement (États-Unis).</li>
 </ul>
 <p>Certains sous-traitants sont situés hors de l'Union européenne ; les transferts sont encadrés par les clauses contractuelles types ou le Data Privacy Framework.</p>
 <h2>Vos droits</h2>

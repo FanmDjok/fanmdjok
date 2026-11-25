@@ -1,9 +1,6 @@
-import type { Config } from "@netlify/functions";
-import { admin, json, requireUser, siteUrl, stripe } from "./_lib";
+import { admin, bindEnv, json, requireUser, siteUrl, stripe, type Env } from "../../server/lib";
 
-export default async (req: Request): Promise<Response> => {
-  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
-
+async function handle(req: Request): Promise<Response> {
   const user = await requireUser(req);
   if (!user) return json({ error: "non_authentifie" }, 401);
 
@@ -15,6 +12,9 @@ export default async (req: Request): Promise<Response> => {
     return_url: `${siteUrl()}/app/`,
   });
   return json({ url: session.url });
-};
+}
 
-export const config: Config = { path: "/api/customer-portal" };
+export async function onRequestPost(ctx: { request: Request; env: Env }): Promise<Response> {
+  bindEnv(ctx.env);
+  return handle(ctx.request);
+}

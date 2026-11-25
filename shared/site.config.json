@@ -1,6 +1,6 @@
 {
   "name": "KAZONLY",
-  "siteUrl": "https://kazonly.netlify.app",
+  "siteUrl": "https://kazonly.pages.dev",
   "locale": "fr-FR",
   "legalReviewed": false,
   "contactEmail": "",
@@ -10,6 +10,6 @@
   "publisherAddress": "",
   "tvaMention": "TVA non applicable, article 293 B du CGI",
   "mediator": "",
-  "hostingNote": "Netlify, Inc. (États-Unis) pour le site ; Supabase pour la base de données",
+  "hostingNote": "Cloudflare, Inc. (États-Unis) pour le site et les fonctions ; Supabase pour la base de données",
   "dbRegion": ""
 }
