@@ -1,5 +1,0 @@
-# Cloudflare Pages : site vitrine + application (dist/) et fonctions Stripe (functions/api/).
-# Réglages du projet Pages : commande de build « npm run build », dossier de sortie « dist ».
-name = "kazonly"
-pages_build_output_dir = "dist"
-compatibility_date = "2025-09-01"
