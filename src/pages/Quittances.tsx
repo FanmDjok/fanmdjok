@@ -26,7 +26,7 @@ export function quittanceLines(p: Property, pay: Payment, b: Bailleur, charges: 
   return lines;
 }
 
-const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
+const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
 function printHtml(lines: string[]) {
   const w = window.open("", "_blank");
   if (!w) return false;

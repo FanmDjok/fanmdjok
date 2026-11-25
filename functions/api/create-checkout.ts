@@ -1,12 +1,14 @@
-import { admin, bindEnv, json, priceIdFor, requireUser, siteUrl, stripe, type Env } from "../../server/lib";
+import { admin, bindEnv, json, priceIdFor, readBounded, requireUser, siteUrl, stripe, type Env } from "../../server/lib";
 import plans from "../../shared/plans.json";
 
 async function handle(req: Request): Promise<Response> {
   const user = await requireUser(req);
   if (!user || !user.email) return json({ error: "non_authentifie" }, 401);
 
+  const raw = await readBounded(req, 2048);
+  if (raw === null) return json({ error: "requete_trop_grande" }, 413);
   let body: { plan?: string; interval?: string; currency?: string };
-  try { body = await req.json(); } catch { return json({ error: "requete_invalide" }, 400); }
+  try { body = JSON.parse(raw); } catch { return json({ error: "requete_invalide" }, 400); }
 
   const price = priceIdFor(String(body.plan), String(body.interval), body.currency === "XPF" ? "XPF" : "EUR");
   if (!price) return json({ error: "formule_invalide" }, 400);

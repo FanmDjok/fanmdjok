@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { admin, bindEnv, env, json, planFromPriceId, statutLocal, stripe, type Env } from "../../server/lib";
+import { admin, bindEnv, env, json, planFromPriceId, readBounded, statutLocal, stripe, type Env } from "../../server/lib";
 
 const iso = (ts: number | null | undefined) => (ts ? new Date(ts * 1000).toISOString() : null);
 
@@ -37,7 +37,8 @@ async function handle(req: Request): Promise<Response> {
   const signature = req.headers.get("stripe-signature");
   if (!signature) return json({ error: "signature_absente" }, 400);
 
-  const raw = await req.text();
+  const raw = await readBounded(req, 1_000_000);
+  if (raw === null) return json({ error: "requete_trop_grande" }, 413);
   const s = stripe();
   let event: Stripe.Event;
   try {

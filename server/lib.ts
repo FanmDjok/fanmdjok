@@ -12,6 +12,14 @@ const PLAN_IDS = plans.plans.map((p) => p.id) as PlanId[];
 let ENV: Env = {};
 export const bindEnv = (e: Env): void => { ENV = e; };
 
+/** Lit le corps de la requête sans dépasser `max` caractères. Renvoie null si la limite est dépassée. */
+export async function readBounded(req: Request, max: number): Promise<string | null> {
+  const declared = Number(req.headers.get("content-length") ?? "0");
+  if (declared > max) return null;
+  const text = await req.text();
+  return text.length > max ? null : text;
+}
+
 export const json = (body: unknown, status = 200): Response =>
   new Response(JSON.stringify(body), {
     status,

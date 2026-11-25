@@ -26,20 +26,20 @@ export default function Auth() {
           data: { consent_cgv_at: new Date().toISOString() },
         },
       });
-      if (error) setMsg("Création impossible. Vérifiez l'adresse e-mail et choisissez un mot de passe d'au moins 8 caractères.");
+      if (error) setMsg("Création impossible. Vérifiez l'adresse e-mail et choisissez un mot de passe d'au moins 12 caractères.");
       else if (!data.session) setMsg("Compte créé. Consultez votre boîte mail pour confirmer votre adresse, puis revenez ici.");
     }
     setBusy(false);
   };
 
-  const ok = email && password.length >= 8 && (mode === "in" || consent);
+  const ok = email && password.length >= 12 && (mode === "in" || consent);
 
   return (
     <div className="mx-auto max-w-xl px-5 pt-12">
       <PageTitle eyebrow="KAZONLY" title={mode === "in" ? "Connexion" : "Créer mon compte"} sub="La gestion locative pensée pour les Outre-mer." />
       <Card className="space-y-4">
         <Field label="Adresse e-mail"><input className={inputCls} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" /></Field>
-        <Field label="Mot de passe" hint={mode === "up" ? "8 caractères minimum" : undefined}>
+        <Field label="Mot de passe" hint={mode === "up" ? "12 caractères minimum" : undefined}>
           <input className={inputCls} type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={mode === "in" ? "current-password" : "new-password"} />
         </Field>
         {mode === "up" && (
