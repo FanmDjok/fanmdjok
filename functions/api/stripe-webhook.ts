@@ -1,10 +1,10 @@
 import Stripe from "stripe";
-import { admin, bindEnv, env, json, planFromPriceId, stripe, type Env } from "../../server/lib";
+import { admin, bindEnv, env, json, planFromPriceId, statutLocal, stripe, type Env } from "../../server/lib";
 
 const iso = (ts: number | null | undefined) => (ts ? new Date(ts * 1000).toISOString() : null);
 
+/** Recopie l'état de l'abonnement Stripe dans la ligne de l'utilisateur. Idempotent : même état, même résultat. */
 async function syncSubscription(sub: Stripe.Subscription): Promise<void> {
-  const db = admin();
   const userId = sub.metadata?.user_id;
   if (!userId) return;
 
@@ -17,24 +17,20 @@ async function syncSubscription(sub: Stripe.Subscription): Promise<void> {
 
   const periodEnd = (sub as unknown as { current_period_end?: number }).current_period_end
     ?? (item as unknown as { current_period_end?: number } | undefined)?.current_period_end;
+  const deleted = sub.status === "canceled";
 
-  await db.from("subscriptions").upsert({
+  const { error } = await admin().from("subscriptions").upsert({
     user_id: userId,
-    stripe_subscription_id: sub.id,
+    plan_code: deleted ? "gratuit" : found.plan,
+    periodicite: found.interval === "month" ? "mensuel" : "annuel",
+    statut: statutLocal(sub.status),
     stripe_customer_id: typeof sub.customer === "string" ? sub.customer : sub.customer.id,
-    plan: found.plan,
-    billing_interval: found.interval,
-    status: sub.status,
-    trial_end: iso(sub.trial_end),
-    current_period_end: iso(periodEnd),
+    stripe_subscription_id: sub.id,
+    essai_fin: iso(sub.trial_end),
+    periode_fin: iso(periodEnd),
     cancel_at_period_end: sub.cancel_at_period_end,
-    updated_at: new Date().toISOString(),
-  });
-
-  // L'essai gratuit est consommé dès qu'un abonnement avec essai a existé.
-  if (sub.trial_end) {
-    await db.from("billing_customers").update({ trial_used: true }).eq("user_id", userId);
-  }
+  }, { onConflict: "user_id" });
+  if (error) throw new Error(error.message);
 }
 
 async function handle(req: Request): Promise<Response> {
@@ -49,13 +45,6 @@ async function handle(req: Request): Promise<Response> {
     event = await s.webhooks.constructEventAsync(raw, signature, env("STRIPE_WEBHOOK_SECRET"), undefined, Stripe.createSubtleCryptoProvider());
   } catch {
     return json({ error: "signature_invalide" }, 400);
-  }
-
-  const db = admin();
-  // Idempotence : un événement n'est traité qu'une fois.
-  const { error: dup } = await db.from("stripe_events").insert({ id: event.id, type: event.type });
-  if (dup) {
-    return json({ received: true, duplicate: true });
   }
 
   try {
@@ -76,8 +65,7 @@ async function handle(req: Request): Promise<Response> {
         break;
     }
   } catch (e) {
-    // On libère l'événement pour que Stripe puisse le rejouer.
-    await db.from("stripe_events").delete().eq("id", event.id);
+    // Stripe rejouera l'événement : on signale l'échec plutôt que de le perdre.
     console.error("Erreur webhook", event.type, e);
     return json({ error: "traitement_echoue" }, 500);
   }

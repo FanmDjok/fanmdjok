@@ -1,7 +1,7 @@
 import plans from "../../shared/plans.json";
 import { supabase } from "./supabase";
 
-export type PlanId = "essentiel" | "proprietaire" | "portefeuille";
+export type PlanId = "essentiel" | "proprietaire" | "investisseur";
 export type Interval = "month" | "year";
 
 export const PLANS = plans.plans;
@@ -42,12 +42,13 @@ export async function fetchSubscription(): Promise<Subscription | null> {
   if (!supabase) return null;
   const { data, error } = await supabase
     .from("subscriptions")
-    .select("plan,status,trial_end,current_period_end,cancel_at_period_end")
+    .select("plan_code,statut,essai_fin,periode_fin,cancel_at_period_end")
     .maybeSingle();
-  if (error || !data) return null;
+  // Formule Gratuite (ligne créée à l'inscription) : pas d'abonnement à gérer.
+  if (error || !data || data.plan_code === "gratuit") return null;
   return {
-    plan: data.plan, status: data.status, trialEnd: data.trial_end,
-    currentPeriodEnd: data.current_period_end, cancelAtPeriodEnd: data.cancel_at_period_end,
+    plan: data.plan_code as PlanId, status: data.statut, trialEnd: data.essai_fin,
+    currentPeriodEnd: data.periode_fin, cancelAtPeriodEnd: data.cancel_at_period_end,
   };
 }
 
@@ -83,4 +84,4 @@ export const errorMessage = (code?: string): string => {
 
 /** Profondeur des analyses : 1 Essentiel, 2 Propriétaire, 3 Portefeuille (3 hors ligne). */
 export const analysisLevel = (sub?: Subscription | null): 1 | 2 | 3 =>
-  !sub ? 3 : sub.plan === "portefeuille" ? 3 : sub.plan === "proprietaire" ? 2 : 1;
+  !sub ? 3 : sub.plan === "investisseur" ? 3 : sub.plan === "proprietaire" ? 2 : 1;

@@ -4,7 +4,7 @@ async function handle(req: Request): Promise<Response> {
   const user = await requireUser(req);
   if (!user) return json({ error: "non_authentifie" }, 401);
 
-  const { data } = await admin().from("billing_customers").select("stripe_customer_id").eq("user_id", user.id).maybeSingle();
+  const { data } = await admin().from("subscriptions").select("stripe_customer_id").eq("user_id", user.id).maybeSingle();
   if (!data?.stripe_customer_id) return json({ error: "aucun_abonnement" }, 404);
 
   const session = await stripe().billingPortal.sessions.create({

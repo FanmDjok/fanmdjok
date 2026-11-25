@@ -112,7 +112,7 @@ function Shell({ limit, sub, free, onPlans }: { limit: number; sub?: Subscriptio
           <Biens properties={properties} limit={limit} onUpgrade={manage}
             onSave={async (p) => {
               try { await repo.saveProperty(p); await load(); }
-              catch (e) { setNotice(String((e as Error).message).includes("limite_plan_atteinte") ? "Vous avez atteint la limite de biens de votre formule." : "Enregistrement impossible, réessayez."); }
+              catch (e) { setNotice(String((e as Error).message).includes("LIMITE_BIENS") ? "Vous avez atteint la limite de biens de votre formule." : "Enregistrement impossible, réessayez."); }
             }} />
         )}
         {tab.startsWith("paiements") && <Paiements key={tab} initialSub={tab.split(":")[1]} properties={properties} payments={payments} onSave={async (p) => { await repo.savePayment(p); await load(); }} />}

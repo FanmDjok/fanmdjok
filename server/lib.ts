@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js";
 import plans from "../shared/plans.json";
 
-export type PlanId = "essentiel" | "proprietaire" | "portefeuille";
+export type PlanId = "essentiel" | "proprietaire" | "investisseur";
 export type Interval = "month" | "year";
 export type Env = Record<string, string | undefined>;
 
@@ -36,8 +36,14 @@ export const siteUrl = (): string => (ENV.SITE_URL || "").replace(/\/$/, "");
 export function priceIdFor(plan: string, interval: string, currency = "EUR"): string | null {
   if (!PLAN_IDS.includes(plan as PlanId) || (interval !== "month" && interval !== "year")) return null;
   if (currency !== "EUR" && currency !== "XPF") return null;
-  const key = `STRIPE_PRICE_${plan.toUpperCase()}_${interval === "month" ? "MONTHLY" : "YEARLY"}${currency === "XPF" ? "_XPF" : ""}`;
-  return ENV[key] || null;
+  const suffix = `${interval === "month" ? "MONTHLY" : "YEARLY"}${currency === "XPF" ? "_XPF" : ""}`;
+  // L'ancien nom PORTEFEUILLE reste accepté pour la formule Investisseur (variables Stripe déjà créées).
+  const names = plan === "investisseur" ? ["INVESTISSEUR", "PORTEFEUILLE"] : [plan.toUpperCase()];
+  for (const name of names) {
+    const v = ENV[`STRIPE_PRICE_${name}_${suffix}`];
+    if (v) return v;
+  }
+  return null;
 }
 
 /** Retrouve la formule à partir d'un identifiant de prix Stripe. */
@@ -60,3 +66,17 @@ export async function requireUser(req: Request): Promise<User | null> {
 }
 
 export const ACTIVE_STATUSES = ["trialing", "active", "past_due"];
+
+/** Traduit le statut Stripe vers les statuts acceptés par la table subscriptions. */
+export function statutLocal(statut: string): "trialing" | "active" | "past_due" | "canceled" | "incomplete" {
+  switch (statut) {
+    case "trialing": return "trialing";
+    case "active": return "active";
+    case "past_due":
+    case "unpaid": return "past_due";
+    case "canceled":
+    case "incomplete_expired":
+    case "paused": return "canceled";
+    default: return "incomplete";
+  }
+}

@@ -14,22 +14,27 @@ async function handle(req: Request): Promise<Response> {
   const db = admin();
   const s = stripe();
 
-  // Un abonnement déjà actif ? On renvoie vers le portail plutôt que d'en créer un second.
-  const { data: existing } = await db.from("subscriptions").select("status").eq("user_id", user.id).maybeSingle();
-  if (existing && ["trialing", "active", "past_due"].includes(existing.status)) {
+  // Une ligne par utilisateur (créée à l'inscription, formule Gratuite par défaut).
+  const { data: sub } = await db
+    .from("subscriptions")
+    .select("plan_code, statut, essai_fin, stripe_customer_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  // Un abonnement payant déjà actif ? On renvoie vers le portail plutôt que d'en créer un second.
+  if (sub && sub.plan_code !== "gratuit" && ["trialing", "active", "past_due"].includes(sub.statut)) {
     return json({ error: "abonnement_existant" }, 409);
   }
 
-  // Client Stripe unique par utilisateur
-  const { data: bc } = await db.from("billing_customers").select("stripe_customer_id, trial_used").eq("user_id", user.id).maybeSingle();
-  let customerId = bc?.stripe_customer_id as string | undefined;
-  const trialUsed = Boolean(bc?.trial_used);
+  let customerId = sub?.stripe_customer_id as string | null | undefined;
   if (!customerId) {
     const customer = await s.customers.create({ email: user.email, metadata: { user_id: user.id } });
     customerId = customer.id;
-    await db.from("billing_customers").insert({ user_id: user.id, stripe_customer_id: customerId });
+    await db.from("subscriptions").upsert({ user_id: user.id, stripe_customer_id: customerId }, { onConflict: "user_id" });
   }
 
+  // Un seul essai par utilisateur : on le considère consommé dès qu'un essai a commencé.
+  const trialUsed = Boolean(sub?.essai_fin);
   const base = siteUrl();
   const session = await s.checkout.sessions.create({
     mode: "subscription",
@@ -42,7 +47,6 @@ async function handle(req: Request): Promise<Response> {
     metadata: { user_id: user.id },
     subscription_data: {
       metadata: { user_id: user.id },
-      // Un seul essai par utilisateur
       ...(trialUsed ? {} : {
         trial_period_days: plans.trialDays,
         trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
