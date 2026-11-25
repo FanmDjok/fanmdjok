@@ -1,0 +1,426 @@
+{
+  "guadeloupe": {
+    "tagline": "L'île papillon, un patrimoine qui se transmet.",
+    "intro": [
+      "La Guadeloupe est un archipel des Petites Antilles aux deux visages : Basse-Terre, verte et volcanique, dominée par la Soufrière, et Grande-Terre, tournée vers ses plages et ses falaises. Marie-Galante, les Saintes et la Désirade complètent un archipel de caractère.",
+      "Pointe-à-Pitre en est le grand pôle économique, Basse-Terre le chef-lieu. Ici, la culture est vivante : créole, cuisine, carnaval et gwoka, tambour inscrit au patrimoine culturel immatériel de l'UNESCO."
+    ],
+    "atouts": [
+      "Un archipel, plusieurs ambiances : Basse-Terre, Grande-Terre, Marie-Galante, les Saintes",
+      "Un parc national et son volcan, la Soufrière",
+      "Pointe-à-Pitre, pôle économique et touristique des Antilles françaises",
+      "Une culture créole fière, du gwoka au carnaval"
+    ],
+    "louer": "Location nue pour loger les familles, location meublée pour les actifs en mobilité, meublé de tourisme et location saisonnière sur le littoral : la Guadeloupe offre de vrais leviers d'investissement locatif pour un propriétaire bailleur.",
+    "histoire": [
+      "Bien avant les navires européens, les Kalinagos appelaient l'île Karukera, « l'île aux belles eaux ». La France s'y installe au XVIIe siècle, la canne à sucre façonne la société, et l'abolition de l'esclavage, en 1848, reste un jalon de mémoire que la Guadeloupe porte avec dignité. Elle devient département et région d'Outre-mer en 1946.",
+      "Notre culture se raconte au rythme du gwoka, du carnaval et de ses vidés, de la cuisine aux accents de colombo et d'accras. À Pointe-à-Pitre, le Mémorial ACTe rappelle d'où nous venons et ce que nous avons bâti."
+    ],
+    "lieux": [
+      [
+        "Pointe-à-Pitre",
+        "Le port, le Mémorial ACTe, l'activité économique et les marchés."
+      ],
+      [
+        "Basse-Terre",
+        "Le chef-lieu, au pied de la Soufrière."
+      ],
+      [
+        "Les Abymes et Baie-Mahault",
+        "Zones d'emploi et de services, très demandées pour se loger."
+      ],
+      [
+        "Sainte-Anne et Saint-François",
+        "Le littoral de Grande-Terre, ses plages et son tourisme."
+      ],
+      [
+        "Les Saintes et Marie-Galante",
+        "Des îles de caractère, prisées pour les séjours."
+      ]
+    ]
+  },
+  "martinique": {
+    "tagline": "L'île aux fleurs, terre de Césaire et de Glissant.",
+    "intro": [
+      "La Martinique allie la Montagne Pelée, les pitons du Carbet, la mangrove et de longues plages aux eaux calmes. Fort-de-France en est la capitale, Saint-Pierre, ancien « Petit Paris des Antilles », en garde la mémoire.",
+      "Terre de grands esprits, d'Aimé Césaire à Édouard Glissant, elle est aussi celle du rhum agricole, appellation d'origine contrôlée, et d'un art de vivre créole reconnu bien au-delà des Antilles."
+    ],
+    "atouts": [
+      "Fort-de-France, Le Lamentin et Schœlcher : le cœur économique de l'île",
+      "La Montagne Pelée, ses sentiers et ses paysages",
+      "Saint-Pierre et son histoire, Les Trois-Îlets et ses plages",
+      "Un patrimoine littéraire et culinaire dont chacun est fier"
+    ],
+    "louer": "Que vous louiez en location nue, en location meublée ou en meublé de tourisme, la Martinique attire locataires actifs, étudiants et visiteurs. Un bon suivi des loyers et de la rentabilité locative protège votre patrimoine.",
+    "histoire": [
+      "Les Kalinagos nommaient l'île Madinina, « l'île aux fleurs ». Française depuis le XVIIe siècle, la Martinique a vu l'éruption de la Montagne Pelée détruire Saint-Pierre le 8 mai 1902, puis renaître. Elle devient département d'Outre-mer en 1946, avec Aimé Césaire, député-maire de Fort-de-France, parmi ses grandes voix.",
+      "Notre culture est celle du bèlè et du carnaval, des vidés et du rhum agricole, de la cuisine créole servie en famille. La Martinique a donné à la pensée du monde la négritude de Césaire et la poétique de la Relation de Glissant."
+    ],
+    "lieux": [
+      [
+        "Fort-de-France",
+        "La capitale : la Savane, la bibliothèque Schœlcher, le front de mer."
+      ],
+      [
+        "Le Lamentin",
+        "L'aéroport, les zones commerciales et un bassin d'emplois majeur."
+      ],
+      [
+        "Schœlcher",
+        "La ville du campus, appréciée des étudiants et des actifs."
+      ],
+      [
+        "Les Trois-Îlets",
+        "La marina, la Pagerie et un art de vivre balnéaire."
+      ],
+      [
+        "Le Diamant et Sainte-Anne",
+        "Le Rocher du Diamant, les Salines et le sud de l'île."
+      ]
+    ]
+  },
+  "guyane": {
+    "tagline": "La grande Amazonie française, une terre d'avenir.",
+    "intro": [
+      "La Guyane est le plus vaste territoire de France, couvert en grande partie par la forêt amazonienne. Cayenne en est le chef-lieu, Saint-Laurent-du-Maroni et Kourou structurent un territoire jeune, en plein mouvement.",
+      "À Kourou, le Centre spatial guyanais fait de la Guyane la porte de l'Europe vers l'espace. Les cultures créole, amérindienne, bushinengé, hmong et bien d'autres s'y rencontrent."
+    ],
+    "atouts": [
+      "Le Centre spatial guyanais de Kourou, fierté européenne",
+      "Une forêt amazonienne parmi les plus riches au monde",
+      "Cayenne, Kourou, Saint-Laurent-du-Maroni : des bassins de vie dynamiques",
+      "Une mosaïque de cultures unique en France"
+    ],
+    "louer": "Cadres, techniciens, familles et nouveaux arrivants cherchent un logement. Pour un propriétaire bailleur, la Guyane demande un suivi rigoureux des loyers, des charges et de la rentabilité de chaque bien.",
+    "histoire": [
+      "Bien avant l'arrivée des Européens, des peuples amérindiens (Kali'na, Wayana, Teko, Lokono et d'autres) vivaient sur ces terres, et beaucoup y vivent encore. Cayenne devient française au XVIIe siècle, et le territoire garde la mémoire du bagne autant que celle de la forêt.",
+      "Depuis les années 1960, Kourou accueille le Centre spatial guyanais. La Guyane est aussi un carrefour de cultures : créole, amérindienne, bushinengé, hmong (arrivés à partir de 1977) et bien d'autres, qui se retrouvent aux marchés, dans la musique et à table."
+    ],
+    "lieux": [
+      [
+        "Cayenne",
+        "Le chef-lieu : la place des Palmistes, le marché, le port."
+      ],
+      [
+        "Kourou",
+        "Le Centre spatial guyanais et les îles du Salut, au large."
+      ],
+      [
+        "Saint-Laurent-du-Maroni",
+        "La grande ville de l'Ouest, au bord du fleuve Maroni."
+      ],
+      [
+        "Rémire-Montjoly et Matoury",
+        "Les communes proches de Cayenne, l'aéroport et les plages."
+      ]
+    ]
+  },
+  "reunion": {
+    "tagline": "L'île intense, un volcan, trois cirques, mille cultures.",
+    "intro": [
+      "La Réunion se découvre d'un seul regard : le Piton de la Fournaise, l'un des volcans les plus actifs du monde, les cirques de Mafate, Cilaos et Salazie, et un lagon bordé de plages. Les Pitons, cirques et remparts sont inscrits au patrimoine mondial de l'UNESCO.",
+      "Saint-Denis est le chef-lieu d'une île où se mêlent héritages africains, indiens, chinois, malgaches et européens. Le maloya, musique de l'île, est lui aussi inscrit au patrimoine culturel immatériel de l'UNESCO."
+    ],
+    "atouts": [
+      "Pitons, cirques et remparts classés à l'UNESCO",
+      "Le Piton de la Fournaise, volcan emblématique",
+      "Saint-Denis, Saint-Pierre, Saint-Paul : trois grands pôles de vie",
+      "Un créole réunionnais et une cuisine reconnus"
+    ],
+    "louer": "Avec une demande locative forte dans les villes du littoral, l'investissement locatif à La Réunion s'appuie sur la location nue, la location meublée et le meublé de tourisme. KAZONLY vous aide à suivre vos loyers et vos dépenses bien par bien.",
+    "histoire": [
+      "Inhabitée avant l'arrivée des Européens, l'île devient française au XVIIe siècle, sous le nom d'île Bourbon. Elle se peuple de personnes venues d'Europe, d'Afrique, de Madagascar, d'Inde et de Chine. Le 20 décembre 1848, l'abolition de l'esclavage y est proclamée, une date que La Réunion célèbre encore avec la Fèt Kaf. Elle devient département en 1946.",
+      "C'est de ce brassage que naît notre culture : le maloya, musique inscrite au patrimoine de l'UNESCO, le créole réunionnais, les carris et les rougails, des fêtes qui mêlent tous les héritages."
+    ],
+    "lieux": [
+      [
+        "Saint-Denis",
+        "Le chef-lieu, le Barachois et la vie administrative."
+      ],
+      [
+        "Saint-Pierre",
+        "Le grand pôle du Sud, entre front de mer et marché."
+      ],
+      [
+        "Saint-Paul et Saint-Gilles-les-Bains",
+        "Le littoral de l'Ouest, ses plages et son tourisme."
+      ],
+      [
+        "Saint-Leu et Le Port",
+        "Le balnéaire et l'activité portuaire."
+      ],
+      [
+        "Cilaos, Salazie et Mafate",
+        "Les cirques, pour les séjours nature."
+      ]
+    ]
+  },
+  "mayotte": {
+    "tagline": "L'île au lagon, jeune, vivante et fière de ses racines.",
+    "intro": [
+      "Mayotte est un archipel de l'océan Indien bordé de l'un des plus vastes lagons du monde. Grande-Terre et Petite-Terre, Mamoudzou et Dzaoudzi : l'île cultive un équilibre rare entre mer, collines et traditions.",
+      "Département français depuis 2011, Mayotte affirme sa place avec une population très jeune, une culture shimaoré et shibushi vivante, et le maki, lémurien devenu symbole de l'île."
+    ],
+    "atouts": [
+      "Un lagon exceptionnel, refuge d'une biodiversité marine riche",
+      "Mamoudzou, Dzaoudzi et Petite-Terre : l'histoire et le mouvement",
+      "Un territoire jeune, tourné vers l'avenir",
+      "Des traditions vivantes, du chant à la cuisine"
+    ],
+    "louer": "Les besoins en logement sont réels et variés. Pour louer à Mayotte, un suivi clair des loyers, des échéances et des charges fait toute la différence pour un propriétaire bailleur.",
+    "histoire": [
+      "Mayotte s'est peuplée de traversées venues d'Afrique, de Madagascar et d'Arabie, et a connu des sultanats avant de passer sous administration française en 1841. En 2009, les Mahorais choisissent par consultation de devenir un département, ce qui est fait en 2011 : Mayotte est le 101e département français.",
+      "Notre culture parle shimaoré et shibushi. Elle se voit dans la salouva, vêtement traditionnel, dans les fêtes de village, les chants et les danses. Le maki, lémurien de l'île, en est devenu l'emblème."
+    ],
+    "lieux": [
+      [
+        "Mamoudzou",
+        "Le chef-lieu et le principal centre d'activité."
+      ],
+      [
+        "Dzaoudzi et Petite-Terre",
+        "L'ancienne capitale, le rocher et les plages."
+      ],
+      [
+        "Pamandzi",
+        "L'aéroport, sur Petite-Terre."
+      ],
+      [
+        "La passe en S",
+        "Un site de plongée réputé, au cœur du lagon."
+      ]
+    ]
+  },
+  "saint-martin": {
+    "tagline": "L'île amie, deux cultures sur une seule terre.",
+    "intro": [
+      "Saint-Martin est une île des Antilles partagée entre la France et les Pays-Bas, côté Sint Maarten. Marigot en est le chef-lieu, Grand-Case y cultive une réputation gastronomique, Orient Bay ses plages.",
+      "Collectivité d'Outre-mer depuis 2007, Saint-Martin se reconnaît dans son surnom d'« île amie » : ouverte, cosmopolite et tournée vers le monde."
+    ],
+    "atouts": [
+      "Marigot, Grand-Case, Orient Bay : trois ambiances",
+      "Une île partagée, ouverte sur le monde",
+      "Une gastronomie reconnue des voyageurs",
+      "Un territoire tourné vers l'accueil et le tourisme"
+    ],
+    "louer": "Portée par le tourisme, Saint-Martin offre un terrain naturel à la location meublée, au meublé de tourisme et à la location saisonnière, à côté de la location longue durée.",
+    "histoire": [
+      "Selon la tradition, Christophe Colomb aperçoit l'île en 1493, le jour de la Saint-Martin. Au XVIIe siècle, Français et Néerlandais la partagent par le traité de Concordia, en 1648, et vivent depuis côte à côte sur une île sans barrière. Saint-Martin est une collectivité d'Outre-mer depuis 2007.",
+      "Notre culture est créole et résolument cosmopolite : on y parle français, anglais, créole et espagnol, et la cuisine de Grand-Case, des lolos aux belles tables, lui vaut sa réputation."
+    ],
+    "lieux": [
+      [
+        "Marigot",
+        "Le chef-lieu : marché, front de mer, commerces."
+      ],
+      [
+        "Grand-Case",
+        "Une longue rue de restaurants et une plage tranquille."
+      ],
+      [
+        "Orient Bay",
+        "La plage la plus animée de la partie française."
+      ],
+      [
+        "Anse Marcel",
+        "Une baie abritée, sa marina et ses hôtels."
+      ],
+      [
+        "Quartier-d'Orléans",
+        "Un village de tradition, au charme discret."
+      ]
+    ]
+  },
+  "saint-barthelemy": {
+    "tagline": "Le raffinement des Antilles, un joyau à taille humaine.",
+    "intro": [
+      "Saint-Barthélemy, souvent appelée Saint-Barth, est une petite île de caractère. Gustavia, son chef-lieu, un port élégant au fond d'une baie, donne le ton : calme, soin du détail et art de vivre.",
+      "Collectivité d'Outre-mer depuis 2007, l'île est reconnue pour ses plages, dont Saint-Jean et Colombier, et pour un accueil haut de gamme qui attire une clientèle du monde entier."
+    ],
+    "atouts": [
+      "Gustavia, un port et un art de vivre",
+      "Des plages réputées, de Saint-Jean à Colombier",
+      "Un tourisme de qualité, ouvert à l'international",
+      "Une île à taille humaine, attachée à ses traditions"
+    ],
+    "louer": "Dans un marché où le meublé de tourisme et la location saisonnière occupent une grande place, la précision du suivi des loyers, des nuitées et des charges compte pour chaque bien.",
+    "histoire": [
+      "En 1493, Christophe Colomb lui donne le prénom de son frère, Bartolomeo. L'île est colonisée par la France au XVIIe siècle, cédée à la Suède en 1784 et rendue à la France en 1878. Gustavia garde le nom du roi Gustave III. Saint-Barthélemy est collectivité d'Outre-mer depuis 2007.",
+      "Ses premiers habitants viennent de Normandie et de Bretagne : l'île en garde des traditions et un attachement discret à son histoire."
+    ],
+    "lieux": [
+      [
+        "Gustavia",
+        "Le port, les boutiques et l'ancienne capitale suédoise."
+      ],
+      [
+        "Saint-Jean",
+        "Une plage animée, au-dessus de l'aéroport."
+      ],
+      [
+        "Colombier",
+        "Une anse sauvage, accessible à pied ou en bateau."
+      ],
+      [
+        "Gouverneur et Shell Beach",
+        "Des plages calmes, proches de Gustavia."
+      ],
+      [
+        "Lorient",
+        "Un village de pêcheurs, sur la côte nord."
+      ]
+    ]
+  },
+  "spm": {
+    "tagline": "La France d'Amérique du Nord, l'archipel du grand large.",
+    "intro": [
+      "Saint-Pierre-et-Miquelon est le seul territoire français d'Amérique du Nord. Cet archipel, au large de Terre-Neuve, réunit Saint-Pierre, son chef-lieu aux maisons colorées, ainsi que Miquelon et Langlade.",
+      "Son identité se construit autour de la mer, de la pêche et d'un climat océanique frais : un patrimoine maritime que ses habitants portent avec fierté."
+    ],
+    "atouts": [
+      "Le seul territoire français d'Amérique du Nord",
+      "Saint-Pierre et ses maisons colorées",
+      "Miquelon et Langlade, grands espaces et nature",
+      "Un patrimoine maritime et une communauté soudée"
+    ],
+    "louer": "Un petit marché, des logements à bien suivre : pour un propriétaire bailleur à Saint-Pierre-et-Miquelon, savoir précisément ce qui est encaissé et dépensé chaque mois est essentiel.",
+    "histoire": [
+      "Jacques Cartier visite l'archipel en 1536. Pêche à la morue et savoir-faire des marins façonnent l'identité de Saint-Pierre-et-Miquelon, dont la présence française s'inscrit durablement depuis 1763. Pendant la Prohibition, de 1920 à 1933, l'archipel devient un point de passage fameux. Il est aujourd'hui collectivité d'Outre-mer.",
+      "L'héritage des familles venues de Bretagne, de Normandie et du Pays basque s'y entend et s'y goûte, dans les chants, les fêtes de la mer et la cuisine."
+    ],
+    "lieux": [
+      [
+        "Saint-Pierre",
+        "Le chef-lieu, le port et ses maisons colorées."
+      ],
+      [
+        "L'Île-aux-Marins",
+        "Un village-musée, qui raconte la vie des pêcheurs."
+      ],
+      [
+        "Miquelon",
+        "Un village isolé, entre mer et grands espaces."
+      ],
+      [
+        "Langlade",
+        "La dune et ses plages, pour la nature en famille."
+      ]
+    ]
+  },
+  "nouvelle-caledonie": {
+    "tagline": "Le Caillou, des lagons classés et une culture kanak millénaire.",
+    "intro": [
+      "La Nouvelle-Calédonie est un archipel du Pacifique Sud dont la Grande Terre est bordée de lagons inscrits au patrimoine mondial de l'UNESCO. Nouméa en est le chef-lieu, tandis que les îles Loyauté et l'île des Pins offrent leurs eaux turquoise.",
+      "Terre de culture kanak, riche d'une biodiversité qu'on ne trouve nulle part ailleurs, elle se distingue par un mode de vie du Pacifique, tourné vers la mer et vers le monde."
+    ],
+    "atouts": [
+      "Des lagons inscrits à l'UNESCO",
+      "Nouméa, une capitale du Pacifique Sud",
+      "Les îles Loyauté et l'île des Pins",
+      "Une culture kanak vivante, une nature unique"
+    ],
+    "louer": "Ici, la devise est le franc Pacifique : KAZONLY suit vos loyers, vos dépenses et votre rentabilité locative directement en XPF, sans conversion ni mélange avec les euros.",
+    "histoire": [
+      "Le peuple kanak vit en Nouvelle-Calédonie depuis des millénaires. James Cook nomme l'île en 1774, la France en prend possession en 1853, et l'archipel suit depuis des accords successifs un statut institutionnel qui lui est propre, notamment l'accord de Nouméa de 1998.",
+      "La coutume, les cases, les danses du pilou, l'igname et le bougna sont au cœur de notre culture. Aux côtés de la richesse kanak vivent aussi des communautés venues d'Europe, d'Océanie et d'Asie."
+    ],
+    "lieux": [
+      [
+        "Nouméa",
+        "La capitale : baie des Citrons, Anse Vata, centre culturel Tjibaou."
+      ],
+      [
+        "Dumbéa, Païta et Le Mont-Dore",
+        "Le Grand Nouméa, en plein développement."
+      ],
+      [
+        "Koné et Pouembout",
+        "Le pôle de la province Nord."
+      ],
+      [
+        "L'île des Pins",
+        "Le « joyau du Pacifique », prisée pour les séjours."
+      ],
+      [
+        "Lifou et Ouvéa",
+        "Les îles Loyauté, pour leurs falaises et leurs lagons."
+      ]
+    ]
+  },
+  "polynesie": {
+    "tagline": "Cinq archipels, un horizon, l'héritage des grands navigateurs.",
+    "intro": [
+      "La Polynésie française s'étend sur cinq archipels : la Société avec Tahiti, Moorea et Bora-Bora, les Tuamotu, les Marquises, les Australes et les Gambier. Papeete, sur l'île de Tahiti, en est le chef-lieu.",
+      "Héritière des grands navigateurs du Pacifique, la Polynésie porte une culture vivante : danse, chant, tatouage et art de la mer, devenus des repères reconnus dans le monde entier."
+    ],
+    "atouts": [
+      "Tahiti, Moorea, Bora-Bora : des noms qui font rêver",
+      "Cinq archipels aux paysages très différents",
+      "Papeete, cœur économique et administratif",
+      "Une culture polynésienne fière et rayonnante"
+    ],
+    "louer": "Entre location longue durée, location meublée et meublé de tourisme, les propriétaires bailleurs polynésiens gèrent en francs Pacifique. KAZONLY garde chaque montant en XPF, sans conversion.",
+    "histoire": [
+      "Il y a plus de mille ans, de grands navigateurs polynésiens ont traversé l'océan pour s'installer sur ces îles. L'arrivée des Européens à Tahiti date de 1767, et la France établit un protectorat en 1842. La Polynésie française dispose aujourd'hui d'un statut d'autonomie.",
+      "La culture polynésienne s'exprime dans le ori Tahiti, la danse, dans le Heiva, grande fête annuelle, et dans le tatau, dont le nom a donné « tatouage » en français."
+    ],
+    "lieux": [
+      [
+        "Papeete",
+        "La capitale : marché, front de mer, vie administrative."
+      ],
+      [
+        "Faa'a et Punaauia",
+        "L'aéroport et la côte ouest de Tahiti."
+      ],
+      [
+        "Pirae et Arue",
+        "Des communes résidentielles près de Papeete."
+      ],
+      [
+        "Moorea",
+        "L'île sœur, à quelques minutes en bateau."
+      ],
+      [
+        "Bora-Bora et les Marquises",
+        "Deux archipels et deux visages de la Polynésie."
+      ]
+    ]
+  },
+  "wallis-futuna": {
+    "tagline": "Trois royaumes coutumiers, une tradition qui continue.",
+    "intro": [
+      "Wallis-et-Futuna, dans le Pacifique Sud, réunit les îles Wallis (Uvea) et Futuna, avec Alofi. Mata-Utu en est le chef-lieu. Le territoire compte trois royaumes coutumiers : Uvea, Sigave et Alo.",
+      "La coutume y structure la vie quotidienne et se transmet de génération en génération. Lagon, lacs de cratère et villages rythmés par la tradition forment un territoire à part dans la République."
+    ],
+    "atouts": [
+      "Trois royaumes coutumiers : Uvea, Sigave et Alo",
+      "Mata-Utu, chef-lieu de Wallis",
+      "Un lagon et des lacs de cratère remarquables",
+      "Une coutume vivante, transmise avec fierté"
+    ],
+    "louer": "En francs Pacifique, KAZONLY vous permet de suivre les loyers, les dépenses et les échéances de vos biens à Wallis-et-Futuna, avec un indicatif +681 et un code postal 986xx déjà adaptés.",
+    "histoire": [
+      "Les îles ont été peuplées par des navigateurs polynésiens, longtemps liés à Tonga. La France y établit un protectorat en 1887, puis un statut de territoire d'Outre-mer en 1961. Wallis-et-Futuna est collectivité d'Outre-mer depuis 2003, avec ses trois royaumes coutumiers : Uvea, Sigave et Alo.",
+      "La coutume rythme la vie : le kava, le tapa et les danses comme le kailao se transmettent de génération en génération, dans les villages comme dans les grandes fêtes."
+    ],
+    "lieux": [
+      [
+        "Mata-Utu",
+        "Le chef-lieu, sur l'île de Wallis."
+      ],
+      [
+        "Le lac Lalolalo",
+        "Un lac de cratère remarquable, sur Wallis."
+      ],
+      [
+        "Leava",
+        "Le chef-lieu du royaume de Sigave, sur Futuna."
+      ],
+      [
+        "Alofi",
+        "L'île voisine de Futuna, préservée et peu habitée."
+      ]
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "KAZONLY",
+  "siteUrl": "https://kazonly.netlify.app",
+  "locale": "fr-FR",
+  "legalReviewed": false,
+  "contactEmail": "",
+  "publisherName": "",
+  "publisherStatus": "Entrepreneur individuel (micro-entreprise)",
+  "siret": "",
+  "publisherAddress": "",
+  "tvaMention": "TVA non applicable, article 293 B du CGI",
+  "mediator": "",
+  "hostingNote": "Netlify, Inc. (États-Unis) pour le site ; Supabase pour la base de données",
+  "dbRegion": ""
+}

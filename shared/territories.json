@@ -1,0 +1,13 @@
+[
+  { "id": "guadeloupe", "label": "Guadeloupe", "slug": "gestion-locative-guadeloupe", "currency": "EUR", "phone": "+590", "postal": "971", "kind": "drom", "chefLieu": "Basse-Terre", "hub": "Pointe-à-Pitre", "article": "en" },
+  { "id": "martinique", "label": "Martinique", "slug": "gestion-locative-martinique", "currency": "EUR", "phone": "+596", "postal": "972", "kind": "drom", "chefLieu": "Fort-de-France", "hub": "Fort-de-France", "article": "en" },
+  { "id": "guyane", "label": "Guyane", "slug": "gestion-locative-guyane", "currency": "EUR", "phone": "+594", "postal": "973", "kind": "drom", "chefLieu": "Cayenne", "hub": "Cayenne", "article": "en" },
+  { "id": "reunion", "label": "La Réunion", "slug": "gestion-locative-reunion", "currency": "EUR", "phone": "+262", "postal": "974", "kind": "drom", "chefLieu": "Saint-Denis", "hub": "Saint-Denis", "article": "à" },
+  { "id": "mayotte", "label": "Mayotte", "slug": "gestion-locative-mayotte", "currency": "EUR", "phone": "+262", "postal": "976", "kind": "drom", "chefLieu": "Mamoudzou", "hub": "Mamoudzou", "article": "à" },
+  { "id": "saint-martin", "label": "Saint-Martin", "slug": "gestion-locative-saint-martin", "currency": "EUR", "phone": "+590", "postal": "97150", "kind": "com", "chefLieu": "Marigot", "hub": "Marigot", "article": "à" },
+  { "id": "saint-barthelemy", "label": "Saint-Barthélemy", "slug": "gestion-locative-saint-barthelemy", "currency": "EUR", "phone": "+590", "postal": "97133", "kind": "com", "chefLieu": "Gustavia", "hub": "Gustavia", "article": "à" },
+  { "id": "spm", "label": "Saint-Pierre-et-Miquelon", "slug": "gestion-locative-saint-pierre-et-miquelon", "currency": "EUR", "phone": "+508", "postal": "975", "kind": "com", "chefLieu": "Saint-Pierre", "hub": "Saint-Pierre", "article": "à" },
+  { "id": "nouvelle-caledonie", "label": "Nouvelle-Calédonie", "slug": "gestion-locative-nouvelle-caledonie", "currency": "XPF", "phone": "+687", "postal": "988", "kind": "com", "chefLieu": "Nouméa", "hub": "Nouméa", "article": "en" },
+  { "id": "polynesie", "label": "Polynésie française", "slug": "gestion-locative-polynesie-francaise", "currency": "XPF", "phone": "+689", "postal": "987", "kind": "com", "chefLieu": "Papeete", "hub": "Papeete", "article": "en" },
+  { "id": "wallis-futuna", "label": "Wallis-et-Futuna", "slug": "gestion-locative-wallis-et-futuna", "currency": "XPF", "phone": "+681", "postal": "986", "kind": "wallis", "chefLieu": "Mata-Utu", "hub": "Mata-Utu", "article": "à" }
+]

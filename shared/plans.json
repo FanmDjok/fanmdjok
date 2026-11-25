@@ -1,0 +1,100 @@
+{
+  "trialDays": 14,
+  "xpfPerEur": 119.3317,
+  "plans": [
+    {
+      "id": "essentiel",
+      "name": "Essentiel",
+      "tagline": "Pour démarrer avec quelques logements",
+      "monthly": 9,
+      "yearly": 90,
+      "maxProperties": 5,
+      "highlight": false,
+      "features": [
+        "De 2 à 5 biens",
+        "Suivi des loyers, échéances et retards",
+        "Quittances de loyer et messages de relance prêts à envoyer",
+        "Dépenses par bien et rapports mensuels (export CSV)",
+        "Rendement brut, cash-flow et patrimoine net",
+        "Simulateurs rentabilité, cash-flow et crédit",
+        "Euro ou franc Pacifique selon le territoire"
+      ],
+      "xpf": {
+        "monthly": 1100,
+        "yearly": 11000
+      }
+    },
+    {
+      "id": "proprietaire",
+      "name": "Propriétaire",
+      "tagline": "Pour suivre tout votre patrimoine locatif",
+      "monthly": 19,
+      "yearly": 190,
+      "maxProperties": 15,
+      "highlight": true,
+      "features": [
+        "Jusqu'à 15 biens",
+        "Tout ce qui est inclus dans Essentiel",
+        "Fiscalité par territoire : comparaison micro et réel",
+        "Score de santé patrimoniale par bien",
+        "Rendement net, financement et répartition des dépenses",
+        "Projections du patrimoine à 5, 10, 15 et 20 ans",
+        "Simulateurs avancés (vacance, gestion, charges)",
+        "Support par e-mail",
+        "Relances programmées (bientôt)"
+      ],
+      "xpf": {
+        "monthly": 2300,
+        "yearly": 23000
+      }
+    },
+    {
+      "id": "portefeuille",
+      "name": "Investisseur",
+      "tagline": "Pour les gros portefeuilles et les petites agences",
+      "monthly": 39,
+      "yearly": 390,
+      "maxProperties": 50,
+      "highlight": false,
+      "features": [
+        "Jusqu'à 50 biens",
+        "Tout ce qui est inclus dans Propriétaire",
+        "Vue consolidée du portefeuille, devise par devise",
+        "Classement des biens par score",
+        "Support prioritaire par e-mail",
+        "Plusieurs utilisateurs et accès comptable (bientôt)"
+      ],
+      "xpf": {
+        "monthly": 4700,
+        "yearly": 47000
+      }
+    }
+  ],
+  "annualMonthsFree": 2,
+  "scale": {
+    "name": "Agence / Scale",
+    "tagline": "Pour les agences, gestionnaires et gros portefeuilles",
+    "features": [
+      "Nombre de biens sur mesure",
+      "Multi-utilisateurs et rôles, étudiés avec vous",
+      "Import de vos données existantes",
+      "Accompagnement à la mise en place",
+      "Support dédié",
+      "Fonctions adaptées, étudiées selon votre activité"
+    ]
+  },
+  "free": {
+    "id": "gratuit",
+    "name": "Gratuit",
+    "tagline": "Pour essayer avec votre premier bien",
+    "maxProperties": 1,
+    "features": [
+      "1 bien, sans limite de durée",
+      "Suivi des loyers, échéances et retards",
+      "Quittances de loyer et messages de relance prêts à envoyer",
+      "Dépenses et rapport mensuel",
+      "Euro ou franc Pacifique selon le territoire",
+      "Sans carte bancaire"
+    ]
+  }
+}
