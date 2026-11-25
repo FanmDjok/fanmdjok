@@ -12,7 +12,7 @@ function NumberField({ label, value, set, hint }: { label: string; value: string
 const Result = ({ label, value, tone }: { label: string; value: string; tone?: "good" | "bad" }) => (
   <div className="rounded-xl bg-soft p-3">
     <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
-    <p className={`mt-1 text-xl font-bold ${tone === "good" ? "text-[#1b7f3b]" : tone === "bad" ? "text-red-700" : ""}`}>{value}</p>
+    <p className={`mt-1 text-xl font-bold ${tone === "good" ? "text-[#1b7f3b]" : tone === "bad" ? "text-amber-800" : ""}`}>{value}</p>
   </div>
 );
 

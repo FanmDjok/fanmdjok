@@ -30,9 +30,8 @@ export const fmtXpf = (eur) => `${Math.round(eur * plansData.xpfPerEur).toLocale
 
 const NAV = [
   ["/#fonctionnalites", "Fonctionnalités"],
+  ["/outre-mer/", "Territoires"],
   ["/tarifs/", "Tarifs"],
-  ["/outre-mer/", "Outre-mer"],
-  ["/faq/", "FAQ"],
 ];
 
 export function jsonLd(obj) {
@@ -118,8 +117,8 @@ ${[orgLd(), siteLd(), ...ld].map(jsonLd).join("\n")}
 <a class="skip" href="#contenu">Aller au contenu</a>
 <header class="hdr"><div class="wrap">
   <a class="logo" href="/" aria-label="KAZONLY, accueil"><b>K</b>KAZONLY</a>
-  <nav class="nav" aria-label="Navigation principale">${nav}<a href="/app/">Se connecter</a><a class="btn btn-primary btn-sm" href="${SIGNUP_FREE}">Commencer gratuitement</a></nav>
-  <details class="menu"><summary>Menu</summary><div class="panel">${nav}<a href="/app/">Se connecter</a><a class="btn btn-primary" href="${SIGNUP_FREE}">Commencer gratuitement</a></div></details>
+  <nav class="nav" aria-label="Navigation principale">${nav}<a href="/app/">Se connecter</a><a class="btn btn-primary btn-sm" href="${SIGNUP_FREE}">Créer mon compte gratuit</a></nav>
+  <details class="menu"><summary>Menu</summary><div class="panel">${nav}<a href="/app/">Se connecter</a><a class="btn btn-primary" href="${SIGNUP_FREE}">Créer mon compte gratuit</a></div></details>
 </div></header>
 <main id="contenu">
 ${body}
@@ -133,7 +132,7 @@ ${body}
   </div>
   <div class="legal">© ${new Date().getFullYear()} ${esc(cfg.name)}. Outil de suivi de gestion locative : KAZONLY ne détient pas vos fonds et ne remplace pas un conseil juridique, fiscal ou comptable.</div>
 </div></footer>
-${noindex || path === "/404.html" ? "" : `<div class="sticky-cta"><span><b>1 bien gratuit</b><br>Sans carte bancaire</span><a class="btn btn-primary btn-sm" href="${SIGNUP_FREE}">Commencer</a></div>`}
+${noindex || path === "/404.html" ? "" : `<div class="sticky-cta"><span><b>1 bien gratuit</b><br>Sans carte bancaire</span><a class="btn btn-primary btn-sm" href="${SIGNUP_FREE}">Créer mon compte</a></div>`}
 <script src="${assets.js}" defer></script>
 </body>
 </html>`;

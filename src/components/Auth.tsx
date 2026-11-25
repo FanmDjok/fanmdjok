@@ -48,7 +48,7 @@ export default function Auth() {
             <span>J'accepte les <a className="text-primary underline" href="/cgv/" target="_blank" rel="noopener">conditions générales</a> et la <a className="text-primary underline" href="/confidentialite/" target="_blank" rel="noopener">politique de confidentialité</a>.</span>
           </label>
         )}
-        {msg && <p role="alert" className="text-sm text-red-600">{msg}</p>}
+        {msg && <p role="alert" className="text-sm text-amber-800">{msg}</p>}
         <Btn className="w-full" disabled={busy || !ok} onClick={submit}>{mode === "in" ? "Me connecter" : "Créer mon compte"}</Btn>
         <button className="w-full text-sm text-primary" onClick={() => { setMode(mode === "in" ? "up" : "in"); setMsg(null); }}>
           {mode === "in" ? "Pas encore de compte ? Créer un compte" : "Déjà un compte ? Se connecter"}

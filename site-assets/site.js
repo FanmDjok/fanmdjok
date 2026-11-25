@@ -138,36 +138,15 @@
   if (hero && !reduce && matchMedia("(hover: hover)").matches) hero.addEventListener("pointermove", function (e) { var r = hero.getBoundingClientRect(); hero.style.setProperty("--mx", (e.clientX - r.left) + "px"); hero.style.setProperty("--my", (e.clientY - r.top) + "px"); });
 })();
 
-// Récit douleur → solution : le segment au centre de l'écran pilote la démonstration épinglée.
-// Sur ordinateur : la douleur s'affiche d'abord, puis la solution s'allume. Sur mobile, tout le texte reste lisible en ligne.
+// Accueil : l'en-tête se réduit au défilement ; la ligne entre les étapes se trace une fois visible.
 (function () {
-  var beats = [].slice.call(document.querySelectorAll(".story .beat"));
-  if (!beats.length) return;
-  var stage = document.querySelector("[data-stage]");
-  var vis = [].slice.call(document.querySelectorAll(".story .vis"));
-  var dots = stage ? [].slice.call(stage.querySelectorAll(".stage-dots i")) : [];
-  var tag = stage ? stage.querySelector(".stage-tag") : null;
-  var lastActive = -1, lastPh = "";
-  function update() {
-    var mid = innerHeight * 0.5, active = 0;
-    beats.forEach(function (b, i) { if (b.getBoundingClientRect().top <= mid) active = i; });
-    var r = beats[active].getBoundingClientRect();
-    var local = Math.min(1, Math.max(0, (mid - r.top) / Math.max(1, r.height)));
-    var ph = local > 0.3 ? "s" : "p";
-    beats.forEach(function (b, k) {
-      b.classList.toggle("act", k === active);
-      b.classList.toggle("sol-on", k < active || (k === active && ph === "s"));
-    });
-    if (!stage || innerWidth < 900) return;
-    if (active === lastActive && ph === lastPh) return;
-    lastActive = active; lastPh = ph;
-    vis.forEach(function (v, k) { v.classList.toggle("on", k === active); v.classList.toggle("sol", k === active && ph === "s"); });
-    dots.forEach(function (d, k) { d.classList.toggle("on", k === active); });
-    stage.setAttribute("data-ph", ph);
-    if (tag) tag.textContent = ph === "s" ? "Avec KAZONLY" : "Avant";
-  }
-  var t = false;
-  addEventListener("scroll", function () { if (!t) { t = true; requestAnimationFrame(function () { t = false; update(); }); } }, { passive: true });
-  addEventListener("resize", update);
-  update();
+  var h = document.querySelector(".hdr"), t = false;
+  function shrink() { if (h) h.classList.toggle("small", scrollY > 40); }
+  addEventListener("scroll", function () { if (!t) { t = true; requestAnimationFrame(function () { t = false; shrink(); }); } }, { passive: true });
+  shrink();
+  var how = document.querySelector(".howto");
+  if (how && "IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { how.classList.add("in"); io.disconnect(); } }); }, { threshold: 0.4 });
+    io.observe(how);
+  } else if (how) how.classList.add("in");
 })();

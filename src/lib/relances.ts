@@ -37,8 +37,8 @@ export function relanceMessage(item: LateItem, bailleur: string): string {
   if (level === 1)
     return `${hello}\n\nSauf erreur de ma part, le loyer de ${mois} (${montant}) pour ${p.name} ne m'est pas encore parvenu. Il s'agit peut-être d'un simple oubli : pourriez-vous procéder au règlement ou me dire si un souci est survenu ?\n\nMerci d'avance.\n${sig}`;
   if (level === 2)
-    return `${hello}\n\nJe reviens vers vous au sujet du loyer de ${mois} (${montant}) pour ${p.name}, toujours impayé à ce jour. Pouvez-vous le régler dans les meilleurs délais, ou me proposer une date de règlement ? Je reste disponible pour en discuter.\n\n${sig}`;
-  return `${hello}\n\nMalgré mes précédents rappels, le loyer de ${mois} (${montant}) pour ${p.name} reste impayé. Je vous demande de le régler sous huit jours, ou de me contacter pour convenir d'une solution. À défaut, je serai amené à envisager les démarches prévues par le bail.\n\n${sig}`;
+    return `${hello}\n\nJe reviens vers vous au sujet du loyer de ${mois} (${montant}) pour ${p.name}, toujours en attente à ce jour. Pourriez-vous me confirmer la date à laquelle il sera réglé ? Je reste disponible pour en parler.\n\n${sig}`;
+  return `${hello}\n\nMalgré mes précédents rappels, le loyer de ${mois} (${montant}) pour ${p.name} reste en attente. Pourriez-vous me dire d'ici huit jours comment vous comptez le régler, ou me proposer une solution ? Je reste disponible pour en discuter.\n\n${sig}`;
 }
 
 /** Numéro au format international sans « + » (pour WhatsApp), à partir d'un numéro local ou international. */

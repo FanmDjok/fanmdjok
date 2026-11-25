@@ -107,7 +107,7 @@ function PropertyForm({ onSave, onCancel }: { onSave: (p: Property) => Promise<v
         <Field label="Code postal" hint={t?.postalFixed ? "Code postal unique pour ce territoire" : t ? `Commence par ${t.postal}` : "Choisissez d'abord un territoire"}>
           <input className={inputCls} value={codePostal} disabled={!t || t.postalFixed} inputMode="numeric" maxLength={5}
             onChange={(e) => setCodePostal(e.target.value.replace(/\D/g, ""))} />
-          {cpError && <span className="mt-1 block text-xs text-red-600">{cpError}</span>}
+          {cpError && <span className="mt-1 block text-xs text-amber-800">{cpError}</span>}
         </Field>
       </fieldset>
 
