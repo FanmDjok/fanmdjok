@@ -116,7 +116,7 @@ ${[orgLd(), siteLd(), ...ld].map(jsonLd).join("\n")}
 <body${noindex || path === "/404.html" ? "" : ' class="has-cta"'}>
 <a class="skip" href="#contenu">Aller au contenu</a>
 <header class="hdr"><div class="wrap">
-  <a class="logo" href="/" aria-label="KAZONLY, accueil"><b>K</b>KAZONLY</a>
+  <a class="logo" href="/" aria-label="KAZONLY, accueil"><b aria-hidden="true">K</b>KAZONLY</a>
   <nav class="nav" aria-label="Navigation principale">${nav}<a href="/app/">Se connecter</a><a class="btn btn-primary btn-sm" href="${SIGNUP_FREE}">Créer mon compte gratuit</a></nav>
   <details class="menu"><summary>Menu</summary><div class="panel">${nav}<a href="/app/">Se connecter</a><a class="btn btn-primary" href="${SIGNUP_FREE}">Créer mon compte gratuit</a></div></details>
 </div></header>
@@ -125,10 +125,10 @@ ${body}
 </main>
 <footer class="ftr"><div class="wrap">
   <div class="cols">
-    <div><a class="logo" href="/" style="color:#fff"><b>K</b>KAZONLY</a><p style="margin-top:12px">La gestion locative pensée pour les Outre-mer : Guadeloupe, Martinique, Guyane, La Réunion, Mayotte et les collectivités d'Outre-mer.</p></div>
-    <div><h4>Produit</h4><ul><li><a href="/#fonctionnalites">Fonctionnalités</a></li><li><a href="/tarifs/">Tarifs</a></li><li><a href="/faq/">Questions fréquentes</a></li><li><a href="/contact/">Contact et offre Agence</a></li><li><a href="/app/">Se connecter</a></li></ul></div>
-    <div><h4>Outre-mer</h4><ul>${footerTerritories}<li><a href="/outre-mer/">Tous les territoires</a></li></ul></div>
-    <div><h4>Informations</h4><ul><li><a href="/cgv/">Conditions générales</a></li><li><a href="/confidentialite/">Confidentialité</a></li><li><a href="/cookies/">Cookies</a></li><li><a href="/mentions-legales/">Mentions légales</a></li></ul></div>
+    <div><a class="logo" href="/" style="color:#fff"><b aria-hidden="true">K</b>KAZONLY</a><p style="margin-top:12px">La gestion locative pensée pour les Outre-mer : Guadeloupe, Martinique, Guyane, La Réunion, Mayotte et les collectivités d'Outre-mer.</p></div>
+    <div><h3 class="ftr-h">Produit</h3><ul><li><a href="/#fonctionnalites">Fonctionnalités</a></li><li><a href="/tarifs/">Tarifs</a></li><li><a href="/faq/">Questions fréquentes</a></li><li><a href="/contact/">Contact et offre Agence</a></li><li><a href="/app/">Se connecter</a></li></ul></div>
+    <div><h3 class="ftr-h">Outre-mer</h3><ul>${footerTerritories}<li><a href="/outre-mer/">Tous les territoires</a></li></ul></div>
+    <div><h3 class="ftr-h">Informations</h3><ul><li><a href="/cgv/">Conditions générales</a></li><li><a href="/confidentialite/">Confidentialité</a></li><li><a href="/cookies/">Cookies</a></li><li><a href="/mentions-legales/">Mentions légales</a></li></ul></div>
   </div>
   <div class="legal">© ${new Date().getFullYear()} ${esc(cfg.name)}. Outil de suivi de gestion locative : KAZONLY ne détient pas vos fonds et ne remplace pas un conseil juridique, fiscal ou comptable.</div>
 </div></footer>

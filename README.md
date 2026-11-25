@@ -5,6 +5,7 @@ Site vitrine statique (SEO) + application React sous `/app/` + fonctions Cloudfl
 ## Commandes
 - `npm run dev` : application seule
 - `npm test` : tests
+- `npm run check` : tests, build et audit de sécurité des dépendances (`npm audit --audit-level=high`), à lancer avant chaque mise en ligne
 - `npm run build` : application (dist/app) + site vitrine (dist/)
 - `STRICT_SITE=1 npm run build` : échoue tant que la configuration légale est incomplète
 
@@ -18,6 +19,24 @@ Site vitrine statique (SEO) + application React sous `/app/` + fonctions Cloudfl
    - Secrets (saisis dans Cloudflare, jamais dans le dépôt ni dans le chat) : `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY` (la clé secrète `sb_secret_…` peut occuper cette variable).
    - Les `VITE_*` sont lues au build : elles doivent exister avant le déploiement.
 5. **Projet Cloudflare Pages** : connecter le dépôt GitHub `FanmDjok/fanmdjok`, branche de production (`claude/funny-ramanujan-8hjs8a` ou `main` après fusion). Commande de build `npm run build`, dossier de sortie `dist`. Les fichiers `_headers` (sécurité, cache) et `_redirects` (`/app/*`) sont générés dans `dist/` par le build, et les fonctions de `functions/` sont déployées automatiquement.
+
+## Technologies et versions
+| Rôle | Technologie | Version |
+|---|---|---|
+| Application | React | 19.3.0 |
+| Application | Vite | 8.3.4 |
+| Application | TypeScript | 7.0.2 |
+| Application | Tailwind CSS | 4.3.3 |
+| Données et authentification | Supabase (`@supabase/supabase-js`) | 2.117.3 |
+| Paiement | Stripe (`stripe`, côté serveur) | 23.2.0 |
+| Fonctions serveur | Cloudflare Pages Functions (runtime Workers) | selon la plateforme |
+| Tests | Vitest | 5.0.3 |
+| Site vitrine | Générateur maison (`scripts/build-site.mjs`), sans framework | — |
+
+Les versions ci-dessus sont celles de `package-lock.json`. Dependabot ouvre les mises à jour chaque semaine (`.github/dependabot.yml`) ; activez aussi les alertes de sécurité du dépôt dans GitHub (Settings › Code security).
+
+## Stockage dans le navigateur
+Le site vitrine ne dépose aucun cookie et n'utilise aucun outil de mesure d'audience. L'application n'utilise que le stockage du navigateur strictement nécessaire : la session de connexion (Supabase) et, en mode local, les données saisies. Aucun bandeau cookies n'est donc requis en l'état ; à faire valider.
 
 ## Captures de la vitrine
 Les images de `site-assets/shots/` viennent de l'application avec des données d'exemple : `scripts/capture-shots.cjs` les régénère (voir l'en-tête du script), puis les convertir en WebP 520 px de large.

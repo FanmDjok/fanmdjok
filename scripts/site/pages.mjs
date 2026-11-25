@@ -48,7 +48,7 @@ const TERR_HOME = ["martinique", "guadeloupe", "guyane", "reunion"];
 function planCardsHome() {
   const free = `
     <div class="plan">
-      <h3>${esc(free_.name)}</h3>
+      <h2 class="plan-h">${esc(free_.name)}</h2>
       <p class="muted">${esc(free_.tagline)}</p>
       <p class="price">0 €<small>/mois</small></p>
       <p class="fine">Sans carte bancaire</p>
@@ -57,7 +57,7 @@ function planCardsHome() {
   const cards = plans.map((p) => `
     <div class="plan${p.highlight ? " hl" : ""}">
       ${p.highlight ? '<span class="badge">Le plus choisi</span>' : ""}
-      <h3>${esc(p.name)}</h3>
+      <h2 class="plan-h">${esc(p.name)}</h2>
       <p class="muted">${esc(p.tagline)}</p>
       <p class="price"><span data-m>${p.monthly} €<small>/mois</small></span><span data-y hidden>${fmtPrice(p.yearly)} €<small>/an</small></span></p>
       <p class="fine"><span data-m>jusqu'à ${p.maxProperties} biens</span><span data-y hidden>${freeMonths} mois offerts, jusqu'à ${p.maxProperties} biens</span></p>
@@ -208,7 +208,7 @@ const xp = (n) => n.toLocaleString("fr-FR").replace(/[\u202f\u00a0]/g, " ");
 export function pricing() {
   const freeCard = `
     <div class="plan">
-      <h3>${esc(free.name)}</h3>
+      <h2 class="plan-h">${esc(free.name)}</h2>
       <p class="muted">${esc(free.tagline)}</p>
       <p class="price">0 €<small>/mois</small></p>
       <p class="fine">Sans limite de durée, sans carte bancaire</p>
@@ -218,7 +218,7 @@ export function pricing() {
   const cards = freeCard + plans.map((p) => `
     <div class="plan${p.highlight ? " hl" : ""}">
       ${p.highlight ? '<span class="badge">Le plus choisi</span>' : ""}
-      <h3>${esc(p.name)}</h3>
+      <h2 class="plan-h">${esc(p.name)}</h2>
       <p class="muted">${esc(p.tagline)}</p>
       <p class="price"><span data-m data-e>${p.monthly} €<small>/mois</small></span><span data-y data-e hidden>${fmtPrice(p.yearly)} €<small>/an</small></span><span data-m data-x hidden>${xp(p.xpf.monthly)} XPF<small>/mois</small></span><span data-y data-x hidden>${xp(p.xpf.yearly)} XPF<small>/an</small></span></p>
       <p class="fine"><span data-m data-e>ou ${fmtPrice(p.yearly)} € par an (${freeMonths} mois offerts)</span><span data-y data-e hidden>soit ${fmtPrice(Math.round(p.yearly / 12 * 100) / 100)} €/mois</span><span data-m data-x hidden>ou ${xp(p.xpf.yearly)} XPF par an (${freeMonths} mois offerts)</span><span data-y data-x hidden>soit ${xp(Math.round(p.xpf.yearly / 12))} XPF/mois</span></p>
