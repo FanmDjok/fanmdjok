@@ -1,6 +1,6 @@
 {
   "name": "KAZONLY",
-  "siteUrl": "https://kazonly.vercel.app",
+  "siteUrl": "https://kazonly.pages.dev",
   "locale": "fr-FR",
   "legalReviewed": false,
   "contactEmail": "Contact-Kazonly@gmail.com",
@@ -10,6 +10,6 @@
   "publisherAddress": "1 rue d'Enghien, 75010 Paris",
   "tvaMention": "TVA non applicable, article 293 B du CGI",
   "mediator": "",
-  "hostingNote": "Vercel, Inc. (États-Unis) pour le site et les fonctions ; Supabase pour la base de données",
+  "hostingNote": "Cloudflare, Inc. (États-Unis) pour le site et les fonctions ; Supabase pour la base de données",
   "dbRegion": "Irlande (Union européenne, eu-west-1)"
 }

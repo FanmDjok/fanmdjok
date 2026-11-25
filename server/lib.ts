@@ -8,7 +8,7 @@ export type Env = Record<string, string | undefined>;
 
 const PLAN_IDS = plans.plans.map((p) => p.id) as PlanId[];
 
-// Chaque route transmet ses variables d'environnement via bindEnv(process.env) avant de s'exécuter.
+// Cloudflare Pages ne remplit pas process.env : chaque route transmet context.env via bindEnv() avant de s'exécuter.
 let ENV: Env = {};
 export const bindEnv = (e: Env): void => { ENV = e; };
 

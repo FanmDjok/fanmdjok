@@ -1,4 +1,4 @@
-import { admin, bindEnv, json, requireUser, siteUrl, stripe, type Env } from "../server/lib";
+import { admin, bindEnv, json, requireUser, siteUrl, stripe, type Env } from "../../server/lib";
 
 async function handle(req: Request): Promise<Response> {
   const user = await requireUser(req);
@@ -14,9 +14,7 @@ async function handle(req: Request): Promise<Response> {
   return json({ url: session.url });
 }
 
-export const config = { runtime: "edge" };
-
-export default async function handler(request: Request): Promise<Response> {
-  bindEnv(process.env as Env);
-  return handle(request);
+export async function onRequestPost(ctx: { request: Request; env: Env }): Promise<Response> {
+  bindEnv(ctx.env);
+  return handle(ctx.request);
 }

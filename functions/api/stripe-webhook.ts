@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { admin, bindEnv, env, json, planFromPriceId, statutLocal, stripe, type Env } from "../server/lib";
+import { admin, bindEnv, env, json, planFromPriceId, statutLocal, stripe, type Env } from "../../server/lib";
 
 const iso = (ts: number | null | undefined) => (ts ? new Date(ts * 1000).toISOString() : null);
 
@@ -73,9 +73,7 @@ async function handle(req: Request): Promise<Response> {
   return json({ received: true });
 }
 
-export const config = { runtime: "edge" };
-
-export default async function handler(request: Request): Promise<Response> {
-  bindEnv(process.env as Env);
-  return handle(request);
+export async function onRequestPost(ctx: { request: Request; env: Env }): Promise<Response> {
+  bindEnv(ctx.env);
+  return handle(ctx.request);
 }

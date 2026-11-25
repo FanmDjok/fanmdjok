@@ -1,6 +1,6 @@
 # KAZONLY
 
-Site vitrine statique (SEO) + application React sous `/app/` + fonctions Vercel (Stripe, dans `api/`, partage dans `server/`). Tout est hébergé sur Vercel ; la base et l'authentification restent sur Supabase.
+Site vitrine statique (SEO) + application React sous `/app/` + fonctions Cloudflare Pages (Stripe, dans `functions/api/`, partage dans `server/`). Hébergement : Cloudflare Pages (plan gratuit) ; base et authentification : Supabase.
 
 ## Commandes
 - `npm run dev` : application seule
@@ -13,9 +13,11 @@ Site vitrine statique (SEO) + application React sous `/app/` + fonctions Vercel 
 2. **Supabase** : le schéma de production est dans `supabase/migrations/` (migrations horodatées, à exécuter dans l'ordre sur un projet vierge). `20261125160000_adaptation_application.sql` ajoute ce que l'application utilise (territoires, champs des biens, statut de paiement, contact). Les anciennes migrations `supabase/legacy/` ne sont plus utilisées.
 3. **Stripe** (produits et prix déjà créés, voir ci-dessous ; sinon commencer en mode test) : 3 produits avec prix mensuel et annuel (mensuel 9, 19, 39 € ; annuel 90, 190, 390 €, soit 2 mois offerts). Formule Gratuite : 1 bien, sans carte, sans Stripe. L'essai de 14 jours est géré par le code.
    Webhook : `https://<domaine>/api/stripe-webhook`, événements `customer.subscription.created|updated|deleted` et `checkout.session.completed`.
-4. **Variables Vercel** (Project › Settings › Environment Variables ; jamais dans le dépôt) : `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_{ESSENTIEL|PROPRIETAIRE|INVESTISSEUR}_{MONTHLY|YEARLY}` (l'ancien nom `PORTEFEUILLE_*` reste accepté) et leurs variantes francs Pacifique `…_{MONTHLY|YEARLY}_XPF`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SITE_URL` (ex. `https://kazonly.vercel.app`), `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` (les `VITE_*` sont lues au build, elles doivent exister avant le déploiement).
-   Les noms `STRIPE_PRICE_*` et `SITE_URL` sont lus directement par `server/lib.ts`.
-5. Créer le projet Vercel en important le dépôt GitHub (framework « Other »). Les réglages de build et les en-têtes de sécurité viennent de `vercel.json` ; les routes `api/*` se déploient avec le site. Version Node : 22 (Project › Settings › Node.js Version).
+4. **Variables Cloudflare Pages** (Settings › Variables and Secrets ; jamais dans le dépôt) :
+   - Build et publiques : `NODE_VERSION` = `22`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_URL`, `SITE_URL` (`https://kazonly.pages.dev`), et les 12 identifiants de prix `STRIPE_PRICE_{ESSENTIEL|PROPRIETAIRE|INVESTISSEUR}_{MONTHLY|YEARLY}` plus leurs variantes `…_XPF` (le nom `PORTEFEUILLE_*` reste accepté en repli).
+   - Secrets (saisis dans Cloudflare, jamais dans le dépôt ni dans le chat) : `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY` (la clé secrète `sb_secret_…` peut occuper cette variable).
+   - Les `VITE_*` sont lues au build : elles doivent exister avant le déploiement.
+5. **Projet Cloudflare Pages** : connecter le dépôt GitHub `FanmDjok/fanmdjok`, branche de production (`claude/funny-ramanujan-8hjs8a` ou `main` après fusion). Commande de build `npm run build`, dossier de sortie `dist`. Les fichiers `_headers` (sécurité, cache) et `_redirects` (`/app/*`) sont générés dans `dist/` par le build, et les fonctions de `functions/` sont déployées automatiquement.
 
 ## Captures de la vitrine
 Les images de `site-assets/shots/` viennent de l'application avec des données d'exemple : `scripts/capture-shots.cjs` les régénère (voir l'en-tête du script), puis les convertir en WebP 520 px de large.
