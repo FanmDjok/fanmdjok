@@ -21,6 +21,10 @@ Site vitrine statique (SEO) + application React sous `/app/` + fonctions Cloudfl
    - Turnstile : `TURNSTILE_SITE_KEY` = `0x4AAAAAAGS5zCvmd0soJiFr` (clé publique, sans secret ; lue au build pour le site et l'application). Widget « KAZONLY » (mode Managed) : kazonly.pages.dev, kazonly.com, www.kazonly.com. Secret à saisir comme secret : `TURNSTILE_SECRET_KEY` (vérification côté serveur de `/api/contact`). Ce même secret doit aussi être renseigné dans Supabase (Authentication › Attack protection › CAPTCHA, fournisseur Cloudflare Turnstile) pour que Supabase Auth vérifie les formulaires de connexion, d'inscription et de mot de passe oublié.
 5. **Projet Cloudflare Pages** : connecter le dépôt GitHub `FanmDjok/fanmdjok`, branche de production (`claude/funny-ramanujan-8hjs8a` ou `main` après fusion). Commande de build `npm run build`, dossier de sortie `dist`. Les fichiers `_headers` (sécurité, cache) et `_redirects` (`/app/*`) sont générés dans `dist/` par le build, et les fonctions de `functions/` sont déployées automatiquement.
 
+## Données personnelles (droits des utilisateurs)
+- **Export** : `GET /api/export` (JSON complet du compte) et `GET /api/export?format=csv` (mouvements), depuis « Mes données » dans l'application.
+- **Suppression** : `POST /api/supprimer-compte` avec la confirmation `SUPPRIMER`. L'abonnement Stripe est annulé immédiatement, puis le compte est supprimé en cascade (profil, abonnement, biens, locataires, baux, mouvements, échéances). [À VALIDER] : conservation des factures Stripe.
+
 ## Sauvegarde et restauration
 Supabase gratuit ne fait pas de sauvegarde automatique. Procédure (non testée à ce jour ; à tester avant le lancement) :
 1. **Sauvegarder** : dans le tableau de bord Supabase, Project Settings › Database, récupérer la chaîne de connexion, puis lancer `pg_dump --schema=public --data-only --no-owner -Fc -f kazonly-public.dump "<chaîne de connexion>"`. Conserver le fichier hors du dépôt, chiffré. Répéter chaque mois au minimum.

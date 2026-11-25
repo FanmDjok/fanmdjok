@@ -91,3 +91,33 @@ export const errorMessage = (code?: string): string => {
 /** Profondeur des analyses : 1 Essentiel, 2 Propriétaire, 3 Portefeuille (3 hors ligne). */
 export const analysisLevel = (sub?: Subscription | null): 1 | 2 | 3 =>
   !sub ? 3 : sub.plan === "investisseur" ? 3 : sub.plan === "proprietaire" ? 2 : 1;
+
+/** Appel authentifié vers une fonction serveur (session Supabase en jeton Bearer). */
+async function authed(path: string, init: RequestInit = {}): Promise<Response | null> {
+  if (!supabase) return null;
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) return null;
+  return fetch(path, { ...init, headers: { ...(init.headers ?? {}), Authorization: `Bearer ${token}` } });
+}
+
+/** Télécharge toutes les données du compte (JSON), ou les mouvements en CSV. */
+export async function telechargerDonnees(format: "json" | "csv"): Promise<boolean> {
+  const r = await authed(`/api/export${format === "csv" ? "?format=csv" : ""}`);
+  if (!r || !r.ok) return false;
+  const blob = await r.blob();
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = format === "csv" ? "kazonly-mouvements.csv" : "kazonly-mes-donnees.json";
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(a.href);
+  return true;
+}
+
+/** Supprime définitivement le compte et ses données (confirmation explicite requise). */
+export async function supprimerCompte(): Promise<{ ok: boolean; error?: string }> {
+  const r = await authed("/api/supprimer-compte", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ confirmation: "SUPPRIMER" }) });
+  if (!r) return { ok: false, error: "non_authentifie" };
+  if (r.ok) return { ok: true };
+  return { ok: false, error: "suppression_impossible" };
+}
