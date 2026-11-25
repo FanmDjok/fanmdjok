@@ -18,7 +18,18 @@ Site vitrine statique (SEO) + application React sous `/app/` + fonctions Cloudfl
    - Build et publiques : `NODE_VERSION` = `22`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_URL`, `SITE_URL` (`https://kazonly.pages.dev`), et les 12 identifiants de prix `STRIPE_PRICE_{ESSENTIEL|PROPRIETAIRE|INVESTISSEUR}_{MONTHLY|YEARLY}` plus leurs variantes `…_XPF` (le nom `PORTEFEUILLE_*` reste accepté en repli).
    - Secrets (saisis dans Cloudflare, jamais dans le dépôt ni dans le chat) : `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY` (la clé secrète `sb_secret_…` peut occuper cette variable).
    - Les `VITE_*` sont lues au build : elles doivent exister avant le déploiement.
+   - Turnstile : `TURNSTILE_SITE_KEY` (clé publique, lue au build pour le site et l'application). Secret à saisir comme secret : `TURNSTILE_SECRET_KEY` (vérification côté serveur de `/api/contact`). Ce même secret doit aussi être renseigné dans Supabase (Authentication › Attack protection › CAPTCHA, fournisseur Cloudflare Turnstile) pour que Supabase Auth vérifie les formulaires de connexion, d'inscription et de mot de passe oublié.
 5. **Projet Cloudflare Pages** : connecter le dépôt GitHub `FanmDjok/fanmdjok`, branche de production (`claude/funny-ramanujan-8hjs8a` ou `main` après fusion). Commande de build `npm run build`, dossier de sortie `dist`. Les fichiers `_headers` (sécurité, cache) et `_redirects` (`/app/*`) sont générés dans `dist/` par le build, et les fonctions de `functions/` sont déployées automatiquement.
+
+## Sauvegarde et restauration
+Supabase gratuit ne fait pas de sauvegarde automatique. Procédure (non testée à ce jour ; à tester avant le lancement) :
+1. **Sauvegarder** : dans le tableau de bord Supabase, Project Settings › Database, récupérer la chaîne de connexion, puis lancer `pg_dump --schema=public --data-only --no-owner -Fc -f kazonly-public.dump "<chaîne de connexion>"`. Conserver le fichier hors du dépôt, chiffré. Répéter chaque mois au minimum.
+2. **Créer un projet vide** dans la même région (eu-west-1, Irlande).
+3. **Appliquer le schéma** : exécuter dans le SQL Editor les fichiers de `supabase/migrations/`, dans l'ordre des noms.
+4. **Restaurer les données** : `pg_restore --data-only --no-owner -d "<chaîne de connexion du nouveau projet>" kazonly-public.dump`.
+5. **Utilisateurs** : les comptes d'authentification (schéma `auth`) ne sont pas dans cette sauvegarde. [À VALIDER] : procédure à définir et tester (export/import de `auth.users` ou réinscription assistée).
+6. **Mettre à jour** les variables Cloudflare (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`) puis redéployer.
+7. **Vérifier** : lancer `supabase/tests/isolation_rls.sql` (annulé en fin de test) et relancer les contrôles de sécurité du tableau de bord.
 
 ## Technologies et versions
 | Rôle | Technologie | Version |

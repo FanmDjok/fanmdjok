@@ -169,15 +169,15 @@ export function home() {
 </div></section>
 
 <section class="confiance" id="confiance"><div class="wrap">
-  <p class="eyebrow">Confiance</p>
-  <h2>Vos données restent à vous.</h2>
+  <p class="eyebrow">Nos engagements</p>
+  <h2>Ce que KAZONLY s'engage à tenir.</h2>
   <div class="trust" style="margin-top:24px">
-    <div class="card"><h3>Données cloisonnées</h3><p class="muted">Chaque compte ne voit que ses propres données, garanti au niveau de la base de données.</p></div>
-    <div class="card"><h3>Données hébergées en Europe</h3><p class="muted">La base de données est hébergée dans l'Union européenne.</p></div>
-    <div class="card"><h3>Paiement sécurisé</h3><p class="muted">Le paiement est assuré par Stripe. KAZONLY ne conserve pas vos données de carte.</p></div>
-    <div class="card"><h3>Logiciel neutre</h3><p class="muted">KAZONLY ne reçoit ni ne prélève aucun loyer, et ne donne aucun conseil juridique ou fiscal.</p></div>
-    <div class="card"><h3>Résiliation en un clic</h3><p class="muted">Depuis « Mon abonnement », sans courrier ni justification.</p></div>
-    <div class="card"><h3>Vos données sont exportables</h3><p class="muted">Rapports téléchargeables en CSV : vous partez quand vous voulez avec vos chiffres.</p></div>
+    <div class="card"><h3>Gratuit pour un bien</h3><p class="muted">Un bien suivi sans carte bancaire et sans limite de durée.</p></div>
+    <div class="card"><h3>Prix clairs, résiliables en ligne</h3><p class="muted">Des prix affichés avant tout paiement, et une résiliation possible en ligne à tout moment.</p></div>
+    <div class="card"><h3>Données hébergées dans l'Union européenne</h3><p class="muted">La base de données est hébergée en Irlande.</p></div>
+    <div class="card"><h3>Un logiciel neutre</h3><p class="muted">KAZONLY ne détient jamais d'argent et n'agit pas comme gestionnaire. Il ne donne aucun conseil juridique ou fiscal.</p></div>
+    <div class="card"><h3>Vos données vous appartiennent</h3><p class="muted">Export et suppression de vos données : bientôt disponibles.</p></div>
+    <div class="card"><h3>Conçu pour votre territoire</h3><p class="muted">Pensé pour la Martinique, la Guadeloupe, la Guyane et La Réunion.</p></div>
   </div>
 </div></section>
 
@@ -460,8 +460,6 @@ export function notFound() {
   });
 }
 
-const SB_URL = process.env.VITE_SUPABASE_URL || cfg.supabaseUrl || "";
-const SB_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || cfg.supabaseKey || "";
 export function contactPage() {
   const opts = territories.map((t) => `<option value="${esc(t.label)}">${esc(t.label)}</option>`).join("");
   const body = `
@@ -475,7 +473,7 @@ ${crumbs([["Accueil", "/"], ["Contact", "/contact/"]])}
       <h2 style="font-size:1.2rem;margin-top:28px">Pour répondre utilement, dites-nous</h2>
       <ul class="ticks"><li>Combien de biens vous suivez, et dans quels territoires.</li><li>Combien de personnes utiliseront l'outil.</li><li>Vos outils actuels et les données à reprendre.</li><li>Ce qui vous manque aujourd'hui.</li></ul>
     </div>
-    <form class="cform" id="contact-form" novalidate data-endpoint="${esc(SB_URL)}" data-key="${esc(SB_KEY)}">
+    <form class="cform" id="contact-form" novalidate data-sitekey="${esc(process.env.TURNSTILE_SITE_KEY || "")}">
       <div class="fld"><label for="c-topic">Votre demande</label>
         <select id="c-topic" name="topic"><option value="agence">Offre Agence / Scale</option><option value="question">Une question</option><option value="autre">Autre</option></select></div>
       <div class="fld"><label for="c-name">Nom</label><input id="c-name" name="name" autocomplete="name" required maxlength="120"></div>
@@ -486,6 +484,7 @@ ${crumbs([["Accueil", "/"], ["Contact", "/contact/"]])}
       </div>
       <div class="fld"><label for="c-msg">Votre message</label><textarea id="c-msg" name="message" rows="5" required maxlength="3000"></textarea></div>
       <div class="hp" aria-hidden="true"><label>Ne pas remplir<input name="website" tabindex="-1" autocomplete="off"></label></div>
+      <div id="ts-contact" class="ts-slot"></div>
       <p class="err" id="c-err" role="alert"></p>
       <button class="btn btn-primary btn-block" type="submit" id="c-send">Envoyer ma demande</button>
       <p class="fine">Vos informations ne servent qu'à répondre à votre demande. Voir la <a href="/confidentialite/">politique de confidentialité</a>.</p>

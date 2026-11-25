@@ -4,7 +4,7 @@ import { supabaseRepository } from "./data/supabaseRepository";
 import { supabase } from "./lib/supabase";
 import { ACTIVE, analysisLevel, errorMessage, fetchSubscription, openPortal, planById, propertyLimit, type Subscription } from "./lib/billing";
 import type { Expense, Payment, Property } from "./data/types";
-import Auth from "./components/Auth";
+import Auth, { NouveauMotDePasse } from "./components/Auth";
 import Paywall from "./components/Paywall";
 import Accueil from "./pages/Accueil";
 import Biens from "./pages/Biens";
@@ -26,13 +26,18 @@ const repo = supabase ? supabaseRepository : localRepository;
 
 export default function App() {
   const [session, setSession] = useState<unknown>(supabase ? undefined : "local");
+  const [recovery, setRecovery] = useState(false);
   useEffect(() => {
     if (!supabase) return;
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
-    const { data } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    const { data } = supabase.auth.onAuthStateChange((event, s) => {
+      if (event === "PASSWORD_RECOVERY") setRecovery(true);
+      setSession(s);
+    });
     return () => data.subscription.unsubscribe();
   }, []);
   if (session === undefined) return null;
+  if (recovery) return <NouveauMotDePasse onDone={() => setRecovery(false)} />;
   if (!session) return <Auth />;
   return supabase ? <Gate /> : <Shell limit={Infinity} />;
 }

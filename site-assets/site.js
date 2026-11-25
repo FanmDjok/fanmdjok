@@ -26,32 +26,45 @@
   apply();
 })();
 
-// Formulaire de contact : enregistre la demande, sans ouvrir de messagerie.
+// Formulaire de contact : jeton Turnstile vérifié côté serveur par /api/contact (aucune donnée écrite depuis le navigateur).
 (function () {
   var f = document.getElementById("contact-form");
   if (!f) return;
-  var err = document.getElementById("c-err"), btn = document.getElementById("c-send");
+  var err = document.getElementById("c-err"), btn = document.getElementById("c-send"), slot = document.getElementById("ts-contact");
+  var sitekey = f.dataset.sitekey, token = "", wid = null, tries = 0;
+  function reset() { token = ""; if (wid !== null && window.turnstile) window.turnstile.reset(wid); }
+  function mount() {
+    if (!sitekey) { err.textContent = "Le formulaire n'est pas encore disponible. Écrivez-nous à l'adresse de contact."; btn.disabled = true; return; }
+    if (!window.turnstile) { if (++tries < 40) setTimeout(mount, 250); else err.textContent = "La vérification anti-robot est indisponible. Réessayez plus tard."; return; }
+    wid = window.turnstile.render(slot, { sitekey: sitekey, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; }, "error-callback": function () { token = ""; } });
+  }
+  var s = document.createElement("script");
+  s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js"; s.async = true;
+  document.head.appendChild(s);
+  mount();
   f.addEventListener("submit", function (e) {
     e.preventDefault(); err.textContent = "";
     var d = new FormData(f);
-    if (d.get("website")) return;
     var name = String(d.get("name") || "").trim(), email = String(d.get("email") || "").trim(), msg = String(d.get("message") || "").trim();
     if (!name) { err.textContent = "Indiquez votre nom."; return; }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent = "Entrez une adresse e-mail valide pour que nous puissions vous répondre."; return; }
     if (!msg) { err.textContent = "Écrivez quelques mots sur votre besoin."; return; }
-    var url = f.dataset.endpoint, key = f.dataset.key;
-    if (!url || !key) { err.textContent = "L'envoi n'est pas encore disponible. Réessayez plus tard."; return; }
-    var props = parseInt(String(d.get("properties") || "").replace(/\D/g, ""), 10);
+    if (!token) { err.textContent = "Validez la vérification anti-robot avant d'envoyer."; return; }
     btn.disabled = true; btn.textContent = "Envoi…";
-    fetch(url + "/rest/v1/contact_requests", {
+    fetch("/api/contact", {
       method: "POST",
-      headers: { "Content-Type": "application/json", apikey: key, Authorization: "Bearer " + key, Prefer: "return=minimal" },
-      body: JSON.stringify({ name: name, email: email, topic: d.get("topic") || "question", territory: d.get("territory") || null, properties: isNaN(props) ? null : props, message: msg })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: name, email: email, topic: d.get("topic") || "question", territory: d.get("territory") || "", properties: d.get("properties") || "", message: msg, website: d.get("website") || "", turnstileToken: token })
     }).then(function (r) {
+      if (r.status === 429) throw new Error("trop");
+      if (r.status === 403) throw new Error("robot");
       if (!r.ok) throw new Error("http");
       f.hidden = true; document.getElementById("contact-done").hidden = false;
-    }).catch(function () {
-      err.textContent = "L'envoi a échoué. Vérifiez votre connexion et réessayez."; btn.disabled = false; btn.textContent = "Envoyer ma demande";
+    }).catch(function (e) {
+      err.textContent = e.message === "trop" ? "Trop de demandes pour le moment. Réessayez plus tard."
+        : e.message === "robot" ? "La vérification a expiré. Validez-la à nouveau puis réessayez."
+        : "L'envoi a échoué. Vérifiez votre connexion et réessayez.";
+      btn.disabled = false; btn.textContent = "Envoyer ma demande"; reset();
     });
   });
 })();
