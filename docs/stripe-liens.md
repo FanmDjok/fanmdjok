@@ -1,20 +1,35 @@
-# Liens de paiement Stripe : état et marche à suivre
+# Paiement Stripe : checkout hébergé retenu (liens de paiement annulés)
 
-## État au 26 novembre 2026
-- Compte : KAZONLY (`acct_1UfvLq8mMdKNLKBf`), mode test. Les 12 prix existent et sont actifs.
-- **Les 12 liens de paiement ne sont pas créés.** Le compte n'a pas encore de profil public : aucune URL de conditions d'utilisation n'est renseignée. Or le lien exige `consent_collection.terms_of_service: required`. Créer les liens sans cette URL échouerait, ou il faudrait contourner la règle : je ne le fais pas.
+## Décision
+Le plan des 12 liens de paiement (Payment Links) est **annulé**. Le paiement passe par la page Checkout hébergée, créée à la demande par `/api/checkout` (fonction `functions/api/create-checkout.ts`).
 
-## Marche à suivre (mode test, tableau de bord Stripe du compte KAZONLY)
-1. Paramètres → Informations publiques (ou « Public details ») : renseigner le nom affiché « KAZONLY », l'adresse du site `https://kazonly.com` et l'e-mail `contact@kazonly.com`.
-2. Dans le même écran, renseigner l'URL des conditions d'utilisation : `https://kazonly.pages.dev/cgv/` (à remplacer par `https://kazonly.com/cgv/` au lancement).
-3. Me prévenir. Je crée alors les 12 liens, avec le texte d'acceptation des CGV, puis je vous donne la liste des URL à ajouter dans Cloudflare.
+## Variables
+- `CHECKOUT_MODE=api` (défaut) : seul mode disponible. Toute autre valeur renvoie 503.
+- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` : secrets Cloudflare, jamais dans le code.
+- `STRIPE_PRICE_<FORMULE>_<MONTHLY|YEARLY>[_XPF]` : identifiants des 12 prix (publics, non secrets).
 
-## Variables prévues (publiques)
-`STRIPE_LINK_<FORMULE>_<MONTHLY|YEARLY>[_XPF]`, par exemple `STRIPE_LINK_ESSENTIEL_MONTHLY`. Les 12 URL seront listées ici une fois créées.
+## Session créée (`server/checkout.ts`)
+- `mode: subscription`, `ui_mode: hosted_page`, `locale: fr`.
+- `billing_address_collection: required`, collecte du nom facultative (particulier ou entreprise).
+- `payment_method_collection: always`, `saved_payment_method_options.payment_method_save: enabled`.
+- `allow_promotion_codes: true`. Pas de `consent_collection.promotions` (la newsletter passe par Brevo).
+- `consent_collection.terms_of_service: required` avec le texte sur la rétractation de 14 jours.
+- `client_reference_id` = identifiant Supabase. `customer` = client Stripe existant (voir ci-dessous).
+- `metadata` et `subscription_data.metadata` : `user_id`, `plan`, `interval`, `currency`.
+- `success_url` : `/app/abonnement/merci/?session_id={CHECKOUT_SESSION_ID}`. `cancel_url` : `/tarifs/`.
 
-## Points juridiques à valider
-- Texte d'acceptation : « J'accepte les CGV et je demande à commencer l'accès à KAZONLY tout de suite… » — **[À VALIDER juriste]**, marquage dans le code et la documentation uniquement, jamais affiché.
-- Délai de rétractation et remboursement de la part de service déjà utilisée : voir CGV, article 5.
+**Écart volontaire** : `customer_email` n'est pas envoyé. Stripe refuse `customer` et `customer_email` dans la même session. L'e-mail est porté par le client Stripe, créé à la première souscription.
+
+## Client déjà abonné
+Un abonnement actif renvoie vers le portail client Stripe (`billingPortal.sessions`), jamais vers un second abonnement.
+
+## Webhook (`functions/api/stripe-webhook.ts`)
+- Événements : `checkout.session.completed`, `invoice.paid`, `invoice.payment_failed`, `customer.subscription.created|updated|deleted`.
+- Idempotence : table `stripe_events`. Un événement déjà traité répond 200 sans être rejoué ; un échec retire l'événement du journal pour que Stripe le renvoie.
+- Rattachement : par `client_reference_id`, puis par l'e-mail du client. Sinon, le paiement est enregistré dans `paiements_a_rattacher`, visible dans l'admin, et rien n'est perdu.
+
+## Validation effectuée
+Une session de test a été créée dans le compte KAZONLY (mode test) avec les paramètres ci-dessus, pour l'Essentiel mensuel en euros. Stripe l'a acceptée (statut `open`). Aucun paiement n'a été effectué.
 
 ## Mode réel (plus tard)
-Recréer les 12 liens en mode réel, une fois le compte vérifié. Ne pas le faire avant.
+Le compte n'est pas encore vérifié. Le passage en mode réel se fera après vérification, avec les identifiants de prix du mode réel.
