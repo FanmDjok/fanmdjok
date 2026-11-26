@@ -4,7 +4,7 @@ export const Card = ({ children, className = "" }: { children: ReactNode; classN
   <section className={`rounded-2xl border border-line bg-white p-5 ${className}`}>{children}</section>
 );
 export const Eyebrow = ({ children }: { children: ReactNode }) => (
-  <p className="text-xs font-semibold uppercase tracking-wider text-primary">{children}</p>
+  <p className="text-sm font-semibold text-primary">{children}</p>
 );
 export const PageTitle = ({ eyebrow, title, sub }: { eyebrow: string; title: string; sub?: string }) => (
   <header className="mb-5">
