@@ -1,6 +1,7 @@
 {
-  "trialDays": 14,
   "xpfPerEur": 119.3317,
+  "annualMonthsFree": 2,
+  "_commentaire": "Source unique des formules : site vitrine, tableau comparatif et tests. niveau = profondeur d'analyse dans l'application (1 base, 2 avancée, 3 portefeuille). Aucun essai gratuit : la formule Gratuite sert d'essai.",
   "plans": [
     {
       "id": "essentiel",
@@ -9,6 +10,8 @@
       "monthly": 9,
       "yearly": 90,
       "maxProperties": 5,
+      "niveau": 1,
+      "support": "Documentation",
       "highlight": false,
       "features": [
         "De 2 à 5 biens",
@@ -28,9 +31,12 @@
       "id": "proprietaire",
       "name": "Propriétaire",
       "tagline": "Pour suivre tout votre patrimoine locatif",
+      "recommandation": "Recommandé pour 6 à 15 biens",
       "monthly": 19,
       "yearly": 190,
       "maxProperties": 15,
+      "niveau": 2,
+      "support": "E-mail",
       "highlight": true,
       "features": [
         "Jusqu'à 15 biens",
@@ -55,6 +61,8 @@
       "monthly": 39,
       "yearly": 390,
       "maxProperties": 50,
+      "niveau": 3,
+      "support": "E-mail prioritaire",
       "highlight": false,
       "features": [
         "Jusqu'à 50 biens",
@@ -70,13 +78,12 @@
       }
     }
   ],
-  "annualMonthsFree": 2,
   "scale": {
     "name": "Agence / Scale",
     "tagline": "Pour les agences, gestionnaires et gros portefeuilles",
     "features": [
       "Nombre de biens sur mesure",
-      "Multi-utilisateurs et rôles, étudiés avec vous",
+      "Multi-utilisateurs et rôles (bientôt)",
       "Import de vos données existantes",
       "Accompagnement à la mise en place",
       "Support dédié",
@@ -88,6 +95,8 @@
     "name": "Gratuit",
     "tagline": "Pour essayer avec votre premier bien",
     "maxProperties": 1,
+    "niveau": 1,
+    "support": "Documentation",
     "features": [
       "1 bien, sans limite de durée",
       "Suivi des loyers, échéances et retards",
@@ -96,5 +105,22 @@
       "Euro ou franc Pacifique selon le territoire",
       "Sans carte bancaire"
     ]
-  }
+  },
+  "matrice": [
+    { "label": "Nombre de biens", "valeur": "maxProperties" },
+    { "label": "Suivi des loyers et échéances", "min": 1 },
+    { "label": "Dépenses par bien", "min": 1 },
+    { "label": "Rapports et export CSV", "min": 1 },
+    { "label": "Euro et franc Pacifique", "min": 1 },
+    { "label": "Locations saisonnières (tarif par nuit)", "min": 1 },
+    { "label": "Quittances et messages de relance", "min": 1 },
+    { "label": "Rendement brut, cash-flow, patrimoine net", "min": 1 },
+    { "label": "Simulateurs rentabilité, cash-flow, crédit", "valeurs": { "1": "Base", "2": "Avancés", "3": "Avancés" } },
+    { "label": "Fiscalité par territoire (micro ou réel)", "min": 2 },
+    { "label": "Rendement net et score de santé", "min": 2 },
+    { "label": "Financement et répartition des dépenses", "min": 2 },
+    { "label": "Projections à 5, 10, 15, 20 ans", "min": 2 },
+    { "label": "Vue consolidée et classement des biens", "min": 3 },
+    { "label": "Support", "support": true }
+  ]
 }

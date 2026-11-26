@@ -49,7 +49,8 @@ export default function Resiliation({ sub, onClose }: { sub: Subscription; onClo
           </Card>
           <Card className="space-y-3">
             <h2 className="font-semibold">Droit de rétractation (14 jours)</h2>
-            <p className="text-sm text-muted">Vous pouvez vous rétracter dans les 14 jours suivant la souscription. L'accès est alors arrêté immédiatement et la part non utilisée est remboursée. [À VALIDER] : modalités de calcul du remboursement.</p>
+            {/* À VALIDER (juridique) : modalités de calcul du remboursement en cas de rétractation (voir CGV, article 5). */}
+            <p className="text-sm text-muted">Vous pouvez vous rétracter dans les 14 jours suivant la souscription. L'accès est alors arrêté immédiatement et la part non utilisée est remboursée.</p>
             <Btn variant="ghost" className="w-full" disabled={busy} onClick={doRetracter}>Me rétracter et arrêter l'accès</Btn>
           </Card>
           {msg && <p role="status" className="text-sm text-amber-800">{msg}</p>}

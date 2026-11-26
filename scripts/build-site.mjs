@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import { abs, assets, cfg, territories, warnings } from "./site/layout.mjs";
+import { abs, assets, cfg, plansData, territories, warnings } from "./site/layout.mjs";
 import { confirmeVeillePage, contactPage, faqPage, home, hub, notFound, pricing, resilierPage, territoryPage, tresoriePage } from "./site/pages.mjs";
 import { cgv, confidentialite, cookies, mentions } from "./site/legal.mjs";
 
@@ -37,8 +37,20 @@ const pages = [
   ...territories.map(territoryPage),
   mentions(), confidentialite(), cookies(), cgv(), resilierPage(), confirmeVeillePage(), tresoriePage(),
 ];
-for (const p of pages) write(p.path === "/" ? "index.html" : `${p.path.replace(/^\//, "")}index.html`, p.html);
-write("404.html", notFound().html);
+pages.push(notFound());
+
+// Aucune note de travail ne doit être publiée : le build échoue, quel que soit le mode.
+// Les marqueurs de travail restent dans le code (commentaires) et dans shared/site.config.json.
+const MARQUEURS = /À VALIDER|à renseigner|À renseigner|\bTODO\b|==\[|<mark>/;
+const avecMarqueur = pages.filter((p) => MARQUEURS.test(p.html)).map((p) => p.path);
+if (avecMarqueur.length) {
+  console.error(`Marqueurs de travail visibles dans le HTML généré : ${avecMarqueur.join(", ")}`);
+  process.exit(1);
+}
+for (const p of pages) {
+  const sortie = p.path === "/" ? "index.html" : p.path.endsWith(".html") ? p.path.slice(1) : `${p.path.replace(/^\//, "")}index.html`;
+  write(sortie, p.html);
+}
 
 // sitemap : uniquement les pages indexables
 const today = new Date().toISOString().slice(0, 10);
@@ -61,7 +73,7 @@ Sitemap: ${abs("/sitemap.xml")}
 
 write("llms.txt", `# KAZONLY
 
-> Logiciel en ligne de suivi de gestion locative pour les propriétaires bailleurs des Outre-mer français (11 territoires, euro et franc Pacifique). Essai de 14 jours, formules à partir de 12 €/mois. KAZONLY ne détient aucun loyer et ne fournit pas de conseil juridique ou fiscal.
+> Logiciel en ligne de suivi de gestion locative pour les propriétaires bailleurs des Outre-mer français (11 territoires, euro et franc Pacifique). Une formule gratuite pour 1 bien, sans carte bancaire ; formules payantes à partir de ${plansData.plans[0].monthly} €/mois. KAZONLY ne détient aucun loyer et ne fournit pas de conseil juridique ou fiscal.
 
 ## Pages
 - [Accueil](${abs("/")}): présentation et fonctionnalités

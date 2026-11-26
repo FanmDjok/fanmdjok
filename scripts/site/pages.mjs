@@ -1,9 +1,9 @@
 import { SIGNUP_FREE, freeMonths, fmtPrice, abs, breadcrumbLd, cfg, crumbs, esc, faqHtml, faqLd, fmtXpf, img, page, plansData, SIGNUP, territories, val } from "./layout.mjs";
+import { colonnes, lignesMatrice } from "./formules.mjs";
 
 import fs from "node:fs";
 import { scene } from "./scenes.mjs";
 const TC = JSON.parse(fs.readFileSync("shared/territory-content.json", "utf8"));
-const TRIAL = plansData.trialDays;
 const plans = plansData.plans;
 const free = plansData.free;
 
@@ -18,9 +18,9 @@ export const FAQ = [
   ["Puis-je gérer des biens en euros et en francs Pacifique ?",
     "Oui. Chaque bien prend la devise de son territoire (EUR ou XPF) et KAZONLY n'additionne jamais deux devises dans un même total : vos chiffres restent justes, devise par devise."],
   [`KAZONLY est-il gratuit ?`,
-    `La formule Gratuite permet de suivre ${free.maxProperties} bien, sans limite de durée et sans carte bancaire. Pour suivre plus de biens et débloquer la fiscalité avancée, les formules payantes démarrent à ${plans[0].monthly} € par mois et offrent ${TRIAL} jours d'essai.`],
-  [`L'essai de ${TRIAL} jours est-il vraiment sans risque ?`,
-    `Chaque formule payante s'essaie ${TRIAL} jours. Une carte bancaire est demandée au départ, mais rien n'est débité pendant l'essai. Vous pouvez résilier à tout moment depuis votre espace ; sans résiliation avant la fin de l'essai, l'abonnement démarre. La formule Gratuite, elle, ne demande aucune carte.`],
+    `La formule Gratuite permet de suivre ${free.maxProperties} bien, sans limite de durée et sans carte bancaire. Elle vous permet d'essayer KAZONLY avant de choisir une formule payante, qui démarrent à ${plans[0].monthly} € par mois.`],
+  [`Puis-je essayer avant de payer ?`,
+    `Oui : la formule Gratuite, pour 1 bien, sert d'essai et ne demande aucune carte bancaire. Une formule payante se souscrit en ligne avec un paiement immédiat, et vous disposez d'un droit de rétractation de 14 jours, détaillé dans les conditions générales de vente.`],
   ["KAZONLY remplace-t-il un comptable, un notaire ou une agence ?",
     "Non. KAZONLY est un outil de suivi et d'aide à la décision. Il ne fournit pas de conseil juridique, fiscal ou comptable et n'est pas une agence de gestion : pour vos déclarations ou un litige, rapprochez-vous d'un professionnel."],
   ["Mes données sont-elles protégées ?",
@@ -30,8 +30,8 @@ export const FAQ = [
 ];
 
 const FAQ_BILLING = [
-  ["Comment fonctionne l'essai des formules payantes ?",
-    `Vous choisissez une formule et saisissez une carte bancaire. Pendant ${TRIAL} jours, rien n'est débité. À l'issue de l'essai, l'abonnement démarre automatiquement, sauf si vous avez résilié avant. Un seul essai est offert par compte.`],
+  ["Comment se passe la souscription d'une formule payante ?",
+    "Vous choisissez une formule et la période (mensuelle ou annuelle), puis vous réglez par carte via Stripe. L'abonnement démarre immédiatement, après votre accord exprès. Vous pouvez vous rétracter dans les 14 jours depuis votre compte, et résilier à tout moment."],
   ["Puis-je changer de formule ou résilier ?",
     "Oui, à tout moment depuis « Mon abonnement » dans l'application (portail sécurisé Stripe). La résiliation prend effet à la fin de la période déjà payée."],
   ["Quels moyens de paiement acceptez-vous ?",
@@ -43,8 +43,23 @@ const FAQ_BILLING = [
 ];
 
 /* ---------- Accueil « Lagon calme » : création de compte gratuit, démonstration, arguments, tarifs ---------- */
-const TERR_HOME = ["martinique", "guadeloupe", "guyane", "reunion"];
 const free_ = plansData.free;
+
+// Démonstration de l'accueil : données fictives, une entrée par territoire (les 11 sont couverts au lancement).
+const DEMO = {
+  martinique: { nom: "Martinique", rent: "2 450 €", spend: "610 €", fore: "+18 900 €", at: "Saison cyclonique", ad: "Vérifiez la garantie catastrophes naturelles de votre bien." },
+  guadeloupe: { nom: "Guadeloupe", rent: "1 980 €", spend: "540 €", fore: "+15 200 €", at: "Diagnostic à renouveler", ad: "Le diagnostic du studio arrive à échéance en mars." },
+  guyane: { nom: "Guyane", rent: "1 420 €", spend: "390 €", fore: "+11 600 €", at: "Humidité et entretien", ad: "Prévoyez l'entretien de la ventilation avant la saison des pluies." },
+  reunion: { nom: "La Réunion", rent: "2 130 €", spend: "575 €", fore: "+16 400 €", at: "Saison cyclonique", ad: "Vérifiez votre assurance pour le T2 de votre bien." },
+  mayotte: { nom: "Mayotte", rent: "1 360 €", spend: "410 €", fore: "+10 300 €", at: "Assurance", ad: "Relisez les garanties de votre bien avant l'échéance." },
+  "saint-martin": { nom: "Saint-Martin", rent: "2 280 €", spend: "620 €", fore: "+17 100 €", at: "Saison cyclonique", ad: "Vérifiez la garantie catastrophes naturelles de votre bien." },
+  "saint-barthelemy": { nom: "Saint-Barthélemy", rent: "3 150 €", spend: "880 €", fore: "+24 300 €", at: "Saison cyclonique", ad: "Contrôlez les fixations extérieures avant la saison." },
+  spm: { nom: "Saint-Pierre-et-Miquelon", rent: "1 240 €", spend: "430 €", fore: "+8 900 €", at: "Chauffage", ad: "Faites contrôler le chauffage avant l'hiver." },
+  "nouvelle-caledonie": { nom: "Nouvelle-Calédonie", rent: "262 000 XPF", spend: "71 000 XPF", fore: "+2 150 000 XPF", at: "Saison cyclonique", ad: "Vérifiez l'assurance de votre bien avant la saison des cyclones." },
+  polynesie: { nom: "Polynésie française", rent: "238 000 XPF", spend: "66 000 XPF", fore: "+1 980 000 XPF", at: "Entretien", ad: "Prévoyez l'entretien de la toiture avant la saison des pluies." },
+  "wallis-futuna": { nom: "Wallis-et-Futuna", rent: "149 000 XPF", spend: "42 000 XPF", fore: "+1 120 000 XPF", at: "Assurance", ad: "Vérifiez les garanties de votre bien." },
+};
+const DEMO_DEFAUT = "martinique";
 
 function planCardsHome() {
   const free = `
@@ -57,12 +72,12 @@ function planCardsHome() {
     </div>`;
   const cards = plans.map((p) => `
     <div class="plan${p.highlight ? " hl" : ""}">
-      ${p.highlight ? '<span class="badge">Le plus choisi</span>' : ""}
+      ${p.recommandation ? `<p class="rec">${esc(p.recommandation)}</p>` : ""}
       <h2 class="plan-h">${esc(p.name)}</h2>
       <p class="muted">${esc(p.tagline)}</p>
       <p class="price"><span data-m>${p.monthly} €<small>/mois</small></span><span data-y hidden>${fmtPrice(p.yearly)} €<small>/an</small></span></p>
       <p class="fine"><span data-m>jusqu'à ${p.maxProperties} biens</span><span data-y hidden>${freeMonths} mois offerts, jusqu'à ${p.maxProperties} biens</span></p>
-      <a class="btn btn-primary btn-block" data-plan href="${SIGNUP(p.id, "month")}">Essayer ${TRIAL} jours</a>
+      <a class="btn btn-primary btn-block" data-plan href="${SIGNUP(p.id, "month")}">S'abonner à ${esc(p.name)}</a>
     </div>`).join("");
   return free + cards;
 }
@@ -87,10 +102,7 @@ export function home() {
       "@type": "Offer", name: p.name, price: p.monthly, priceCurrency: "EUR", url: abs("/tarifs/"),
     }))),
   };
-  const pills = TERR_HOME.map((slug, i) => {
-    const t = territories.find((x) => x.slug === `gestion-locative-${slug}`);
-    return `<button type="button" class="k-chip" data-t="${slug}" aria-pressed="${i === 0}">${esc(t.label)}</button>`;
-  }).join("");
+  const pills = territories.map((t) => `<button type="button" class="k-chip" data-t="${t.id}" aria-pressed="${t.id === DEMO_DEFAUT}">${esc(t.label)}</button>`).join("");
   const bars = BARRES.map((h, i) => `<i style="--h:${h}%;--d:${(i * 0.06).toFixed(2)}s" title="${MOIS[i]}"></i>`).join("");
   const trust = [
     ["Double authentification", "Un code à usage unique protège chaque connexion.", "M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"],
@@ -116,9 +128,9 @@ export function home() {
 
 <section class="demo-sec" aria-labelledby="demo-title"><div class="wrap">
   <div class="terr-switch" role="group" aria-label="Territoire de l'exemple">
-    <span class="terr-lbl">Voir pour :</span>${pills}<span class="fine">Mayotte arrive bientôt</span>
+    <span class="terr-lbl">Voir pour :</span>${pills}
   </div>
-  <div class="dash" id="dash" aria-live="polite">
+  <div class="dash" id="dash" aria-live="polite" data-demo="${esc(JSON.stringify(DEMO))}">
     <div class="dash-bar"><span></span><span></span><span></span><b>Tableau de bord · <span data-f="nom">Martinique</span></b></div>
     <div class="dash-body">
       <aside class="dash-nav" aria-hidden="true"><span class="on">Vue d'ensemble</span><span>Mes biens</span><span>Loyers</span><span>Trésorerie</span><span>Alertes</span></aside>
@@ -159,7 +171,7 @@ export function home() {
   <div class="feat-row rev">
     <div class="feat-txt">
       <h3>Votre trésorerie, douze mois à l'avance.</h3>
-      <p>Taxe foncière, travaux, vacance locative : KAZONLY les place dans le calendrier et montre votre solde futur, mois par mois.</p>
+      <p>Taxe foncière, travaux, vacance locative : vous les saisissez comme dépenses prévues, à leur date. KAZONLY les place dans le calendrier et montre votre solde futur, mois par mois. Il ne calcule pas l'impôt.</p>
       <a class="link-u" href="/fonctionnalites/tresorerie/">Découvrir la trésorerie</a>
     </div>
     <div class="feat-card">
@@ -171,7 +183,7 @@ export function home() {
   <div class="feat-row">
     <div class="feat-txt">
       <h3>Les règles de votre territoire, sans les chercher.</h3>
-      <p>Cyclones, indices de loyer, diagnostics : le bon repère au bon moment, avec le lien vers le texte officiel. Bientôt disponible.</p>
+      <p>Cyclones, indices de loyer, diagnostics : le bon repère au bon moment, avec le lien vers le texte officiel. (bientôt)</p>
       <a class="link-u" href="/outre-mer/">Voir les territoires</a>
     </div>
     <div class="feat-card">
@@ -207,8 +219,8 @@ export function home() {
     <div class="card"><h3>Prix clairs, résiliables en ligne</h3><p class="muted">Des prix affichés avant tout paiement, et une résiliation possible en ligne à tout moment.</p></div>
     <div class="card"><h3>Données hébergées dans l'Union européenne</h3><p class="muted">La base de données est hébergée en Irlande.</p></div>
     <div class="card"><h3>Un logiciel neutre</h3><p class="muted">KAZONLY ne détient jamais d'argent et n'agit pas comme gestionnaire. Il ne donne aucun conseil juridique ou fiscal.</p></div>
-    <div class="card"><h3>Vos données vous appartiennent</h3><p class="muted">Export et suppression de vos données : bientôt disponibles.</p></div>
-    <div class="card"><h3>Conçu pour votre territoire</h3><p class="muted">Pensé pour la Martinique, la Guadeloupe, la Guyane et La Réunion.</p></div>
+    <div class="card"><h3>Vos données vous appartiennent</h3><p class="muted">Export de vos données gratuit à tout moment, suppression en un clic.</p></div>
+    <div class="card"><h3>Conçu pour votre territoire</h3><p class="muted">Pensé pour les onze territoires d'Outre-mer, avec la bonne devise pour chacun.</p></div>
   </div>
 </div></section>
 
@@ -270,7 +282,7 @@ export function tresoriePage() {
 <section class="feat-sec"><div class="wrap">
   <h2 class="h2-xl">Comment ça marche, en trois étapes.</h2>
   <ol class="steps3">
-    <li><span class="num">1</span><h3>Vous saisissez vos dépenses prévues</h3><p>Taxe foncière, assurance, travaux, copropriété : chacune à sa date.</p></li>
+    <li><span class="num">1</span><h3>Vous saisissez vos dépenses prévues</h3><p>Taxe foncière, assurance, travaux, copropriété : chacune à sa date. La taxe foncière se saisit comme une dépense prévue : son montant, vous le saisissez vous-même.</p></li>
     <li><span class="num">2</span><h3>Vous indiquez vos loyers</h3><p>Le loyer de chaque bien, la date d'échéance, la vacance que vous anticipez.</p></li>
     <li><span class="num">3</span><h3>KAZONLY calcule votre solde</h3><p>Un solde par mois, pour chaque bien et pour l'ensemble de votre patrimoine.</p></li>
   </ol>
@@ -278,12 +290,12 @@ export function tresoriePage() {
 
 <section class="feat-sec"><div class="wrap prose">
   <h2 class="h2-xl">Trois scénarios, pour décider avec des chiffres.</h2>
-  <ul class="ticks">
-    <li><b>Scénario bas</b> : une vacance plus longue que prévu.</li>
-    <li><b>Scénario central</b> : vos loyers et dépenses habituels.</li>
-    <li><b>Scénario haut</b> : une revalorisation de loyer et des dépenses maîtrisées.</li>
-  </ul>
-  <p class="fine">Les scénarios sont des estimations que vous réglez vous-même. KAZONLY ne prévoit pas d'évolution de l'économie locale.</p>
+  <div class="scenarios">
+    <div class="card"><h3>Scénario bas</h3><p>Une vacance plus longue que prévu.</p><p class="scn-val">+9 400 €</p><p class="fine">Solde sur 12 mois, données d'exemple</p></div>
+    <div class="card"><h3>Scénario central</h3><p>Vos loyers et dépenses habituels.</p><p class="scn-val">+18 900 €</p><p class="fine">Solde sur 12 mois, données d'exemple</p></div>
+    <div class="card"><h3>Scénario haut</h3><p>Une revalorisation de loyer et des dépenses maîtrisées.</p><p class="scn-val">+24 300 €</p><p class="fine">Solde sur 12 mois, données d'exemple</p></div>
+  </div>
+  <p class="fine">Les scénarios sont des estimations que vous réglez vous-même ; les montants ci-dessus sont des exemples, pas des prévisions. KAZONLY ne prévoit pas d'évolution de l'économie locale. Source de la taxe foncière : <a href="https://www.service-public.gouv.fr/particuliers/vosdroits/F3171">service-public.gouv.fr, taxe foncière sur les propriétés bâties</a>.</p>
   <h2 class="h2-md">Par territoire</h2>
   <p>Les charges et la fiscalité ne sont pas les mêmes d'un territoire à l'autre. La devise de chaque bien reste celle de son territoire : euro ou franc Pacifique, jamais additionnés. Repères par territoire : <a href="/outre-mer/">voir les territoires</a>.</p>
 </div></section>
@@ -328,13 +340,13 @@ export function pricing() {
     </div>`;
   const cards = freeCard + plans.map((p) => `
     <div class="plan${p.highlight ? " hl" : ""}">
-      ${p.highlight ? '<span class="badge">Le plus choisi</span>' : ""}
+      ${p.recommandation ? `<p class="rec">${esc(p.recommandation)}</p>` : ""}
       <h2 class="plan-h">${esc(p.name)}</h2>
       <p class="muted">${esc(p.tagline)}</p>
       <p class="price"><span data-m data-e>${p.monthly} €<small>/mois</small></span><span data-y data-e hidden>${fmtPrice(p.yearly)} €<small>/an</small></span><span data-m data-x hidden>${xp(p.xpf.monthly)} XPF<small>/mois</small></span><span data-y data-x hidden>${xp(p.xpf.yearly)} XPF<small>/an</small></span></p>
       <p class="fine"><span data-m data-e>ou ${fmtPrice(p.yearly)} € par an (${freeMonths} mois offerts)</span><span data-y data-e hidden>soit ${fmtPrice(Math.round(p.yearly / 12 * 100) / 100)} €/mois</span><span data-m data-x hidden>ou ${xp(p.xpf.yearly)} XPF par an (${freeMonths} mois offerts)</span><span data-y data-x hidden>soit ${xp(Math.round(p.xpf.yearly / 12))} XPF/mois</span></p>
       <ul>${p.features.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>
-      <a class="btn ${p.highlight ? "btn-primary" : "btn-ghost"} btn-block" data-plan="${p.id}" href="${SIGNUP(p.id)}">Essayer ${TRIAL} jours</a>
+      <a class="btn ${p.highlight ? "btn-primary" : "btn-ghost"} btn-block" data-plan="${p.id}" href="${SIGNUP(p.id)}">S'abonner à ${esc(p.name)}</a>
     </div>`).join("");
 
   const body = `
@@ -342,7 +354,7 @@ ${crumbs([["Accueil", "/"], ["Tarifs", "/tarifs/"]])}
 <section style="padding-top:28px"><div class="wrap">
   <p class="eyebrow">Tarifs</p>
   <h1>Des tarifs simples pour les propriétaires d'Outre-mer.</h1>
-  <p class="lead">Un bien gratuit, sans carte. Puis ${TRIAL} jours d'essai sur chaque formule payante : une carte est demandée, rien n'est débité pendant l'essai, résiliation à tout moment.</p>
+  <p class="lead">Un bien gratuit, sans carte bancaire et sans limite de durée. Les formules payantes se souscrivent en ligne, avec un paiement immédiat et résiliables à tout moment.</p>
   <div class="toggle" data-billing-toggle role="group" aria-label="Période de facturation" hidden>
     <button type="button" data-interval="month" aria-pressed="true">Mensuel</button>
     <button type="button" data-interval="year" aria-pressed="false">Annuel · ${freeMonths} mois offerts</button>
@@ -366,23 +378,9 @@ ${crumbs([["Accueil", "/"], ["Tarifs", "/tarifs/"]])}
 <section class="soft"><div class="wrap">
   <h2>Comparer les formules</h2>
   <div class="scroll"><table class="cmp">
-    <thead><tr><th scope="col">Fonction</th><th scope="col">${esc(free.name)}</th>${plans.map((p) => `<th scope="col">${esc(p.name)}</th>`).join("")}</tr></thead>
+    <thead><tr><th scope="col">Fonction</th>${colonnes().map((f) => `<th scope="col">${esc(f.name)}</th>`).join("")}</tr></thead>
     <tbody>
-      <tr><th scope="row">Nombre de biens</th><td>${free.maxProperties}</td>${plans.map((p) => `<td>${p.maxProperties}</td>`).join("")}</tr>
-      <tr><th scope="row">Suivi des loyers et échéances</th><td>✓</td>${plans.map(() => "<td>✓</td>").join("")}</tr>
-      <tr><th scope="row">Dépenses par bien</th><td>✓</td>${plans.map(() => "<td>✓</td>").join("")}</tr>
-      <tr><th scope="row">Rapports et export CSV</th><td>✓</td>${plans.map(() => "<td>✓</td>").join("")}</tr>
-      <tr><th scope="row">Euro et franc Pacifique</th><td>✓</td>${plans.map(() => "<td>✓</td>").join("")}</tr>
-      <tr><th scope="row">Locations saisonnières (tarif par nuit)</th><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
-      <tr><th scope="row">Rendement brut, cash-flow, patrimoine net</th><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
-      <tr><th scope="row">Quittances et messages de relance</th><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
-      <tr><th scope="row">Simulateurs rentabilité, cash-flow, crédit</th><td>Base</td><td>Base</td><td>Avancés</td><td>Avancés</td></tr>
-      <tr><th scope="row">Fiscalité par territoire (micro ou réel)</th><td>—</td><td>—</td><td>✓</td><td>✓</td></tr>
-      <tr><th scope="row">Rendement net et score de santé</th><td>—</td><td>—</td><td>✓</td><td>✓</td></tr>
-      <tr><th scope="row">Financement et répartition des dépenses</th><td>—</td><td>—</td><td>✓</td><td>✓</td></tr>
-      <tr><th scope="row">Projections à 5, 10, 15, 20 ans</th><td>—</td><td>—</td><td>✓</td><td>✓</td></tr>
-      <tr><th scope="row">Vue consolidée et classement des biens</th><td>—</td><td>—</td><td>—</td><td>✓</td></tr>
-      <tr><th scope="row">Support</th><td>Documentation</td><td>Documentation</td><td>E-mail</td><td>E-mail prioritaire</td></tr>
+${lignesMatrice().map((l) => `      <tr><th scope="row">${esc(l.label)}</th>${l.valeurs.map((v) => `<td>${esc(v)}</td>`).join("")}</tr>`).join("\n")}
     </tbody>
   </table></div>
 </div></section>
@@ -393,10 +391,10 @@ ${crumbs([["Accueil", "/"], ["Tarifs", "/tarifs/"]])}
     <h2>Informations avant commande</h2>
     <ul>
       <li>Prix affichés TTC. ${esc(cfg.tvaMention)}.</li>
-      <li>Formules payantes : essai de ${TRIAL} jours, puis abonnement mensuel ou annuel [À VALIDER : reconduction automatique à chaque échéance].</li>
+      <li>Formules payantes : abonnement mensuel ou annuel, réglé par carte via Stripe. Il démarre après votre accord exprès et se renouvelle automatiquement à chaque échéance, jusqu'à résiliation.</li>
       <li>Résiliation en ligne possible à tout moment, depuis « Mon abonnement » ou la page <a href="/resilier/">Résilier mon abonnement</a>. Elle prend effet à la fin de la période déjà payée.</li>
       <li>Droit de rétractation de 14 jours, exercé en ligne depuis votre compte. Si vous demandez à commencer le service avant la fin de ce délai, le droit disparaît une fois le service entièrement exécuté.</li>
-      <li>Réclamation : ${val("contactEmail")}. Médiateur de la consommation : ${val("mediator")}.</li>
+      <li>Réclamation : ${val("contactEmail")}. Médiateur de la consommation : ${val("mediator", "en cours de désignation")}.</li>
     </ul>
     <p class="fine">Sources : <a href="https://entreprendre.service-public.gouv.fr/vosdroits/F23455">service-public.gouv.fr (F23455)</a>.</p>
   </div></section>
@@ -407,7 +405,7 @@ ${crumbs([["Accueil", "/"], ["Tarifs", "/tarifs/"]])}
   return page({
     path: "/tarifs/",
     title: `Tarifs KAZONLY | Gestion locative Outre-mer dès ${plans[0].monthly} €/mois`,
-    description: `Un bien gratuit, puis trois formules dès ${plans[0].monthly} €/mois pour gérer vos locations en Outre-mer. Essai ${TRIAL} jours, résiliable à tout moment, euro et franc Pacifique.`,
+    description: `Un bien gratuit, sans carte bancaire, puis trois formules dès ${plans[0].monthly} €/mois pour gérer vos locations en Outre-mer. Résiliable à tout moment, euro et franc Pacifique.`,
     body,
     ld: [breadcrumbLd([["Accueil", "/"], ["Tarifs", "/tarifs/"]]), faqLd(FAQ_BILLING)],
   });
@@ -427,8 +425,8 @@ ${crumbs([["Accueil", "/"], ["Questions fréquentes", "/faq/"]])}
 </div></section>`;
   return page({
     path: "/faq/",
-    title: "FAQ KAZONLY | Gestion locative Outre-mer, essai, tarifs, données",
-    description: "Réponses aux questions sur KAZONLY : territoires couverts, euro et franc Pacifique, essai de 14 jours, résiliation, sécurité des données et fonctions.",
+    title: "FAQ KAZONLY | Gestion locative Outre-mer, formule gratuite, tarifs, données",
+    description: "Réponses aux questions sur KAZONLY : territoires couverts, euro et franc Pacifique, formule gratuite, résiliation, sécurité des données et fonctions.",
     body,
     ld: [breadcrumbLd([["Accueil", "/"], ["Questions fréquentes", "/faq/"]]), faqLd(all)],
   });
@@ -454,7 +452,7 @@ export function hub() {
     <h2>${esc(t.label)} : ${esc(c.tagline)}</h2>
     ${c.intro.map((x) => `<p class="lead">${esc(x)}</p>`).join("")}
     <p>${esc(c.louer)}</p>
-    <div class="cta-row"><a class="btn btn-primary" href="/${t.slug}/">Lire le portrait de ${esc(t.label)}</a><a class="btn btn-ghost" href="${SIGNUP('proprietaire', 'month', t.currency)}">Essayer ${TRIAL} jours</a></div>
+    <div class="cta-row"><a class="btn btn-primary" href="/${t.slug}/">Lire le portrait de ${esc(t.label)}</a><a class="btn btn-ghost" href="${SIGNUP_FREE}">Créer mon compte gratuit</a></div>
   </div>
   <div class="card"><h3>Pourquoi on en est fier</h3><ul class="ticks">${c.atouts.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
     <dl class="facts mini"><div><dt>Chef-lieu</dt><dd>${esc(t.chefLieu)}</dd></div><div><dt>Devise</dt><dd>${t.currency}</dd></div><div><dt>Indicatif</dt><dd>${t.phone}</dd></div></dl></div>
@@ -471,8 +469,8 @@ ${crumbs([["Accueil", "/"], ["Outre-mer", "/outre-mer/"]])}
 ${territories.map(block).join("\n")}
 <section><div class="wrap"><div class="band">
   <h2>Votre territoire mérite un outil à sa hauteur.</h2>
-  <p>${TRIAL} jours d'essai, euro ou franc Pacifique, sans débit pendant l'essai.</p>
-  <a class="btn btn-primary" href="${SIGNUP()}">Démarrer mon essai</a>
+  <p>Gratuit pour 1 bien, sans carte bancaire. Euro ou franc Pacifique selon votre territoire.</p>
+  <a class="btn btn-primary" href="${SIGNUP_FREE}">Créer mon compte gratuit</a>
 </div></div></section>`;
   const itemList = { "@context": "https://schema.org", "@type": "ItemList", name: "Territoires d'Outre-mer couverts par KAZONLY", itemListElement: territories.map((t, i) => ({ "@type": "ListItem", position: i + 1, name: t.label, url: abs(`/${t.slug}/`) })) };
   return page({
@@ -521,7 +519,7 @@ ${crumbs(crumbItems)}
     <h2 id="louer">Louer et investir ${prep(t)}</h2>
     <p>${esc(TC[t.id].louer)}</p>
     <p>KAZONLY aide les propriétaires bailleurs ${prep(t)} à suivre leurs loyers, leurs dépenses et leurs biens en ${devise(t)}, sans tableur et sans mélange de devises.</p>
-    <div class="cta-row"><a class="btn btn-primary" href="${SIGNUP('proprietaire', 'month', t.currency)}">Essayer gratuitement ${TRIAL} jours</a><a class="btn btn-ghost" href="/tarifs/${t.currency === 'XPF' ? '?cur=xpf' : ''}">Voir les tarifs</a></div>
+    <div class="cta-row"><a class="btn btn-primary" href="${SIGNUP_FREE}">Créer mon compte gratuit</a><a class="btn btn-ghost" href="/tarifs/${t.currency === 'XPF' ? '?cur=xpf' : ''}">Voir les tarifs</a></div>
   </div>
 </article>
 
@@ -560,14 +558,14 @@ ${crumbs(crumbItems)}
 
 <section><div class="wrap"><div class="band">
   <h2>Gérez vos locations ${prep(t)} dès aujourd'hui.</h2>
-  <p>${TRIAL} jours d'essai, sans débit pendant l'essai.</p>
-  <a class="btn btn-primary" href="${SIGNUP('proprietaire', 'month', t.currency)}">Démarrer mon essai</a>
+  <p>Gratuit pour 1 bien, sans carte bancaire.</p>
+  <a class="btn btn-primary" href="${SIGNUP_FREE}">Créer mon compte gratuit</a>
 </div></div></section>`;
 
   return page({
     path,
     title: `Gestion locative ${prep(t)} | Logiciel en ${t.currency === "EUR" ? "euros" : "francs Pacifique"} | KAZONLY`,
-    description: `Suivez loyers, dépenses et biens ${prep(t)} en ${t.currency === "EUR" ? "euros" : "francs Pacifique (XPF)"}. Code postal ${fixed ? t.postal : t.postal + "xx"}, indicatif ${t.phone}. Essai ${TRIAL} jours.`,
+    description: `Suivez loyers, dépenses et biens ${prep(t)} en ${t.currency === "EUR" ? "euros" : "francs Pacifique (XPF)"}. Code postal ${fixed ? t.postal : t.postal + "xx"}, indicatif ${t.phone}. Gratuit pour 1 bien.`,
     body,
     ld: [breadcrumbLd(crumbItems), faqLd(faq)],
   });
@@ -595,6 +593,7 @@ ${crumbs([["Accueil", "/"], ["Contact", "/contact/"]])}
       <p class="lead">Agence, gestionnaire ou gros portefeuille : nous construisons avec vous l'offre Agence / Scale la mieux adaptée. Une question ? Écrivez-nous aussi.</p>
       <h2 style="font-size:1.2rem;margin-top:28px">Pour répondre utilement, dites-nous</h2>
       <ul class="ticks"><li>Combien de biens vous suivez, et dans quels territoires.</li><li>Combien de personnes utiliseront l'outil.</li><li>Vos outils actuels et les données à reprendre.</li><li>Ce qui vous manque aujourd'hui.</li></ul>
+      <p>Vous pouvez aussi écrire directement à ${val("contactEmail")}.</p>
     </div>
     <form class="cform" id="contact-form" novalidate data-sitekey="${esc(process.env.TURNSTILE_SITE_KEY || "")}">
       <div class="fld"><label for="c-topic">Votre demande</label>

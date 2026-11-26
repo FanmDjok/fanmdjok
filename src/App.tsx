@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { localRepository } from "./data/localRepository";
 import { supabaseRepository } from "./data/supabaseRepository";
 import { supabase } from "./lib/supabase";
-import { ACTIVE, analysisLevel, errorMessage, fetchSubscription, openPortal, planById, propertyLimit, type Subscription } from "./lib/billing";
+import { ACTIVE, NIVEAU_GRATUIT, analysisLevel, errorMessage, fetchSubscription, openPortal, planById, propertyLimit, type Subscription } from "./lib/billing";
 import type { Expense, Payment, Property } from "./data/types";
 import Auth, { NouveauMotDePasse } from "./components/Auth";
 import Paywall from "./components/Paywall";
@@ -142,8 +142,8 @@ function Shell({ limit, sub, free, onPlans }: { limit: number; sub?: Subscriptio
         )}
         {tab.startsWith("paiements") && <Paiements key={tab} initialSub={tab.split(":")[1]} properties={properties} payments={payments} onSave={async (p) => { await repo.savePayment(p); await load(); }} />}
         {tab === "depenses" && <Depenses properties={properties} expenses={expenses} onSave={async (e) => { await repo.saveExpense(e); await load(); }} />}
-        {tab === "analyses" && <Analyses properties={properties} level={free ? 1 : analysisLevel(sub)} onUpgrade={manage} goBiens={() => setTab("biens")} />}
-        {tab === "rapports" && <Rapports properties={properties} payments={payments} expenses={expenses} level={free ? 1 : analysisLevel(sub)} onUpgrade={manage} />}
+        {tab === "analyses" && <Analyses properties={properties} level={free ? NIVEAU_GRATUIT : analysisLevel(sub)} onUpgrade={manage} goBiens={() => setTab("biens")} />}
+        {tab === "rapports" && <Rapports properties={properties} payments={payments} expenses={expenses} level={free ? NIVEAU_GRATUIT : analysisLevel(sub)} onUpgrade={manage} />}
         {vue === null && <div className="mt-6 flex gap-4 text-sm"><button className="text-primary" onClick={() => setVue("donnees")}>Mes données</button>{sub && <button className="text-primary" onClick={() => setVue("resilier")}>Résilier mon abonnement</button>}</div>}
         <p className="mt-8 border-t border-line pt-4 text-xs text-muted">KAZONLY · La gestion locative pensée pour les Outre-mer · <a className="underline" href="/cgv/">CGV</a> · <a className="underline" href="/confidentialite/">Confidentialité</a></p>
       </main>

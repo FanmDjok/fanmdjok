@@ -232,12 +232,9 @@
 (function () {
   var dash = document.getElementById("dash");
   if (dash) {
-    var T = {
-      martinique: { nom: "Martinique", rent: "2 450 €", spend: "610 €", fore: "+18 900 €", at: "Saison cyclonique", ad: "Vérifiez la garantie catastrophes naturelles de votre bien." },
-      guadeloupe: { nom: "Guadeloupe", rent: "1 980 €", spend: "540 €", fore: "+15 200 €", at: "Diagnostic à renouveler", ad: "Le diagnostic du studio arrive à échéance en mars." },
-      guyane: { nom: "Guyane", rent: "1 420 €", spend: "390 €", fore: "+11 600 €", at: "Humidité et entretien", ad: "Prévoyez l'entretien de la ventilation avant la saison des pluies." },
-      reunion: { nom: "La Réunion", rent: "2 130 €", spend: "575 €", fore: "+16 400 €", at: "Saison cyclonique", ad: "Vérifiez votre assurance pour le T2 de votre bien." }
-    };
+    // Données fictives générées par le build (attribut data-demo), une entrée par territoire.
+    var T = {};
+    try { T = JSON.parse(dash.getAttribute("data-demo") || "{}"); } catch (e) { T = {}; }
     var boutons = [].slice.call(document.querySelectorAll(".k-chip[data-t]"));
     function montrer(k) {
       var d = T[k]; if (!d) return;

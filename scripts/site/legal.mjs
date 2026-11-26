@@ -1,6 +1,5 @@
-import { breadcrumbLd, cfg, crumbs, page, plansData, val } from "./layout.mjs";
+import { breadcrumbLd, cfg, crumbs, page, val } from "./layout.mjs";
 
-const TRIAL = plansData.trialDays;
 const noindex = !cfg.legalReviewed;
 const wrap = (path, title, description, inner) =>
   page({
@@ -17,6 +16,7 @@ ${inner}
     ld: [breadcrumbLd([["Accueil", "/"], [title, path]])],
   });
 
+// À VALIDER : médiateur de la consommation à désigner (site.config.json, clé « mediator ») ; affiché « en cours de désignation » tant qu'il est vide.
 export function mentions() {
   return wrap("/mentions-legales/", "Mentions légales", "Mentions légales du site KAZONLY : éditeur, hébergeur et contact.", `
 <h2>Éditeur du site</h2>
@@ -26,7 +26,7 @@ export function mentions() {
 <h2>Hébergement</h2>
 <p>${cfg.hostingNote}</p>
 <h2>Médiation de la consommation</h2>
-<p>Conformément aux articles L.611-1 et suivants du Code de la consommation, tout consommateur peut recourir gratuitement à un médiateur de la consommation : ${val("mediator")}.</p>
+<p>Conformément aux articles L.611-1 et suivants du Code de la consommation, tout consommateur peut recourir gratuitement à un médiateur de la consommation : ${val("mediator", "en cours de désignation")}.</p>
 <h2>Propriété intellectuelle</h2>
 <p>La marque, les textes, le logiciel et les éléments graphiques de KAZONLY sont protégés. Toute reproduction non autorisée est interdite.</p>`);
 }
@@ -67,20 +67,23 @@ export function cookies() {
 <p>Si des outils de mesure d'audience étaient ajoutés, un bandeau de consentement serait mis en place au préalable.</p>`);
 }
 
+// À VALIDER (juridique) : 1) reconduction de l'abonnement à chaque échéance (article 3) ;
+// 2) modalités de remboursement de la part de service déjà utilisée en cas de rétractation (article 1 ter et 5) ;
+// 3) conservation des factures et données de facturation après suppression du compte (confidentialité).
 export function cgv() {
-  return wrap("/cgv/", "Conditions générales de vente", "Conditions générales de vente et d'utilisation de KAZONLY : abonnement, essai, rétractation, résiliation, responsabilité.", `
+  return wrap("/cgv/", "Conditions générales de vente", "Conditions générales de vente et d'utilisation de KAZONLY : abonnement, formule gratuite, rétractation, résiliation, responsabilité.", `
 <h2>1. Objet</h2>
 <p>Les présentes conditions régissent l'abonnement au service en ligne KAZONLY, outil de suivi de gestion locative, proposé par ${val("publisherName")} (SIRET ${val("siret")}).</p>
 <h2>1 bis. Résiliation</h2>
 <p>Vous pouvez résilier votre abonnement à tout moment, en ligne, depuis « Mon abonnement » dans l'application ou depuis la page <a href="/resilier/">Résilier mon abonnement</a>, sans avoir à créer ou à consulter un espace client. La résiliation prend effet à la fin de la période déjà payée. Un accusé de réception indiquant la date de fin vous est envoyé par e-mail. Source : <a href="https://entreprendre.service-public.gouv.fr/actualites/A16599">service-public.gouv.fr, résiliation des contrats (loi n° 2022-1158 du 16 août 2022, article L. 215-1-1 du Code de la consommation)</a>.</p>
 <h2>1 ter. Droit de rétractation</h2>
-<p>Vous disposez d'un délai de 14 jours calendaires à compter de la conclusion du contrat pour vous rétracter, sans motif. Vous pouvez exercer ce droit en ligne, depuis votre compte, pendant tout ce délai. Si vous demandez à commencer le service avant la fin de ce délai, vous le consentez expressément : le droit de rétractation disparaît une fois le service entièrement exécuté. [À VALIDER] : modalités de remboursement de la part de service déjà utilisée. Sources : <a href="https://www.service-public.gouv.fr/particuliers/vosdroits/F10485">service-public.gouv.fr (F10485)</a> ; <a href="https://entreprendre.service-public.gouv.fr/vosdroits/F23455">entreprendre.service-public.gouv.fr (F23455)</a>.</p>
+<p>Vous disposez d'un délai de 14 jours calendaires à compter de la conclusion du contrat pour vous rétracter, sans motif. Vous pouvez exercer ce droit en ligne, depuis votre compte, pendant tout ce délai. Si vous demandez à commencer le service avant la fin de ce délai, vous le consentez expressément : le droit de rétractation disparaît une fois le service entièrement exécuté. Sources : <a href="https://www.service-public.gouv.fr/particuliers/vosdroits/F10485">service-public.gouv.fr (F10485)</a> ; <a href="https://entreprendre.service-public.gouv.fr/vosdroits/F23455">entreprendre.service-public.gouv.fr (F23455)</a>.</p>
 <h2>2. Nature du service</h2>
 <p>KAZONLY est un outil de suivi. Il ne reçoit, ne détient ni ne transmet aucun loyer ou fonds, et ne fournit aucun conseil juridique, fiscal ou comptable. L'utilisateur reste responsable de ses déclarations et de ses obligations de bailleur.</p>
 <h2>3. Prix et facturation</h2>
 <p>Les prix sont ceux affichés sur la page <a href="/tarifs/">Tarifs</a>, en euros, ${cfg.tvaMention ? cfg.tvaMention : val("tvaMention")}. L'abonnement, mensuel ou annuel, est reconduit tacitement. Le paiement est traité par Stripe.</p>
-<h2>4. Essai gratuit</h2>
-<p>Une formule Gratuite, limitée à un bien et sans carte bancaire, est proposée sans limite de durée. Pour les formules payantes, un essai de ${TRIAL} jours est offert une seule fois par compte. Une carte bancaire est demandée au départ ; aucun prélèvement n'intervient pendant l'essai. Sans résiliation avant son terme, l'abonnement démarre et le premier paiement est prélevé.</p>
+<h2>4. Formule gratuite et souscription</h2>
+<p>La formule Gratuite, limitée à un bien et sans carte bancaire, est proposée sans limite de durée ; elle permet d'essayer le service. Il n'existe pas d'essai gratuit des formules payantes : leur souscription se fait en ligne, le paiement est immédiat, et l'accès démarre après votre demande expresse (case à cocher dédiée).</p>
 <h2>5. Droit de rétractation</h2>
 <p>Le consommateur dispose de quatorze jours pour se rétracter d'un contrat à distance (article L.221-18 du Code de la consommation). Si l'utilisateur demande l'exécution immédiate du service pendant ce délai, il reconnaît que le droit de rétractation s'exerce dans les conditions de l'article L.221-25 (paiement du service déjà fourni).</p>
 <h2>6. Résiliation</h2>
@@ -92,5 +95,5 @@ export function cgv() {
 <h2>9. Données personnelles</h2>
 <p>Voir la <a href="/confidentialite/">politique de confidentialité</a>.</p>
 <h2>10. Médiation et droit applicable</h2>
-<p>Médiateur de la consommation : ${val("mediator")}. Droit français applicable ; à défaut d'accord amiable, les tribunaux compétents seront ceux prévus par la loi.</p>`);
+<p>Médiateur de la consommation : ${val("mediator", "en cours de désignation")}. Droit français applicable ; à défaut d'accord amiable, les tribunaux compétents seront ceux prévus par la loi.</p>`);
 }

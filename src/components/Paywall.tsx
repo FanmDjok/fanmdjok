@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ANNUAL_MONTHS_FREE, PLANS, planAmount, type Currency, TRIAL_DAYS, errorMessage, isValidPlan, openPortal, startCheckout, type Interval, type PlanId } from "../lib/billing";
+import { ANNUAL_MONTHS_FREE, PLANS, planAmount, type Currency, errorMessage, isValidPlan, openPortal, startCheckout, type Interval, type PlanId } from "../lib/billing";
 import { supabase } from "../lib/supabase";
 import { Btn, Card, Eyebrow } from "./ui";
 
@@ -35,12 +35,12 @@ export default function Paywall({ hasSubscriptionRecord, onFree }: { hasSubscrip
       </label>
       <Eyebrow>Dernière étape</Eyebrow>
       <h1 className="mt-1 text-2xl font-bold leading-tight">
-        {hasSubscriptionRecord ? "Votre abonnement n'est plus actif." : `Choisissez votre formule : ${TRIAL_DAYS} jours d'essai.`}
+        {hasSubscriptionRecord ? "Votre abonnement n'est plus actif." : "Choisissez votre formule."}
       </h1>
       <p className="mt-1 text-sm text-muted">
         {hasSubscriptionRecord
           ? "Réactivez-le pour retrouver l'accès à vos biens, vos loyers et vos dépenses. Vos données sont conservées."
-          : "Une carte bancaire est demandée pour démarrer l'essai, mais rien n'est débité pendant l'essai. Vous pouvez aussi continuer gratuitement avec 1 bien, sans carte."}
+          : "Le paiement est immédiat, par carte via Stripe, et l'abonnement se renouvelle à chaque échéance jusqu'à résiliation. Vous pouvez aussi continuer gratuitement avec 1 bien, sans carte."}
       </p>
 
       <div className="my-5 inline-flex rounded-xl border border-line bg-soft p-1 text-sm" role="group" aria-label="Période de facturation">
@@ -75,7 +75,7 @@ export default function Paywall({ hasSubscriptionRecord, onFree }: { hasSubscrip
               <p className="text-sm text-muted">{p.tagline}</p>
               <ul className="mt-3 space-y-1 text-sm">{p.features.map((f) => <li key={f}>• {f}</li>)}</ul>
               <Btn className="mt-4 w-full" variant={chosen ? "primary" : "ghost"} disabled={busy !== null || !startNow} onClick={() => go(p.id as PlanId)}>
-                {busy === p.id ? "Redirection…" : hasSubscriptionRecord ? `Choisir ${p.name}` : `Essayer ${TRIAL_DAYS} jours`}
+                {busy === p.id ? "Redirection…" : hasSubscriptionRecord ? `Choisir ${p.name}` : `S'abonner à ${p.name}`}
               </Btn>
             </Card>
           );

@@ -9,11 +9,15 @@ export const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", 
 export const abs = (p) => `${cfg.siteUrl}${p}`;
 export const warnings = [];
 
-/** Valeur de configuration, ou repère visible si elle n'est pas encore renseignée. */
-export function val(key) {
+/**
+ * Valeur de configuration (shared/site.config.json). Si elle est vide, on affiche un texte neutre et vrai
+ * (repli) et on le signale dans la console du build. Aucun marqueur de travail ne doit apparaître en ligne :
+ * le build échoue si c'est le cas (scripts/build-site.mjs).
+ */
+export function val(key, repli = "") {
   if (cfg[key]) return esc(cfg[key]);
   warnings.push(`Configuration manquante : ${key}`);
-  return `<mark>[à renseigner : ${key}]</mark>`;
+  return esc(repli);
 }
 
 export const assets = { css: "/site.css", js: "/site.js" };
@@ -127,7 +131,7 @@ ${body}
 </main>
 <footer class="ftr"><div class="wrap">
   <div class="cols">
-    <div><a class="logo" href="/" style="color:#fff"><b aria-hidden="true">K</b>KAZONLY</a><p style="margin-top:12px">La gestion locative pensée pour les Outre-mer : Guadeloupe, Martinique, Guyane, La Réunion, Mayotte et les collectivités d'Outre-mer.</p></div>
+    <div><a class="logo" href="/" style="color:#fff"><b aria-hidden="true">K</b>KAZONLY</a><p style="margin-top:12px">La gestion locative pensée pour les onze territoires d'Outre-mer, en euros et en francs Pacifique.</p><p style="margin-top:12px">Contact : <a href="mailto:${esc(cfg.contactEmail)}">${esc(cfg.contactEmail)}</a></p></div>
     <div><h3 class="ftr-h">Produit</h3><ul><li><a href="/#fonctionnalites">Fonctionnalités</a></li><li><a href="/tarifs/">Tarifs</a></li><li><a href="/faq/">Questions fréquentes</a></li><li><a href="/contact/">Contact et offre Agence</a></li><li><a href="/app/">Se connecter</a></li></ul></div>
     <div><h3 class="ftr-h">Outre-mer</h3><ul>${footerTerritories}<li><a href="/outre-mer/">Tous les territoires</a></li></ul></div>
     <div><h3 class="ftr-h">Informations</h3><ul><li><a href="/cgv/">Conditions générales</a></li><li><a href="/confidentialite/">Confidentialité</a></li><li><a href="/cookies/">Cookies</a></li><li><a href="/mentions-legales/">Mentions légales</a></li></ul></div>

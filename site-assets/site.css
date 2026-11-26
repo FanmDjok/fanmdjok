@@ -85,7 +85,10 @@ section{padding:64px 0}
 @media(min-width:760px){.plans{grid-template-columns:repeat(2,1fr)}}@media(min-width:1120px){.plans{grid-template-columns:repeat(4,1fr)}}
 .plan{position:relative;background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px;display:flex;flex-direction:column}
 .plan.hl{border:2px solid var(--primary);box-shadow:0 20px 50px -28px rgba(25,118,210,.6)}
-.plan .badge{position:absolute;top:-13px;left:24px;background:var(--primary);color:#fff;font-size:.75rem;font-weight:700;padding:4px 12px;border-radius:999px}
+.plan .rec{align-self:flex-start;background:#fff4cc;color:#6b4e00;font-size:.8rem;font-weight:700;padding:4px 10px;border-radius:999px;margin:0 0 10px;min-height:0}
+.scenarios{display:grid;gap:16px;margin:24px 0 12px}
+@media(min-width:760px){.scenarios{grid-template-columns:repeat(3,1fr)}}
+.scn-val{font-size:1.75rem;font-weight:800;color:var(--primary);margin:8px 0 4px}
 .price{font-size:2.6rem;font-weight:800;letter-spacing:-.03em;line-height:1}
 .price small{font-size:.95rem;font-weight:500;color:var(--muted);letter-spacing:0}
 .plan ul{list-style:none;padding:0;margin:20px 0 24px;display:grid;gap:10px;flex:1}

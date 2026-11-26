@@ -13,8 +13,9 @@ export type Currency = "EUR" | "XPF";
 export const xpf = (n: number) => n.toLocaleString("fr-FR").replace(/[\u202f\u00a0]/g, " ");
 export const planAmount = (p: (typeof plans.plans)[number], interval: Interval, cur: Currency): string =>
   cur === "XPF" ? `${xpf(interval === "month" ? p.xpf.monthly : p.xpf.yearly)} XPF` : `${eur(interval === "month" ? p.monthly : p.yearly)} €`;
-export const TRIAL_DAYS = plans.trialDays;
 export const FREE_PLAN = plans.free;
+/** Profondeur d'analyse de la formule Gratuite (même niveau que la formule Essentiel). Source : shared/plans.json. */
+export const NIVEAU_GRATUIT: 1 | 2 | 3 = plans.free.niveau as 1 | 2 | 3;
 
 export interface Subscription {
   plan: PlanId;
@@ -88,9 +89,9 @@ export const errorMessage = (code?: string): string => {
   }
 };
 
-/** Profondeur des analyses : 1 Essentiel, 2 Propriétaire, 3 Portefeuille (3 hors ligne). */
+/** Profondeur des analyses, lue dans shared/plans.json (niveau) : 1 Essentiel, 2 Propriétaire, 3 Investisseur. Sans ligne d'abonnement (mode hors ligne), 3. */
 export const analysisLevel = (sub?: Subscription | null): 1 | 2 | 3 =>
-  !sub ? 3 : sub.plan === "investisseur" ? 3 : sub.plan === "proprietaire" ? 2 : 1;
+  !sub ? 3 : ((planById(sub.plan)?.niveau ?? 1) as 1 | 2 | 3);
 
 /** Appel authentifié vers une fonction serveur (session Supabase en jeton Bearer). */
 async function authed(path: string, init: RequestInit = {}): Promise<Response | null> {

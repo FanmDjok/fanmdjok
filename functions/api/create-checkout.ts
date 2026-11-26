@@ -1,5 +1,4 @@
 import { admin, bindEnv, json, priceIdFor, readBounded, requireUser, siteUrl, stripe, type Env } from "../../server/lib";
-import plans from "../../shared/plans.json";
 
 async function handle(req: Request): Promise<Response> {
   const user = await requireUser(req);
@@ -21,7 +20,7 @@ async function handle(req: Request): Promise<Response> {
   // Une ligne par utilisateur (créée à l'inscription, formule Gratuite par défaut).
   const { data: sub } = await db
     .from("subscriptions")
-    .select("plan_code, statut, essai_fin, stripe_customer_id")
+    .select("plan_code, statut, stripe_customer_id")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -37,8 +36,8 @@ async function handle(req: Request): Promise<Response> {
     await db.from("subscriptions").upsert({ user_id: user.id, stripe_customer_id: customerId }, { onConflict: "user_id" });
   }
 
-  // Un seul essai par utilisateur : on le considère consommé dès qu'un essai a commencé.
-  const trialUsed = Boolean(sub?.essai_fin);
+  // Pas d'essai gratuit des formules payantes : la formule Gratuite (1 bien, sans carte) sert d'essai.
+  // Le paiement est immédiat ; le consentement à l'exécution immédiate est déjà vérifié plus haut.
   const base = siteUrl();
   const session = await s.checkout.sessions.create({
     mode: "subscription",
@@ -51,10 +50,6 @@ async function handle(req: Request): Promise<Response> {
     metadata: { user_id: user.id },
     subscription_data: {
       metadata: { user_id: user.id },
-      ...(trialUsed ? {} : {
-        trial_period_days: plans.trialDays,
-        trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
-      }),
     },
     success_url: `${base}/app/?abonnement=ok`,
     cancel_url: `${base}/app/?abonnement=annule`,
