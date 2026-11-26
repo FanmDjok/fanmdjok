@@ -41,8 +41,6 @@ const FAQ_TARIFS = [
     `Les prix sont affichés toutes taxes comprises. ${cfg.tvaMention ? cfg.tvaMention + "." : ""}`],
   ["Quelle différence entre le tarif mensuel et le tarif annuel ?",
     `L'abonnement annuel équivaut à ${12 - freeMonths} mois au prix de 12, soit ${freeMonths} mois offerts. Vous pouvez changer de période depuis « Mon abonnement ».`],
-  ["Puis-je payer en francs Pacifique ?",
-    "Oui. Vous choisissez l'euro ou le franc Pacifique au moment de vous abonner ; la facturation se fait dans la devise choisie, sans conversion de notre part."],
   ["Que se passe-t-il si je dépasse la limite de biens de ma formule ?",
     "L'ajout d'un nouveau bien est bloqué jusqu'au changement de formule. Vos données existantes restent intactes."],
 ];
@@ -53,7 +51,7 @@ const FAQ_BILLING = [
   ["Puis-je changer de formule ou résilier ?",
     "Oui, à tout moment depuis « Mon abonnement » dans l'application (portail sécurisé Stripe). La résiliation prend effet à la fin de la période déjà payée."],
   ["Quels moyens de paiement acceptez-vous ?",
-    "Les cartes bancaires, via Stripe. La facturation se fait en euros, ou directement en francs Pacifique (XPF) pour la Nouvelle-Calédonie, la Polynésie française et Wallis-et-Futuna : choisissez la devise au moment de vous abonner, sans conversion de notre part."],
+    "Les cartes bancaires, via Stripe. La facturation se fait en euros."],
   ["Que se passe-t-il si je dépasse le nombre de biens de ma formule ?",
     "L'ajout d'un nouveau bien est bloqué tant que vous n'avez pas choisi une formule supérieure. Vos données existantes restent intactes."],
   ["Y a-t-il une réduction en payant à l'année ?",
@@ -380,8 +378,8 @@ export function pricing() {
       ${p.recommandation ? `<p class="rec">${esc(p.recommandation)}</p>` : ""}
       <h2 class="plan-h">${esc(p.name)}</h2>
       <p class="muted">${esc(p.tagline)}</p>
-      <p class="price"><span data-m data-e>${p.monthly} €<small>/mois</small></span><span data-y data-e hidden>${fmtPrice(p.yearly)} €<small>/an</small></span><span data-m data-x hidden>${xp(p.xpf.monthly)} XPF<small>/mois</small></span><span data-y data-x hidden>${xp(p.xpf.yearly)} XPF<small>/an</small></span></p>
-      <p class="fine"><span data-m data-e>ou ${fmtPrice(p.yearly)} € par an (${freeMonths} mois offerts)</span><span data-y data-e hidden>soit ${fmtPrice(Math.round(p.yearly / 12 * 100) / 100)} €/mois</span><span data-m data-x hidden>ou ${xp(p.xpf.yearly)} XPF par an (${freeMonths} mois offerts)</span><span data-y data-x hidden>soit ${xp(Math.round(p.xpf.yearly / 12))} XPF/mois</span></p>
+      <p class="price"><span data-m data-e>${p.monthly} €<small>/mois</small></span><span data-y data-e hidden>${fmtPrice(p.yearly)} €<small>/an</small></span></p>
+      <p class="fine"><span data-m data-e>ou ${fmtPrice(p.yearly)} € par an (${freeMonths} mois offerts)</span><span data-y data-e hidden>soit ${fmtPrice(Math.round(p.yearly / 12 * 100) / 100)} €/mois</span></p>
       <ul>${p.features.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>
       <a class="btn ${p.highlight ? "btn-primary" : "btn-ghost"} btn-block" data-plan="${p.id}" href="${SIGNUP(p.id)}">S'abonner à ${esc(p.name)}</a>
     </div>`).join("");
@@ -396,11 +394,6 @@ ${crumbs([["Accueil", "/"], ["Tarifs", "/tarifs/"]])}
     <button type="button" data-interval="month" aria-pressed="true">Mensuel</button>
     <button type="button" data-interval="year" aria-pressed="false">Annuel · ${freeMonths} mois offerts</button>
   </div>
-  <div class="toggle" data-currency-toggle role="group" aria-label="Devise">
-    <button type="button" data-cur="eur" aria-pressed="true">Euro (€)</button>
-    <button type="button" data-cur="xpf" aria-pressed="false">Franc Pacifique (XPF)</button>
-  </div>
-  <p class="fine">Nouvelle-Calédonie, Polynésie française, Wallis-et-Futuna : tarifs et facturation directement en francs Pacifique, sans conversion.</p>
   <div class="plans">${cards}</div>
   <div class="band left" style="margin-top:24px">
     <p class="eyebrow" style="color:#fff;opacity:.85">Agence / Scale · sur devis</p>
@@ -559,7 +552,7 @@ ${crumbs(crumbItems)}
     <h2 id="louer">Louer et investir ${prep(t)}</h2>
     <p>${esc(TC[t.id].louer)}</p>
     <p>KAZONLY aide les propriétaires bailleurs ${prep(t)} à suivre leurs loyers, leurs dépenses et leurs biens en ${devise(t)}, sans tableur et sans mélange de devises.</p>
-    <div class="cta-row"><a class="btn btn-primary" href="${SIGNUP_FREE}">Créer mon compte gratuit</a><a class="btn btn-ghost" href="/tarifs/${t.currency === 'XPF' ? '?cur=xpf' : ''}">Voir les tarifs</a></div>
+    <div class="cta-row"><a class="btn btn-primary" href="${SIGNUP_FREE}">Créer mon compte gratuit</a><a class="btn btn-ghost" href="/tarifs/">Voir les tarifs</a></div>
   </div>
 </article>
 

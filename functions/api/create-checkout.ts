@@ -1,5 +1,5 @@
-import { admin, bindEnv, json, priceIdFor, readBounded, requireUser, siteUrl, stripe, type Env } from "../../server/lib";
-import { paramsSessionCheckout } from "../../server/checkout";
+import { admin, bindEnv, json, readBounded, requireUser, siteUrl, stripe, type Env } from "../../server/lib";
+import { paramsSessionCheckout, resoudrePrix } from "../../server/checkout";
 
 
 async function handle(req: Request, ENV: Env): Promise<Response> {
@@ -16,11 +16,13 @@ async function handle(req: Request, ENV: Env): Promise<Response> {
   // Consentement exprès à commencer tout de suite (non pré-coché côté interface) : sans lui, pas de souscription.
   if (body.startNow !== true) return json({ error: "consentement_requis" }, 400);
 
+  // Euros uniquement : une demande en XPF est refusée, jamais convertie.
+  if (body.currency !== undefined && body.currency !== "EUR") return json({ error: "devise_indisponible" }, 400);
   const plan = String(body.plan);
   const interval = body.interval === "year" ? "year" : "month";
-  const currency = body.currency === "XPF" ? "XPF" : "EUR";
-  const price = priceIdFor(plan, interval, currency);
-  if (!price) return json({ error: "formule_invalide" }, 400);
+  const prix = resoudrePrix(plan, interval, ENV as unknown as Record<string, string | undefined>);
+  if (!prix.ok) return json({ error: prix.erreur }, prix.erreur === "configuration_incoherente" ? 500 : 400);
+  const price = prix.price;
 
   const db = admin();
   const s = stripe();
@@ -52,7 +54,7 @@ async function handle(req: Request, ENV: Env): Promise<Response> {
   }
 
   const session = await s.checkout.sessions.create(paramsSessionCheckout({
-    userId: user.id, customer: customerId, price, plan, interval, currency, base: siteUrl(),
+    userId: user.id, customer: customerId, price, plan, interval, currency: "EUR", base: siteUrl(),
   }));
 
   return json({ url: session.url });

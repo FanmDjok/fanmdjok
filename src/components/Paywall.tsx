@@ -7,7 +7,8 @@ export default function Paywall({ hasSubscriptionRecord, onFree }: { hasSubscrip
   const params = new URLSearchParams(window.location.search);
   const wanted = params.get("plan");
   const [interval, setInterval_] = useState<Interval>(params.get("interval") === "year" ? "year" : "month");
-  const [cur, setCur] = useState<Currency>(params.get("cur") === "xpf" ? "XPF" : "EUR");
+  // Euros uniquement : aucun prix XPF n'est proposé ni facturé.
+  const cur: Currency = "EUR";
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(
     params.get("abonnement") === "annule" ? "Paiement annulé : aucun montant n'a été débité." : null,
@@ -52,14 +53,6 @@ export default function Paywall({ hasSubscriptionRecord, onFree }: { hasSubscrip
         ))}
       </div>
 
-      <div className="mb-5 ml-2 inline-flex rounded-xl border border-line bg-soft p-1 text-sm" role="group" aria-label="Devise">
-        {(["EUR", "XPF"] as const).map((c) => (
-          <button key={c} onClick={() => setCur(c)} aria-pressed={cur === c}
-            className={`rounded-lg px-4 py-2 font-medium ${cur === c ? "bg-white shadow-sm" : "text-muted"}`}>
-            {c === "EUR" ? "Euro (€)" : "Franc Pacifique (XPF)"}
-          </button>
-        ))}
-      </div>
 
       {msg && <p role="alert" className="mb-4 rounded-xl bg-soft p-3 text-sm">{msg}</p>}
 
