@@ -65,9 +65,10 @@ export function cookies() {
 <thead><tr><th scope="col">Nom</th><th scope="col">Fournisseur</th><th scope="col">Finalité</th><th scope="col">Durée</th></tr></thead>
 <tbody>
 <tr><td>kz_consent</td><td>KAZONLY (stockage du navigateur)</td><td>Mémoriser votre choix sur les cookies</td><td>6 mois, puis redemandé</td></tr>
+<tr><td>Cookies de sécurité Stripe</td><td>Stripe</td><td>Prévenir la fraude pendant le paiement (nécessaires)</td><td>Selon la politique de Stripe</td></tr>
 </tbody>
 </table>
-<p>Ce stockage est strictement nécessaire : il ne demande pas de consentement.</p>
+<p>Ces stockages sont strictement nécessaires : ils ne demandent pas de consentement. Politique de Stripe : <a href="https://stripe.com">stripe.com</a>. <!-- À VALIDER : lien exact vers la page cookies de Stripe --></p>
 <h2>Votre choix</h2>
 <p>Votre choix est conservé six mois, puis le bandeau vous le demande à nouveau. Vous pouvez le modifier à tout moment avec le lien « Gérer mes cookies » en bas de page.</p>
 <p>Si des outils de mesure d'audience étaient ajoutés, aucun traceur ne serait chargé avant votre accord, et ce tableau serait mis à jour.</p>`);
