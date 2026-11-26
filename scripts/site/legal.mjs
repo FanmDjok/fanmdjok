@@ -58,18 +58,21 @@ export function confidentialite() {
 }
 
 export function cookies() {
-  return wrap("/cookies/", "Cookies et traceurs", "KAZONLY n'utilise que des traceurs strictement nécessaires : aucun cookie publicitaire ni de mesure d'audience.", `
-<p>KAZONLY n'utilise aucun cookie publicitaire ni outil de mesure d'audience. Seuls des stockages strictement nécessaires au fonctionnement sont employés, exemptés de consentement :</p>
-<ul>
-<li>le jeton de session de connexion (stockage local du navigateur) ;</li>
-<li>les cookies techniques de Stripe lors du paiement, destinés à la prévention de la fraude.</li>
-</ul>
-<p>Si des outils de mesure d'audience étaient ajoutés, un bandeau de consentement serait mis en place au préalable.</p>`);
+  return wrap("/cookies/", "Cookies et traceurs", "Les cookies et traceurs utilisés par le site KAZONLY, leur finalité et comment changer votre choix.", `
+<p>Le site KAZONLY n'utilise aucun cookie publicitaire, et aucun outil de mesure d'audience n'est actif à ce jour.</p>
+<h2>Traceurs utilisés</h2>
+<table class="cmp">
+<thead><tr><th scope="col">Nom</th><th scope="col">Fournisseur</th><th scope="col">Finalité</th><th scope="col">Durée</th></tr></thead>
+<tbody>
+<tr><td>kz_consent</td><td>KAZONLY (stockage du navigateur)</td><td>Mémoriser votre choix sur les cookies</td><td>6 mois, puis redemandé</td></tr>
+</tbody>
+</table>
+<p>Ce stockage est strictement nécessaire : il ne demande pas de consentement.</p>
+<h2>Votre choix</h2>
+<p>Votre choix est conservé six mois, puis le bandeau vous le demande à nouveau. Vous pouvez le modifier à tout moment avec le lien « Gérer mes cookies » en bas de page.</p>
+<p>Si des outils de mesure d'audience étaient ajoutés, aucun traceur ne serait chargé avant votre accord, et ce tableau serait mis à jour.</p>`);
 }
 
-// À VALIDER (juridique) : 1) reconduction de l'abonnement à chaque échéance (article 3) ;
-// 2) modalités de remboursement de la part de service déjà utilisée en cas de rétractation (article 1 ter et 5) ;
-// 3) conservation des factures et données de facturation après suppression du compte (confidentialité).
 export function cgv() {
   return wrap("/cgv/", "Conditions générales de vente", "Conditions générales de vente et d'utilisation de KAZONLY : abonnement, formule gratuite, rétractation, résiliation, responsabilité.", `
 <h2>1. Objet</h2>

@@ -257,3 +257,65 @@
     io2.observe(reveal);
   } else if (reveal) reveal.classList.add("in");
 })();
+
+// Bandeau de consentement (CNIL) : trois boutons de même taille, aucun traceur avant un choix, choix conservé 6 mois.
+(function () {
+  var KEY = "kz_consent", SIX_MOIS = 182 * 864e5;
+  function lire() {
+    try {
+      var v = JSON.parse(localStorage.getItem(KEY) || "null");
+      if (!v || !v.date || Date.now() - v.date > SIX_MOIS) return null;
+      return v;
+    } catch (e) { return null; }
+  }
+  function enregistrer(mesure) {
+    try { localStorage.setItem(KEY, JSON.stringify({ v: 1, date: Date.now(), mesure: !!mesure })); } catch (e) { /* stockage indisponible : le bandeau reviendra */ }
+  }
+  // Retrait du consentement : on efface les traceurs de mesure déjà posés.
+  function effacerTraceurs() {
+    try {
+      Object.keys(localStorage).filter(function (k) { return /^ph_|posthog/i.test(k); }).forEach(function (k) { localStorage.removeItem(k); });
+    } catch (e) { /* sans effet */ }
+    document.cookie.split(";").forEach(function (c) {
+      var n = c.split("=")[0].trim();
+      if (/^ph_|posthog/i.test(n)) document.cookie = n + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+    });
+  }
+  // Aucun outil de mesure n'est encore branché : rien n'est chargé même après acceptation.
+  // Lorsque la mesure sera activée, le chargement se fera ici, uniquement si mesure === true.
+  function chargerMesure(choix) { if (!choix || !choix.mesure) return; }
+
+  var box = document.getElementById("kz-consent");
+  if (!box) return;
+  var panneau = box.querySelector(".kz-panel"), mesure = document.getElementById("kz-mesure");
+
+  function ouvrir(avecPanneau) {
+    box.hidden = false;
+    panneau.hidden = !avecPanneau;
+    var v = lire();
+    mesure.checked = !!(v && v.mesure);
+  }
+  function fermer() { box.hidden = true; }
+  function choisir(mesureChoisie) {
+    if (!mesureChoisie) effacerTraceurs();
+    enregistrer(mesureChoisie);
+    chargerMesure({ mesure: mesureChoisie });
+    fermer();
+  }
+
+  box.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-c]");
+    if (!b) return;
+    var action = b.getAttribute("data-c");
+    if (action === "refuser") choisir(false);
+    else if (action === "accepter") choisir(true);
+    else if (action === "personnaliser") { panneau.hidden = false; mesure.focus(); }
+    else if (action === "enregistrer") choisir(mesure.checked);
+  });
+
+  var gerer = document.getElementById("kz-gerer");
+  if (gerer) gerer.addEventListener("click", function () { ouvrir(true); });
+
+  var v = lire();
+  if (v) chargerMesure(v); else ouvrir(false);
+})();

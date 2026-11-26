@@ -136,8 +136,24 @@ ${body}
     <div><h3 class="ftr-h">Outre-mer</h3><ul>${footerTerritories}<li><a href="/outre-mer/">Tous les territoires</a></li></ul></div>
     <div><h3 class="ftr-h">Informations</h3><ul><li><a href="/cgv/">Conditions générales</a></li><li><a href="/confidentialite/">Confidentialité</a></li><li><a href="/cookies/">Cookies</a></li><li><a href="/mentions-legales/">Mentions légales</a></li></ul></div>
   </div>
-  <div class="legal">© ${new Date().getFullYear()} ${esc(cfg.name)}. Outil de suivi de gestion locative : KAZONLY ne détient pas vos fonds et ne remplace pas un conseil juridique, fiscal ou comptable.</div>
+  <div class="legal"><button type="button" id="kz-gerer" class="kz-lien">Gérer mes cookies</button> · © ${new Date().getFullYear()} ${esc(cfg.name)}. Outil de suivi de gestion locative : KAZONLY ne détient pas vos fonds et ne remplace pas un conseil juridique, fiscal ou comptable.</div>
 </div></footer>
+<div id="kz-consent" class="kz-consent" role="region" aria-label="Choix des traceurs" hidden>
+  <p>Nous utilisons des traceurs pour mesurer l'audience et améliorer KAZONLY. Vous pouvez accepter, refuser ou choisir. Votre choix est modifiable à tout moment. <a href="/cookies/">En savoir plus</a></p>
+  <div class="kz-actions">
+    <button type="button" class="kz-btn" data-c="refuser">Tout refuser</button>
+    <button type="button" class="kz-btn" data-c="personnaliser">Personnaliser</button>
+    <button type="button" class="kz-btn" data-c="accepter">Tout accepter</button>
+  </div>
+  <div class="kz-panel" hidden>
+    <fieldset>
+      <legend>Vos choix</legend>
+      <label class="kz-cat"><input type="checkbox" checked disabled> <span>Nécessaires : toujours actifs, non modifiables.</span></label>
+      <label class="kz-cat"><input type="checkbox" id="kz-mesure"> <span>Mesure d'audience (aucun outil actif à ce jour).</span></label>
+    </fieldset>
+    <button type="button" class="kz-btn" data-c="enregistrer">Enregistrer mes choix</button>
+  </div>
+</div>
 <script src="${assets.js}" defer></script>
 </body>
 </html>`;

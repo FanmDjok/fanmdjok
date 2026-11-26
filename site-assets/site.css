@@ -439,3 +439,18 @@ h1.h1-xl{min-height:2.1em}
 
 /* Bascules tarifs : l'espace est réservé dès le premier affichage (pas de décalage quand le script s'active). */
 html:not(.js) [data-billing-toggle],html:not(.js) [data-currency-toggle]{visibility:hidden}
+
+/* Bandeau de consentement : trois boutons de même taille et même style. */
+.kz-consent{position:fixed;left:12px;right:12px;bottom:12px;z-index:50;max-width:720px;margin:0 auto;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:0 18px 40px -18px rgba(15,42,74,.45);font-size:.95rem}
+.kz-consent[hidden]{display:none}
+.kz-consent p{margin:0 0 12px}
+.kz-consent a{color:var(--primary)}
+.kz-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.kz-btn{font:inherit;font-weight:700;font-size:.95rem;min-height:48px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--primary);background:#fff;color:var(--primary);cursor:pointer;width:100%}
+.kz-btn:focus-visible,.kz-lien:focus-visible{outline:3px solid var(--primary);outline-offset:3px}
+.kz-panel{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.kz-panel[hidden]{display:none}
+.kz-panel fieldset{border:0;padding:0;margin:0 0 12px}
+.kz-cat{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
+.kz-lien{font:inherit;background:none;border:0;color:#fff;text-decoration:underline;cursor:pointer;padding:0}
+@media (max-width:560px){.kz-actions{grid-template-columns:1fr}}
