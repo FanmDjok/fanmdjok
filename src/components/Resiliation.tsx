@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { errorMessage, planById, resilier, retracter, type Subscription } from "../lib/billing";
+import posthog, { posthogEnabled } from "../lib/posthog";
 import { Btn, Card, PageTitle } from "./ui";
 
 const date = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : "la fin de votre période en cours");
@@ -16,7 +17,10 @@ export default function Resiliation({ sub, onClose }: { sub: Subscription; onClo
     setBusy(true); setMsg(null);
     const r = await resilier();
     setBusy(false);
-    if (r.ok) setFait(`Votre abonnement est résilié. Votre accès reste actif jusqu'au ${date(r.fin ?? sub.currentPeriodEnd)}. Un accusé de réception avec cette date vous sera envoyé par e-mail.`);
+    if (r.ok) {
+      if (posthogEnabled) posthog.capture("subscription_cancelled", { plan: sub.plan });
+      setFait(`Votre abonnement est résilié. Votre accès reste actif jusqu'au ${date(r.fin ?? sub.currentPeriodEnd)}. Un accusé de réception avec cette date vous sera envoyé par e-mail.`);
+    }
     else setMsg(errorMessage(r.error));
   };
   const doRetracter = async () => {

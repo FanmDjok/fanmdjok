@@ -3,6 +3,7 @@ import type { Payment, Property } from "../data/types";
 import { uid } from "../data/localRepository";
 import { currentMonth, monthLabel, shiftMonth } from "../lib/period";
 import { formatMoney, sumByCurrency } from "../lib/money";
+import posthog, { posthogEnabled } from "../lib/posthog";
 import { Btn, Card, Empty, Field, PageTitle, inputCls } from "../components/ui";
 import { MoneyLines } from "./Accueil";
 
@@ -63,6 +64,7 @@ function Echeances({ properties, payments, onSave }: { properties: Property[]; p
             <Btn disabled={!propId} onClick={async () => {
               const p = prop(propId);
               await onSave({ id: uid(), propertyId: p.id, month, amount: p.loyer, status: "attente" });
+              if (posthogEnabled) posthog.capture("rent_due_created", { currency: p.currency });
               setAdding(false); setPropId("");
             }}>Créer l'échéance ({propId ? formatMoney(prop(propId).loyer, prop(propId).currency) : "—"})</Btn>
           </div>
@@ -74,7 +76,11 @@ function Echeances({ properties, payments, onSave }: { properties: Property[]; p
             {list.map((p) => (
               <li key={p.id} className="flex items-center justify-between gap-2 py-3">
                 <div><p className="font-medium">{prop(p.propertyId).name}</p><p className="text-sm text-muted">{formatMoney(p.amount, prop(p.propertyId).currency)}</p></div>
-                <select className="rounded-lg border border-line px-2 py-1 text-sm" value={p.status} onChange={(e) => onSave({ ...p, status: e.target.value as Payment["status"] })}>
+                <select className="rounded-lg border border-line px-2 py-1 text-sm" value={p.status} onChange={async (e) => {
+                  const status = e.target.value as Payment["status"];
+                  await onSave({ ...p, status });
+                  if (status === "recu" && p.status !== "recu" && posthogEnabled) posthog.capture("rent_marked_received", { currency: prop(p.propertyId).currency });
+                }}>
                   <option value="attente">En attente</option><option value="recu">Reçu</option><option value="retard">En retard</option>
                 </select>
               </li>

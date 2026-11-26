@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
+import posthog, { posthogEnabled } from "../lib/posthog";
+import { posthogLog } from "../lib/posthogLogs";
 import { TURNSTILE_SITE_KEY, mountTurnstile } from "../lib/turnstile";
 import { Btn, Card, Field, PageTitle, inputCls } from "./ui";
 
@@ -42,6 +44,10 @@ export default function Auth() {
     if (mode === "in") {
       const { error } = await supabase.auth.signInWithPassword({ email, password, options: { captchaToken } });
       if (error) setMsg("Adresse e-mail ou mot de passe incorrect, ou vérification à refaire.");
+      else {
+        if (posthogEnabled) posthog.capture("authentication_completed", { method: "password", flow: "sign_in" });
+        posthogLog.info("authentication completed", { method: "password", flow: "sign_in" });
+      }
     } else if (mode === "up") {
       const { error, data } = await supabase.auth.signUp({
         email, password,
@@ -52,7 +58,11 @@ export default function Auth() {
         },
       });
       if (error) setMsg(`Création impossible. Vérifiez l'adresse e-mail et choisissez un mot de passe d'au moins ${MIN_PASSWORD} caractères.`);
-      else if (!data.session) setMsg("Compte créé. Consultez votre boîte mail pour confirmer votre adresse, puis revenez ici.");
+      else {
+        if (posthogEnabled) posthog.capture("authentication_completed", { method: "password", flow: "sign_up" });
+        posthogLog.info("authentication completed", { method: "password", flow: "sign_up" });
+        if (!data.session) setMsg("Compte créé. Consultez votre boîte mail pour confirmer votre adresse, puis revenez ici.");
+      }
     } else {
       // Réponse identique que le compte existe ou non : on ne révèle pas les adresses inscrites.
       await supabase.auth.resetPasswordForEmail(email, {

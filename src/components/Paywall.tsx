@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { ANNUAL_MONTHS_FREE, PLANS, planAmount, type Currency, errorMessage, isValidPlan, openPortal, startCheckout, type Interval, type PlanId } from "../lib/billing";
 import { supabase } from "../lib/supabase";
+import posthog, { posthogEnabled } from "../lib/posthog";
+import { posthogLog } from "../lib/posthogLogs";
 import { Btn, Card, Eyebrow } from "./ui";
 
 export default function Paywall({ hasSubscriptionRecord, onFree }: { hasSubscriptionRecord: boolean; onFree?: () => void }) {
@@ -17,7 +19,11 @@ export default function Paywall({ hasSubscriptionRecord, onFree }: { hasSubscrip
   const go = async (plan: PlanId) => {
     setBusy(plan); setMsg(null);
     const r = await startCheckout(plan, interval, cur, startNow);
-    if (r.url) { window.location.assign(r.url); return; }
+    if (r.url) {
+      if (posthogEnabled) posthog.capture("subscription_checkout_started", { plan, billing_interval: interval, currency: cur, has_subscription_record: hasSubscriptionRecord });
+      posthogLog.info("subscription checkout started", { plan, billing_interval: interval, currency: cur, has_subscription_record: hasSubscriptionRecord });
+      window.location.assign(r.url); return;
+    }
     setMsg(errorMessage(r.error)); setBusy(null);
   };
   const portal = async () => {

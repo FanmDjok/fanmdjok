@@ -2,11 +2,20 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { loadEnv } from "vite";
 import { abs, assets, cfg, plansData, territories, warnings } from "./site/layout.mjs";
 import { confirmeVeillePage, contactPage, faqPage, home, hub, notFound, pricing, resilierPage, territoryPage, tresoriePage } from "./site/pages.mjs";
 import { cgv, confidentialite, cookies, mentions } from "./site/legal.mjs";
 
 const DIST = "dist";
+const buildMode = process.env.NODE_ENV ?? "production";
+const posthogHost = loadEnv(buildMode, process.cwd(), "VITE_").VITE_POSTHOG_HOST;
+const posthogAssetsHost = posthogHost?.replace(".i.posthog.com", "-assets.i.posthog.com");
+const posthogAppHost = posthogHost?.replace(".i.posthog.com", ".posthog.com");
+if (!posthogHost && buildMode !== "production") {
+  console.warn("VITE_POSTHOG_HOST variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once VITE_POSTHOG_HOST is configured");
+}
+
 const write = (rel, content) => {
   const f = path.join(DIST, rel);
   fs.mkdirSync(path.dirname(f), { recursive: true });
@@ -93,7 +102,7 @@ if (cfg.contactEmail) {
 const redirections = territories.map((t) => `/outre-mer/${t.id}/  /${t.slug}/  301`).join("\n");
 write("_redirects", `/app/*  /app/index.html  200\n${redirections}\n`);
 write("_headers", `/*
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com; style-src-elem 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://cloudflareinsights.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com${posthogAssetsHost ? ` ${posthogAssetsHost}` : ""}; style-src-elem 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://cloudflareinsights.com${posthogHost ? ` ${posthogHost}` : ""}; worker-src 'self' blob:; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
@@ -104,7 +113,8 @@ write("_headers", `/*
   X-Permitted-Cross-Domain-Policies: none
 
 /app/assets/*
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=31536000, immutable${posthogAppHost ? `
+  Access-Control-Allow-Origin: ${posthogAppHost}` : ""}
 /site.*
   Cache-Control: public, max-age=31536000, immutable
 /api/*

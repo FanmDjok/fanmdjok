@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import posthog, { posthogEnabled } from "../lib/posthog";
 import { Btn, Card, Field, PageTitle, inputCls } from "./ui";
 
 /** Code à 6 chiffres demandé après le mot de passe, quand la double authentification est active. */
@@ -16,7 +17,10 @@ export function MfaChallenge({ onDone, onCancel }: { onDone: () => void; onCance
     const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: facteur.id, code: code.trim() });
     setBusy(false);
     if (error) setMsg("Code incorrect ou expiré. Vérifiez l'heure de votre téléphone et réessayez.");
-    else onDone();
+    else {
+      if (posthogEnabled) posthog.capture("mfa_challenge_completed");
+      onDone();
+    }
   };
   return (
     <div className="mx-auto max-w-xl px-5 pt-12">

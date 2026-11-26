@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Finance, Property } from "../data/types";
+import posthog, { posthogEnabled } from "../lib/posthog";
 import { Btn, Field, inputCls } from "./ui";
 
 const FIELDS: { key: keyof Finance; label: string; hint?: string }[] = [
@@ -16,7 +17,7 @@ const FIELDS: { key: keyof Finance; label: string; hint?: string }[] = [
 ];
 
 /** Saisie facultative des données financières d'un bien, dans sa devise. */
-export default function FinanceForm({ property, onSave, onClose }: { property: Property; onSave: (p: Property) => Promise<void>; onClose: () => void }) {
+export default function FinanceForm({ property, onSave, onClose }: { property: Property; onSave: (p: Property) => Promise<boolean>; onClose: () => void }) {
   const [v, setV] = useState<Record<string, string>>(() =>
     Object.fromEntries(FIELDS.map((f) => [f.key, property.finance?.[f.key] === undefined ? "" : String(property.finance[f.key])])));
   const unit = property.currency === "XPF" ? "XPF" : "€";
@@ -26,7 +27,8 @@ export default function FinanceForm({ property, onSave, onClose }: { property: P
       const x = v[f.key].trim().replace(",", ".");
       if (x !== "" && Number.isFinite(Number(x)) && Number(x) >= 0) (finance as Record<string, number>)[f.key] = Number(x);
     }
-    await onSave({ ...property, finance });
+    if (!(await onSave({ ...property, finance }))) return;
+    if (posthogEnabled) posthog.capture("property_financials_saved", { currency: property.currency, field_count: Object.keys(finance).length });
     onClose();
   };
   return (
