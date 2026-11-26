@@ -188,6 +188,19 @@ export function home() {
   <p><a href="/faq/">Voir toutes les questions →</a></p>
 </div></section>
 
+<section class="newsletter" aria-labelledby="nl-title"><div class="wrap">
+  <h2 id="nl-title">Les règles changent. Vous serez prévenu.</h2>
+  <p class="lead">Une lettre par mois : lois, indices et obligations qui évoluent dans votre territoire, et les nouveautés de KAZONLY.</p>
+  <form class="nl-form" id="newsletter-form" novalidate data-sitekey="${esc(process.env.TURNSTILE_SITE_KEY || "")}">
+    <label for="nl-email" class="sr-only">Adresse e-mail</label>
+    <input id="nl-email" name="email" type="email" autocomplete="email" placeholder="vous@exemple.fr" required maxlength="320">
+    <label class="nl-consent"><input type="checkbox" name="consent" value="1"> J'accepte de recevoir la veille KAZONLY. Désinscription en un clic. Voir la <a href="/confidentialite/">politique de confidentialité</a>.</label>
+    <div id="newsletter-ts" class="ts-slot"></div>
+    <button class="btn btn-primary" type="submit">Recevoir la veille</button>
+  </form>
+  <p class="err" id="newsletter-msg" role="status" aria-live="polite"></p>
+</div></section>
+
 <section class="final-band"><div class="wrap">
   <h2>Prêt à suivre votre premier bien ?</h2>
   <p>Gratuit pour 1 bien, sans carte bancaire.</p>
@@ -535,4 +548,16 @@ export function resilierPage() {
     body,
     noindex: true,
   });
+}
+
+/* ---------- Confirmation de l'inscription à la veille (page utilitaire, non indexée) ---------- */
+export function confirmeVeillePage() {
+  const body = `
+<section class="legal wrap prose" style="padding-top:48px">
+  <p class="eyebrow">Veille KAZONLY</p>
+  <h1>Inscription confirmée</h1>
+  <p class="lead">Merci. Votre adresse est enregistrée pour recevoir la veille KAZONLY : lois, indices et obligations de votre territoire.</p>
+  <p><a class="btn btn-ghost" href="/">Retour à l'accueil</a></p>
+</section>`;
+  return page({ path: "/newsletter/confirme/", title: "Inscription confirmée | KAZONLY", description: "Votre inscription à la veille KAZONLY est confirmée.", body, noindex: true });
 }

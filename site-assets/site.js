@@ -192,3 +192,38 @@
       });
   });
 })();
+
+// Veille : inscription par e-mail (double opt-in Brevo), après la vérification anti-robot.
+(function () {
+  var f = document.getElementById("newsletter-form");
+  if (!f) return;
+  var msg = document.getElementById("newsletter-msg"), btn = f.querySelector("button"), slot = document.getElementById("newsletter-ts");
+  var key = f.dataset.sitekey, token = "", wid = null, tries = 0;
+  var s = document.createElement("script");
+  s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js"; s.async = true; document.head.appendChild(s);
+  function mount() {
+    if (!key) { msg.textContent = "Inscriptions bientôt ouvertes."; btn.disabled = true; return; }
+    if (!window.turnstile) { if (++tries < 40) setTimeout(mount, 250); return; }
+    wid = window.turnstile.render(slot, { sitekey: key, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; }, "error-callback": function () { token = ""; } });
+  }
+  mount();
+  f.addEventListener("submit", function (e) {
+    e.preventDefault(); msg.textContent = "";
+    var d = new FormData(f), email = String(d.get("email") || "").trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = "Entrez une adresse e-mail valide."; return; }
+    if (!d.get("consent")) { msg.textContent = "Cochez la case pour recevoir la veille."; return; }
+    if (!token) { msg.textContent = "Validez la vérification anti-robot."; return; }
+    btn.disabled = true;
+    fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email, consent: true, turnstileToken: token }) })
+      .then(function (r) {
+        if (r.status === 503) throw new Error("bientot");
+        if (r.status === 403) throw new Error("robot");
+        if (!r.ok) throw new Error("http");
+        f.hidden = true; msg.textContent = "Merci. Confirmez votre inscription depuis l'e-mail que nous venons de vous envoyer.";
+      })
+      .catch(function (err) {
+        msg.textContent = err.message === "bientot" ? "Inscriptions bientôt ouvertes." : err.message === "robot" ? "La vérification a expiré. Validez-la à nouveau." : "Envoi impossible. Réessayez dans un instant.";
+        btn.disabled = false; token = ""; if (wid !== null && window.turnstile) window.turnstile.reset(wid);
+      });
+  });
+})();

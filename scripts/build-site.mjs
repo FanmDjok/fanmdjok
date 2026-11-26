@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { abs, assets, cfg, territories, warnings } from "./site/layout.mjs";
-import { contactPage, faqPage, home, hub, notFound, pricing, resilierPage, territoryPage } from "./site/pages.mjs";
+import { confirmeVeillePage, contactPage, faqPage, home, hub, notFound, pricing, resilierPage, territoryPage } from "./site/pages.mjs";
 import { cgv, confidentialite, cookies, mentions } from "./site/legal.mjs";
 
 const DIST = "dist";
@@ -29,12 +29,13 @@ for (const f of ["favicon.svg", "og-image.png"]) {
   else warnings.push(`Fichier manquant : site-assets/${f}`);
 }
 
+for (const f of fs.readdirSync("site-assets/fonts")) write(`fonts/${f}`, fs.readFileSync(`site-assets/fonts/${f}`));
 for (const f of fs.readdirSync("site-assets/shots")) write(`img/${f}`, fs.readFileSync(`site-assets/shots/${f}`));
 
 const pages = [
   home(), pricing(), faqPage(), contactPage(), hub(),
   ...territories.map(territoryPage),
-  mentions(), confidentialite(), cookies(), cgv(), resilierPage(),
+  mentions(), confidentialite(), cookies(), cgv(), resilierPage(), confirmeVeillePage(),
 ];
 for (const p of pages) write(p.path === "/" ? "index.html" : `${p.path.replace(/^\//, "")}index.html`, p.html);
 write("404.html", notFound().html);
