@@ -20,6 +20,12 @@ export function val(key, repli = "") {
   return esc(repli);
 }
 
+/** Cloudflare Web Analytics : mesure sans cookie, sans consentement requis. Balise seulement si le jeton est renseigné. */
+export const cfWebAnalyticsToken = () =>
+  cfg.cfWebAnalyticsToken
+    ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "${esc(cfg.cfWebAnalyticsToken)}"}'></script>`
+    : "";
+
 export const assets = { css: "/site.css", js: "/site.js" };
 
 export const SIGNUP_FREE = "/app/?mode=inscription";
@@ -155,7 +161,7 @@ ${body}
   </div>
 </div>
 <script src="${assets.js}" defer></script>
-</body>
+${cfWebAnalyticsToken()}</body>
 </html>`;
   return { path, noindex, html };
 }

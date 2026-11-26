@@ -1,7 +1,8 @@
 // Test de bout en bout du bandeau de consentement. Usage : node scripts/e2e-consentement.cjs http://localhost:8791
 const { chromium } = require('playwright');
 const base = process.argv[2] || 'http://localhost:8791';
-const TRACEURS = /posthog|facebook|tiktok|cloudflareinsights|google-analytics|googletagmanager/i;
+// Traceurs soumis au consentement. La balise Cloudflare Web Analytics est sans cookie : elle est testée à part.
+const TRACEURS = /posthog|facebook|tiktok|google-analytics|googletagmanager/i;
 let ok = 0, ko = 0;
 const verifier = (nom, cond, detail = '') => { if (cond) { ok++; console.log('OK  ', nom); } else { ko++; console.log('ECHEC', nom, detail); } };
 (async () => {
@@ -20,6 +21,7 @@ const verifier = (nom, cond, detail = '') => { if (cond) { ok++; console.log('OK
   await p.waitForTimeout(800);
   verifier('le bandeau s\'affiche à la première visite', await p.isVisible('#kz-consent'));
   verifier('aucun traceur avant le choix', requetes.length === 0, requetes.join(' '));
+  verifier('Cloudflare Web Analytics chargé et sans cookie', (await p.evaluate(() => !!document.querySelector('script[data-cf-beacon]'))) && (await c.cookies()).every((k) => !/cf|_cf/i.test(k.name) || k.name === 'kz_consent' ? true : false));
 
   // 2. Tous les boutons principaux ont la même taille calculée.
   const tailles = await p.$$eval('#kz-consent .kz-actions .kz-btn', (els) => els.map((e) => { const r = e.getBoundingClientRect(); return `${Math.round(r.width)}x${Math.round(r.height)}`; }));

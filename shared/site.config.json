@@ -11,5 +11,6 @@
   "tvaMention": "TVA non applicable, article 293 B du CGI",
   "mediator": "",
   "hostingNote": "Cloudflare, Inc. (États-Unis) pour le site et les fonctions ; Supabase pour la base de données",
-  "dbRegion": "Irlande (Union européenne, eu-west-1)"
+  "dbRegion": "Irlande (Union européenne, eu-west-1)",
+  "cfWebAnalyticsToken": "0d55d9266b3b47c99a008262de235db6"
 }

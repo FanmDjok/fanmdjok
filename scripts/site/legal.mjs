@@ -60,12 +60,13 @@ export function confidentialite() {
 // À VALIDER : lien exact vers la page cookies de Stripe (la ligne Stripe du tableau pointe vers stripe.com).
 export function cookies() {
   return wrap("/cookies/", "Cookies et traceurs", "Les cookies et traceurs utilisés par le site KAZONLY, leur finalité et comment changer votre choix.", `
-<p>Le site KAZONLY n'utilise aucun cookie publicitaire, et aucun outil de mesure d'audience n'est actif à ce jour.</p>
+<p>Le site KAZONLY n'utilise aucun cookie publicitaire. Une mesure d'audience anonyme et sans cookie (Cloudflare Web Analytics) ne demande pas de consentement.</p>
 <h2>Traceurs utilisés</h2>
 <table class="cmp">
 <thead><tr><th scope="col">Nom</th><th scope="col">Fournisseur</th><th scope="col">Finalité</th><th scope="col">Durée</th></tr></thead>
 <tbody>
 <tr><td>kz_consent</td><td>KAZONLY (stockage du navigateur)</td><td>Mémoriser votre choix sur les cookies</td><td>6 mois, puis redemandé</td></tr>
+<tr><td>Cloudflare Web Analytics</td><td>Cloudflare, Inc.</td><td>Mesure d'audience anonyme (visites, pages vues), sans cookie et sans identifiant personnel</td><td>Aucune</td></tr>
 <tr><td>Cookies de sécurité Stripe</td><td>Stripe</td><td>Prévenir la fraude pendant le paiement (nécessaires)</td><td>Selon la politique de Stripe</td></tr>
 </tbody>
 </table>
