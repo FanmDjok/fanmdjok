@@ -3,6 +3,7 @@ import type { Expense, Property } from "../data/types";
 import { uid } from "../data/localRepository";
 import { currentMonth, monthLabel, shiftMonth } from "../lib/period";
 import { formatMoney, sumByCurrency } from "../lib/money";
+import posthog, { posthogEnabled } from "../lib/posthog";
 import { Btn, Card, Empty, Field, PageTitle, inputCls } from "../components/ui";
 import { MoneyLines } from "./Accueil";
 
@@ -37,7 +38,11 @@ export default function Depenses({ properties, expenses, onSave }: { properties:
             <Field label="Propriété"><select className={inputCls} value={propId} onChange={(e) => setPropId(e.target.value)}><option value="">Choisir…</option>{properties.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></Field>
             <Field label="Catégorie"><select className={inputCls} value={cat} onChange={(e) => setCat(e.target.value)}>{CATEGORIES.map((c) => <option key={c}>{c}</option>)}</select></Field>
             <Field label={`Montant${propId ? ` (${prop(propId).currency})` : ""}`}><input className={inputCls} inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value.replace(",", "."))} /></Field>
-            <Btn disabled={!propId || !(Number(amount) > 0)} onClick={async () => { await onSave({ id: uid(), propertyId: propId, month, amount: Number(amount), category: cat }); setAdding(false); setAmount(""); }}>Enregistrer</Btn>
+            <Btn disabled={!propId || !(Number(amount) > 0)} onClick={async () => {
+              await onSave({ id: uid(), propertyId: propId, month, amount: Number(amount), category: cat });
+              if (posthogEnabled) posthog.capture("expense_created", { category: cat, currency: prop(propId).currency });
+              setAdding(false); setAmount("");
+            }}>Enregistrer</Btn>
           </div>
         )}
         {list.length === 0 ? (

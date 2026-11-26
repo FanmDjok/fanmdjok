@@ -4,10 +4,12 @@ import { uid } from "../data/localRepository";
 import { TERRITORIES, TYPES_LOCATION, getTerritory, validatePostalCode, type TypeLocation } from "../lib/territories";
 import { exempleTelephone, indicatifTerritoire, normaliserTelephone } from "../lib/telephone";
 import { formatMoney } from "../lib/money";
+import posthog, { posthogEnabled } from "../lib/posthog";
+import { posthogLog } from "../lib/posthogLogs";
 import FinanceForm from "../components/FinanceForm";
 import { Btn, Card, Empty, Field, PageTitle, inputCls } from "../components/ui";
 
-export default function Biens({ properties, onSave, limit, onUpgrade }: { properties: Property[]; onSave: (p: Property) => Promise<void>; limit: number; onUpgrade: () => void }) {
+export default function Biens({ properties, onSave, limit, onUpgrade }: { properties: Property[]; onSave: (p: Property) => Promise<boolean>; limit: number; onUpgrade: () => void }) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   return (
@@ -21,7 +23,7 @@ export default function Biens({ properties, onSave, limit, onUpgrade }: { proper
       ) : (
         <Btn onClick={() => setOpen(true)} className="mb-4 w-full">+ Ajouter une propriété</Btn>
       )}
-      {open && <PropertyForm onCancel={() => setOpen(false)} onSave={async (p) => { await onSave(p); setOpen(false); }} />}
+      {open && <PropertyForm onCancel={() => setOpen(false)} onSave={async (p) => { const saved = await onSave(p); if (saved) setOpen(false); return saved; }} />}
       {properties.length === 0 && !open && (
         <Card><Empty title="Aucune propriété pour le moment" text="Ajoutez votre premier logement pour garder vos informations locatives à portée de main." /></Card>
       )}
@@ -54,7 +56,7 @@ export default function Biens({ properties, onSave, limit, onUpgrade }: { proper
   );
 }
 
-function PropertyForm({ onSave, onCancel }: { onSave: (p: Property) => Promise<void>; onCancel: () => void }) {
+function PropertyForm({ onSave, onCancel }: { onSave: (p: Property) => Promise<boolean>; onCancel: () => void }) {
   const [territoire, setTerritoire] = useState("");
   const [name, setName] = useState("");
   const [numero, setNumero] = useState("");
@@ -83,11 +85,14 @@ function PropertyForm({ onSave, onCancel }: { onSave: (p: Property) => Promise<v
   const submit = async () => {
     setTouched(true);
     if (!valid || !t || !telephone || !telephone.ok) return;
-    await onSave({
+    const property = {
       id: uid(), name, numero, rue, codePostal, territoire: t.id, currency: t.currency,
       typeLocation: type, loyer: Number(loyer), tauxOccupation: typeInfo.touristique ? Number(occ) : undefined,
       locataireNom: locNom || undefined, locatairePhone: telephone.e164 ?? undefined, actif: true,
-    });
+    };
+    if (!(await onSave(property))) return;
+    if (posthogEnabled) posthog.capture("property_created", { type_location: type, territory: t.id, currency: t.currency });
+    posthogLog.info("property created", { type_location: type, territory: t.id, currency: t.currency });
   };
 
   return (

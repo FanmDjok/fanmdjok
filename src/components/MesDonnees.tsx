@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
+import posthog, { posthogEnabled } from "../lib/posthog";
 import { supprimerCompte, telechargerDonnees } from "../lib/billing";
 import { Btn, Card, PageTitle, inputCls } from "./ui";
 import { MfaReglages } from "./Mfa";
@@ -15,6 +16,7 @@ export default function MesDonnees() {
     const ok = await telechargerDonnees(format);
     setBusy(false);
     if (!ok) setMsg("Export impossible pour le moment. Réessayez dans un instant.");
+    else if (posthogEnabled) posthog.capture("account_data_exported", { format });
   };
   const supprimer = async () => {
     setBusy(true); setMsg(null);

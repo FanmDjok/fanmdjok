@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
 import { localRepository } from "./data/localRepository";
 import { supabaseRepository } from "./data/supabaseRepository";
+import posthog, { posthogEnabled } from "./lib/posthog";
 import { supabase } from "./lib/supabase";
 import { ACTIVE, NIVEAU_GRATUIT, analysisLevel, errorMessage, fetchSubscription, openPortal, planById, propertyLimit, type Subscription } from "./lib/billing";
 import type { Expense, Payment, Property } from "./data/types";
@@ -32,6 +34,7 @@ export default function App() {
   const [session, setSession] = useState<unknown>(supabase ? undefined : "local");
   const [recovery, setRecovery] = useState(false);
   const [mfaRequis, setMfaRequis] = useState(false);
+  const identifiedUserId = useRef<string | null>(null);
   useEffect(() => {
     if (!supabase || !session) { setMfaRequis(false); return; }
     // Double authentification : si un facteur est actif, il faut un niveau de confiance aal2 après le mot de passe.
@@ -41,9 +44,25 @@ export default function App() {
   }, [session]);
   useEffect(() => {
     if (!supabase) return;
-    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    const identifyUser = (currentSession: Session) => {
+      if (!posthogEnabled || identifiedUserId.current === currentSession.user.id) return;
+      if (identifiedUserId.current) posthog.reset();
+      posthog.identify(currentSession.user.id, { email: currentSession.user.email });
+      identifiedUserId.current = currentSession.user.id;
+    };
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) identifyUser(data.session);
+      setSession(data.session);
+    });
     const { data } = supabase.auth.onAuthStateChange((event, s) => {
       if (event === "PASSWORD_RECOVERY") setRecovery(true);
+      if (event === "SIGNED_OUT") {
+        if (posthogEnabled) posthog.reset();
+        identifiedUserId.current = null;
+      } else if (s) {
+        identifyUser(s);
+      }
       setSession(s);
     });
     return () => data.subscription.unsubscribe();
@@ -136,8 +155,8 @@ function Shell({ limit, sub, free, onPlans }: { limit: number; sub?: Subscriptio
         {tab.split(":")[0] === "biens" && (
           <Biens properties={properties} limit={limit} onUpgrade={manage}
             onSave={async (p) => {
-              try { await repo.saveProperty(p); await load(); }
-              catch (e) { setNotice(String((e as Error).message).includes("LIMITE_BIENS") ? "Vous avez atteint la limite de biens de votre formule." : "Enregistrement impossible, réessayez."); }
+              try { await repo.saveProperty(p); await load(); return true; }
+              catch (e) { setNotice(String((e as Error).message).includes("LIMITE_BIENS") ? "Vous avez atteint la limite de biens de votre formule." : "Enregistrement impossible, réessayez."); return false; }
             }} />
         )}
         {tab.startsWith("paiements") && <Paiements key={tab} initialSub={tab.split(":")[1]} properties={properties} payments={payments} onSave={async (p) => { await repo.savePayment(p); await load(); }} />}

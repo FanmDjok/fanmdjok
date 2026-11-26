@@ -3,6 +3,7 @@ import type { Expense, Payment, Property } from "../data/types";
 import { currentMonth, monthLabel, shiftMonth } from "../lib/period";
 import { formatMoney } from "../lib/money";
 import { getTerritory } from "../lib/territories";
+import posthog, { posthogEnabled } from "../lib/posthog";
 import { Btn, Card, Empty, PageTitle, inputCls } from "../components/ui";
 
 import Fiscalite from "./Fiscalite";
@@ -35,6 +36,7 @@ function Mensuel({ properties, payments, expenses }: { properties: Property[]; p
     const blob = new Blob(["﻿" + [head, ...body].join("\n")], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob); a.download = `kazonly-${month}.csv`; a.click();
+    if (posthogEnabled) posthog.capture("report_exported", { report_type: "monthly", filtered_to_property: Boolean(only) });
   };
 
   return (
