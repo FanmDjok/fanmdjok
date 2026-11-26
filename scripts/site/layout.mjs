@@ -115,7 +115,7 @@ export function page({ path, title, description, body, ld = [], noindex = false,
 <link rel="stylesheet" href="${assets.css}">
 ${[orgLd(), siteLd(), ...ld].map(jsonLd).join("\n")}
 </head>
-<body${noindex || path === "/404.html" ? "" : ' class="has-cta"'}>
+<body>
 <a class="skip" href="#contenu">Aller au contenu</a>
 <header class="hdr"><div class="wrap">
   <a class="logo" href="/"><b aria-hidden="true">K</b>KAZONLY</a>
@@ -134,7 +134,6 @@ ${body}
   </div>
   <div class="legal">© ${new Date().getFullYear()} ${esc(cfg.name)}. Outil de suivi de gestion locative : KAZONLY ne détient pas vos fonds et ne remplace pas un conseil juridique, fiscal ou comptable.</div>
 </div></footer>
-${noindex || path === "/404.html" ? "" : `<div class="sticky-cta"><span><b>1 bien gratuit</b><br>Sans carte bancaire</span><a class="btn btn-primary btn-sm" href="${SIGNUP_FREE}">Créer mon compte</a></div>`}
 <script src="${assets.js}" defer></script>
 </body>
 </html>`;
