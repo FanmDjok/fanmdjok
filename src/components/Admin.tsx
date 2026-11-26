@@ -296,6 +296,38 @@ function Irl({ setErreur }: P) {
   );
 }
 
+/** Carte « Configuration » : présent ou absent pour chaque variable, sans jamais afficher de valeur. */
+function Configuration({ setErreur }: P) {
+  const [c, setC] = useState<any>(null);
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase!.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) throw new Error("session");
+      const r = await fetch("/api/admin-config", { headers: { Authorization: `Bearer ${token}` } });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      setC(await r.json());
+    })().catch((e) => setErreur(`Configuration non lue : ${(e as Error).message}`));
+  }, []);
+  if (!c) return null;
+  const modes: Record<string, string> = { test: "test (sk_test_)", reel: "réel (sk_live_)", absent: "absent" };
+  return (
+    <Card className="space-y-2">
+      <h2 className="font-semibold">Configuration</h2>
+      <p className="text-sm">Mode Stripe détecté : <b>{modes[c.stripe_mode] ?? c.stripe_mode}</b></p>
+      <ul className="grid gap-1 text-sm md:grid-cols-2">
+        {c.variables.map((v: any) => (
+          <li key={v.nom} className="flex justify-between gap-2 border-b border-line py-1">
+            <span className="truncate font-mono text-xs">{v.nom}</span>
+            <span className={v.presente ? "text-primary" : "font-semibold text-amber-800"}>{v.presente ? "présent" : "absent"}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="text-xs text-muted">Les valeurs ne sont jamais affichées. Les variables de build (VITE_*) apparaissent si elles sont définies dans Cloudflare Pages.</p>
+    </Card>
+  );
+}
+
 function Sante({ setErreur }: P) {
   const [d, setD] = useState<any>(null);
   useEffect(() => { charger(async () => setD(await rpc("admin_sante")), setErreur); }, []);
@@ -330,6 +362,7 @@ function Sante({ setErreur }: P) {
           } catch (e) { setErreur(`Export impossible : ${(e as Error).message}`); }
         }}>Exporter la base (JSON)</Btn>
       </Card>
+      <Configuration setErreur={setErreur} />
       <Card>
         <h2 className="mb-2 font-semibold">Tâches planifiées</h2>
         {d.taches.length === 0
