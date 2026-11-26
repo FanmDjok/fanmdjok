@@ -281,9 +281,26 @@
       if (/^ph_|posthog/i.test(n)) document.cookie = n + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
     });
   }
-  // Aucun outil de mesure n'est encore branché : rien n'est chargé même après acceptation.
-  // Lorsque la mesure sera activée, le chargement se fera ici, uniquement si mesure === true.
-  function chargerMesure(choix) { if (!choix || !choix.mesure) return; }
+  // PostHog (UE) : chargé seulement si la clé est renseignée ET si le visiteur a accepté la mesure.
+  // Replays de session désactivés, IP non collectée, champs de formulaire masqués.
+  function chargerMesure(choix) {
+    if (!choix || !choix.mesure) return;
+    if (window.__kzMesure) return;
+    var k = document.querySelector('meta[name="kz-posthog-key"]'), h = document.querySelector('meta[name="kz-posthog-host"]');
+    if (!k || !k.content || !h || !h.content) return;
+    window.__kzMesure = true;
+    var s = document.createElement("script");
+    s.src = h.content.replace("//eu.i.posthog.com", "//eu-assets.i.posthog.com") + "/static/array.js";
+    s.async = true;
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(k.content, {
+        api_host: h.content, persistence: "localStorage+cookie", ip: false,
+        disable_session_recording: true, mask_all_text: true, autocapture: false,
+      });
+    };
+    document.head.appendChild(s);
+  }
 
   var box = document.getElementById("kz-consent");
   if (!box) return;
@@ -297,7 +314,10 @@
   }
   function fermer() { box.hidden = true; }
   function choisir(mesureChoisie) {
-    if (!mesureChoisie) effacerTraceurs();
+    if (!mesureChoisie) {
+      effacerTraceurs();
+      if (window.posthog && window.posthog.opt_out_capturing) window.posthog.opt_out_capturing();
+    }
     enregistrer(mesureChoisie);
     chargerMesure({ mesure: mesureChoisie });
     fermer();

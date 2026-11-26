@@ -26,6 +26,12 @@ export const cfWebAnalyticsToken = () =>
     ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "${esc(cfg.cfWebAnalyticsToken)}"}'></script>`
     : "";
 
+/** PostHog (UE) : métadonnées lues par site.js, seulement si la clé de projet est renseignée. Aucun script ici. */
+export const posthogMeta = () =>
+  cfg.posthogProjectKey
+    ? `<meta name="kz-posthog-key" content="${esc(cfg.posthogProjectKey)}"><meta name="kz-posthog-host" content="${esc(cfg.posthogHost)}">`
+    : "";
+
 export const assets = { css: "/site.css", js: "/site.js" };
 
 export const SIGNUP_FREE = "/app/?mode=inscription";
@@ -123,6 +129,7 @@ export function page({ path, title, description, body, ld = [], noindex = false,
 <link rel="preload" href="/fonts/nunito-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/nunito-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${assets.css}">
+${posthogMeta()}
 ${[orgLd(), siteLd(), ...ld].map(jsonLd).join("\n")}
 </head>
 <body>
