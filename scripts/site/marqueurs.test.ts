@@ -57,8 +57,26 @@ describe("pages publiées : aucune note de travail, aucun argument retiré", () 
   it("la page Trésorerie précise que KAZONLY ne calcule pas l'impôt et donne des scénarios d'exemple", () => {
     const html = tresoriePage().html;
     expect(html).toContain("KAZONLY ne calcule aucun impôt");
-    expect(html).toContain("La taxe foncière se saisit comme une dépense prévue");
-    expect(html).toContain("données d'exemple");
+    expect(html).toContain("La taxe foncière se saisit comme une dépense");
+    expect(html).toContain("données fictives");
     expect(html).toContain("service-public.gouv.fr/particuliers/vosdroits/F3171");
+  });
+  it("aucune prévision sur douze mois n'est présentée comme existante, ni de scénario chiffré", () => {
+    for (const p of [{ nom: "accueil", html: home().html }, { nom: "tresorerie", html: tresoriePage().html }]) {
+      expect(p.html, p.nom).not.toContain("douze mois à l'avance");
+      expect(p.html, p.nom).not.toContain("Scénario central");
+      expect(p.html, p.nom).not.toContain("Solde prévu");
+    }
+  });
+  it("les alertes de démonstration n'affichent aucun lien de source", () => {
+    const html = home().html;
+    const blocs = html.match(/Exemple[^<]*<\/b>[\s\S]{0,300}/g) ?? [];
+    expect(blocs.length).toBeGreaterThan(0);
+    for (const b of blocs) expect(b).not.toMatch(/href=/);
+  });
+  it("la FAQ de la page Tarifs est dédiée aux prix et distincte de la FAQ facturation", () => {
+    const html = pricing().html;
+    expect(html).toContain("Vos questions sur les prix et les formules.");
+    expect(html).toContain("La formule Gratuite a-t-elle une limite de durée");
   });
 });

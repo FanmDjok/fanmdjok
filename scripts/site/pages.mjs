@@ -29,6 +29,24 @@ export const FAQ = [
     `Oui. La formule Investisseur permet de suivre jusqu'à ${plans[2].maxProperties} biens. Au-delà, ou pour un besoin spécifique (plusieurs utilisateurs, import de données, accompagnement), nous proposons une offre Agence / Scale sur devis : contactez-nous pour construire la solution adaptée.`],
 ];
 
+// FAQ propre à la page Tarifs : les questions sur les prix, les formules et la comparaison.
+const FAQ_TARIFS = [
+  ["La formule Gratuite a-t-elle une limite de durée ?",
+    "Non. Elle suit 1 bien, sans limite de durée et sans carte bancaire. Elle ne donne accès qu'aux fonctions de base."],
+  ["Quelle différence entre Essentiel et Propriétaire ?",
+    "Essentiel couvre le suivi des loyers, des dépenses, les quittances, les relances et les simulateurs de base, jusqu'à 5 biens. Propriétaire ajoute la fiscalité par territoire (micro ou réel), le score de santé, le rendement net, les projections à 5, 10, 15 et 20 ans et les simulateurs avancés, jusqu'à 15 biens."],
+  ["Que comprend l'offre Investisseur, en plus de Propriétaire ?",
+    `Jusqu'à ${plans[2].maxProperties} biens, une vue consolidée du portefeuille devise par devise et le classement des biens par score. La fonction « plusieurs utilisateurs et accès comptable » est en préparation (bientôt).`],
+  ["Les prix incluent-ils la TVA ?",
+    `Les prix sont affichés toutes taxes comprises. ${cfg.tvaMention ? cfg.tvaMention + "." : ""}`],
+  ["Quelle différence entre le tarif mensuel et le tarif annuel ?",
+    `L'abonnement annuel équivaut à ${12 - freeMonths} mois au prix de 12, soit ${freeMonths} mois offerts. Vous pouvez changer de période depuis « Mon abonnement ».`],
+  ["Puis-je payer en francs Pacifique ?",
+    "Oui. Vous choisissez l'euro ou le franc Pacifique au moment de vous abonner ; la facturation se fait dans la devise choisie, sans conversion de notre part."],
+  ["Que se passe-t-il si je dépasse la limite de biens de ma formule ?",
+    "L'ajout d'un nouveau bien est bloqué jusqu'au changement de formule. Vos données existantes restent intactes."],
+];
+
 const FAQ_BILLING = [
   ["Comment se passe la souscription d'une formule payante ?",
     "Vous choisissez une formule et la période (mensuelle ou annuelle), puis vous réglez par carte via Stripe. L'abonnement démarre immédiatement, après votre accord exprès. Vous pouvez vous rétracter dans les 14 jours depuis votre compte, et résilier à tout moment."],
@@ -138,10 +156,10 @@ export function home() {
         <div class="kpis">
           <div><small>Loyers reçus ce mois</small><b data-f="rent">2 450 €</b><em class="ok">Tout est encaissé</em></div>
           <div><small>Dépenses du mois</small><b data-f="spend">610 €</b><em>Charges et entretien</em></div>
-          <div><small>Solde prévu dans 12 mois</small><b class="blue" data-f="fore">+18 900 €</b><em>Scénario central</em></div>
+          <div><small>Solde du mois</small><b class="blue" data-f="fore">+18 900 €</b><em>Exemple, données fictives</em></div>
         </div>
         <div class="chart"><div class="chart-t">Trésorerie mois par mois</div><div class="bars" aria-hidden="true">${bars}</div></div>
-        <div class="toast toast-amber" role="status"><b data-f="at">Saison cyclonique</b><span data-f="ad">Vérifiez la garantie catastrophes naturelles de votre bien.</span></div>
+        <div class="toast toast-amber" role="status"><small>Exemple d'alerte, non publiée</small><b data-f="at">Saison cyclonique</b><span data-f="ad">Vérifiez la garantie catastrophes naturelles de votre bien.</span></div>
       </div>
     </div>
   </div>
@@ -170,29 +188,29 @@ export function home() {
   </div>
   <div class="feat-row rev">
     <div class="feat-txt">
-      <h3>Votre trésorerie, douze mois à l'avance.</h3>
-      <p>Taxe foncière, travaux, vacance locative : vous les saisissez comme dépenses prévues, à leur date. KAZONLY les place dans le calendrier et montre votre solde futur, mois par mois. Il ne calcule pas l'impôt.</p>
+      <h3>Votre solde, mois par mois.</h3>
+      <p>Loyers attendus et encaissés, dépenses et taxe foncière saisis à leur mois : le rapport mensuel affiche le solde de chaque mois. KAZONLY ne calcule pas l'impôt. La prévision sur douze mois est en préparation.</p>
       <a class="link-u" href="/fonctionnalites/tresorerie/">Découvrir la trésorerie</a>
     </div>
     <div class="feat-card">
-      <div class="mini"><span><b>Taxe foncière</b><small>Octobre</small></span><em>−1 240 €</em><i class="pill ok">Provisionnée</i></div>
-      <div class="mini"><span><b>Peinture T2</b><small>Mars</small></span><em>−800 €</em><i class="pill info">Prévue</i></div>
-      <div class="mini"><span><b>Solde en novembre</b><small>Scénario central</small></span><em>+18 900 €</em><i class="pill info">Estimé</i></div>
+      <div class="mini"><span><b>Taxe foncière</b><small>Octobre, impôts et taxes</small></span><em>−1 240 €</em><i class="pill info">Exemple</i></div>
+      <div class="mini"><span><b>Peinture T2</b><small>Mars, entretien</small></span><em>−800 €</em><i class="pill info">Exemple</i></div>
+      <div class="mini"><span><b>Solde du mois</b><small>Rapport mensuel</small></span><em>+1 840 €</em><i class="pill info">Exemple</i></div>
     </div>
   </div>
   <div class="feat-row">
     <div class="feat-txt">
-      <h3>Les règles de votre territoire, sans les chercher.</h3>
-      <p>Cyclones, indices de loyer, diagnostics : le bon repère au bon moment, avec le lien vers le texte officiel. (bientôt)</p>
+      <h3>Des repères par territoire, avec leur source.</h3>
+      <p>Cyclones, indices de loyer, diagnostics : chaque repère renverra vers le texte officiel qui le fonde. (bientôt)</p>
       <a class="link-u" href="/outre-mer/">Voir les territoires</a>
     </div>
     <div class="feat-card">
-      <div class="mini"><span><b>Saison cyclonique</b><small>Martinique, La Réunion</small></span><i class="pill wait">À vérifier</i></div>
-      <div class="mini"><span><b>Nouvel indice de loyer</b><small>Tous territoires</small></span><i class="pill info">Publié</i></div>
-      <div class="mini"><span><b>Diagnostic à renouveler</b><small>Guadeloupe</small></span><i class="pill wait">Mars</i></div>
+      <div class="mini"><span><b>Exemple : saison cyclonique</b><small>Non publiée</small></span><i class="pill info">Exemple</i></div>
+      <div class="mini"><span><b>Exemple : indice de loyer</b><small>Non publié</small></span><i class="pill info">Exemple</i></div>
+      <div class="mini"><span><b>Exemple : diagnostic</b><small>Non publié</small></span><i class="pill info">Exemple</i></div>
     </div>
   </div>
-  <p class="fine center">Maquettes avec des données fictives. Les repères réglementaires seront publiés avec leur source officielle.</p>
+  <p class="fine center">Maquettes avec des données fictives. L'application ne publie encore aucun repère réglementaire : ces alertes sont des exemples, sans source.</p>
   <p class="aussi"><span>Et aussi :</span><a href="/tarifs/">Fiche par bien</a><a href="/tarifs/">Simulateur de rentabilité</a><a href="/tarifs/">Quittances PDF</a><a href="/tarifs/">Coffre-fort documents</a></p>
 </div></section>
 
@@ -266,15 +284,15 @@ export function tresoriePage() {
 <section class="hero2 hero2-sm" aria-labelledby="tr-title"><div class="blob b1" aria-hidden="true"></div>
   <div class="wrap hero2-in">
     <p class="eyebrow">Fonctionnalité · Trésorerie</p>
-    <h1 id="tr-title" class="h1-xl">Votre trésorerie, douze mois à l'avance.</h1>
-    <p class="lead lead-xl">Taxe foncière, travaux et vacance locative placés dans le calendrier : vous voyez votre solde futur, mois par mois.</p>
+    <h1 id="tr-title" class="h1-xl">Vos loyers et dépenses, mois par mois.</h1>
+    <p class="lead lead-xl">Loyers attendus et encaissés, dépenses et taxe foncière saisis à leur mois : le rapport affiche le solde de chaque mois. La prévision sur douze mois est en préparation.</p>
     <div class="cta-row"><a class="btn btn-primary btn-lg" href="${SIGNUP_FREE}">Créer mon compte gratuit</a><a class="btn btn-ghost btn-lg" href="/tarifs/">Voir les formules</a></div>
   </div>
 </section>
 
 <section class="demo-sec"><div class="wrap">
   <div class="chart chart-lg" data-reveal>
-    <div class="chart-t">Solde prévu, exemple sur douze mois (données fictives)</div>
+    <div class="chart-t">Exemple de solde mensuel (données fictives)</div>
     <div class="tr-cols" aria-hidden="true">${mois}</div>
   </div>
 </div></section>
@@ -282,20 +300,20 @@ export function tresoriePage() {
 <section class="feat-sec"><div class="wrap">
   <h2 class="h2-xl">Comment ça marche, en trois étapes.</h2>
   <ol class="steps3">
-    <li><span class="num">1</span><h3>Vous saisissez vos dépenses prévues</h3><p>Taxe foncière, assurance, travaux, copropriété : chacune à sa date. La taxe foncière se saisit comme une dépense prévue : son montant, vous le saisissez vous-même.</p></li>
-    <li><span class="num">2</span><h3>Vous indiquez vos loyers</h3><p>Le loyer de chaque bien, la date d'échéance, la vacance que vous anticipez.</p></li>
-    <li><span class="num">3</span><h3>KAZONLY calcule votre solde</h3><p>Un solde par mois, pour chaque bien et pour l'ensemble de votre patrimoine.</p></li>
+    <li><span class="num">1</span><h3>Vous saisissez vos dépenses</h3><p>Travaux, assurance, copropriété, taxe foncière : chacune au mois où elle est payée, dans sa catégorie. La taxe foncière se saisit comme une dépense ; KAZONLY ne calcule pas son montant.</p></li>
+    <li><span class="num">2</span><h3>Vous suivez vos loyers</h3><p>Le loyer de chaque bien, son échéance, et ce qui est encaissé ou reste à recevoir.</p></li>
+    <li><span class="num">3</span><h3>KAZONLY affiche votre solde</h3><p>Un solde par mois, pour chaque bien, dans le rapport mensuel.</p></li>
   </ol>
 </div></section>
 
 <section class="feat-sec"><div class="wrap prose">
-  <h2 class="h2-xl">Trois scénarios, pour décider avec des chiffres.</h2>
-  <div class="scenarios">
-    <div class="card"><h3>Scénario bas</h3><p>Une vacance plus longue que prévu.</p><p class="scn-val">+9 400 €</p><p class="fine">Solde sur 12 mois, données d'exemple</p></div>
-    <div class="card"><h3>Scénario central</h3><p>Vos loyers et dépenses habituels.</p><p class="scn-val">+18 900 €</p><p class="fine">Solde sur 12 mois, données d'exemple</p></div>
-    <div class="card"><h3>Scénario haut</h3><p>Une revalorisation de loyer et des dépenses maîtrisées.</p><p class="scn-val">+24 300 €</p><p class="fine">Solde sur 12 mois, données d'exemple</p></div>
-  </div>
-  <p class="fine">Les scénarios sont des estimations que vous réglez vous-même ; les montants ci-dessus sont des exemples, pas des prévisions. KAZONLY ne prévoit pas d'évolution de l'économie locale. Source de la taxe foncière : <a href="https://www.service-public.gouv.fr/particuliers/vosdroits/F3171">service-public.gouv.fr, taxe foncière sur les propriétés bâties</a>.</p>
+  <h2 class="h2-xl">Ce qui existe aujourd'hui, et ce qui arrive.</h2>
+  <ul class="ticks">
+    <li><b>Disponible :</b> loyers attendus et encaissés, dépenses par bien, et solde de chaque mois dans le rapport mensuel.</li>
+    <li><b>Disponible :</b> taxe foncière et autres impôts saisis comme dépenses, au mois où ils sont payés. KAZONLY ne calcule pas leur montant.</li>
+    <li><b>Bientôt :</b> prévision de trésorerie sur douze mois, avec scénarios. Aucun chiffre de prévision n'est publié tant que cette fonction n'existe pas.</li>
+  </ul>
+  <p class="fine">Les montants de cette page sont des exemples, sans valeur de prévision. Source de la taxe foncière : <a href="https://www.service-public.gouv.fr/particuliers/vosdroits/F3171">service-public.gouv.fr, taxe foncière sur les propriétés bâties</a>.</p>
   <h2 class="h2-md">Par territoire</h2>
   <p>Les charges et la fiscalité ne sont pas les mêmes d'un territoire à l'autre. La devise de chaque bien reste celle de son territoire : euro ou franc Pacifique, jamais additionnés. Repères par territoire : <a href="/outre-mer/">voir les territoires</a>.</p>
 </div></section>
@@ -310,14 +328,14 @@ export function tresoriePage() {
 </div></section>
 
 <section class="final-band"><div class="wrap">
-  <h2>Voyez votre solde sur douze mois.</h2>
+  <h2>Suivez votre solde, mois par mois.</h2>
   <p>Gratuit pour 1 bien, sans carte bancaire.</p>
   <a class="btn btn-lg btn-white" href="${SIGNUP_FREE}">Créer mon compte gratuit</a>
 </div></section>`;
   return page({
     path: "/fonctionnalites/tresorerie/",
-    title: "Trésorerie et prévisions sur 12 mois | KAZONLY",
-    description: "Anticipez votre trésorerie de propriétaire bailleur d'outre-mer : dépenses, vacance et solde sur douze mois. Gratuit pour 1 bien.",
+    title: "Suivi de trésorerie mensuel | KAZONLY",
+    description: "Suivez les loyers, les dépenses et le solde de chaque mois de vos biens d'outre-mer. Prévision sur douze mois en préparation. Gratuit pour 1 bien.",
     body,
     ld: [faqLd([
       ["La trésorerie prévoit-elle l'impôt ?", "Non. Elle compte vos loyers et vos dépenses."],
@@ -375,9 +393,11 @@ ${crumbs([["Accueil", "/"], ["Tarifs", "/tarifs/"]])}
   <p class="fine" style="margin-top:16px">${cfg.tvaMention ? esc(cfg.tvaMention) + ". " : ""}Prix en euros, toutes taxes comprises.</p>
 </div></section>
 
-<section class="soft"><div class="wrap">
-  <h2>Comparer les formules</h2>
-  <div class="scroll"><table class="cmp">
+<section class="soft" id="comparer"><div class="wrap">
+  <p class="eyebrow">Comparatif</p>
+  <h2>Comparer les formules, fonction par fonction.</h2>
+  <p class="fine">Le tableau est généré depuis la même configuration que les cartes ci-dessus. Sur mobile, faites défiler le tableau horizontalement.</p>
+  <div class="scroll" tabindex="0" role="region" aria-label="Tableau comparatif des formules"><table class="cmp">
     <thead><tr><th scope="col">Fonction</th>${colonnes().map((f) => `<th scope="col">${esc(f.name)}</th>`).join("")}</tr></thead>
     <tbody>
 ${lignesMatrice().map((l) => `      <tr><th scope="row">${esc(l.label)}</th>${l.valeurs.map((v) => `<td>${esc(v)}</td>`).join("")}</tr>`).join("\n")}
@@ -385,10 +405,14 @@ ${lignesMatrice().map((l) => `      <tr><th scope="row">${esc(l.label)}</th>${l.
   </table></div>
 </div></section>
 
-<section><div class="wrap prose">
-  <h2>Questions sur la facturation</h2>
-  <section class="soft" id="avant-commande"><div class="wrap prose">
-    <h2>Informations avant commande</h2>
+<section id="questions-tarifs"><div class="wrap prose">
+  <p class="eyebrow">Questions sur les tarifs</p>
+  <h2>Vos questions sur les prix et les formules.</h2>
+  ${faqHtml(FAQ_TARIFS)}
+</div></section>
+
+<section class="soft" id="avant-commande"><div class="wrap prose">
+  <h2>Informations avant commande</h2>
     <ul>
       <li>Prix affichés TTC. ${esc(cfg.tvaMention)}.</li>
       <li>Formules payantes : abonnement mensuel ou annuel, réglé par carte via Stripe. Il démarre après votre accord exprès et se renouvelle automatiquement à chaque échéance, jusqu'à résiliation.</li>
@@ -397,9 +421,6 @@ ${lignesMatrice().map((l) => `      <tr><th scope="row">${esc(l.label)}</th>${l.
       <li>Réclamation : ${val("contactEmail")}. Médiateur de la consommation : ${val("mediator", "en cours de désignation")}.</li>
     </ul>
     <p class="fine">Sources : <a href="https://entreprendre.service-public.gouv.fr/vosdroits/F23455">service-public.gouv.fr (F23455)</a>.</p>
-  </div></section>
-
-  ${faqHtml(FAQ_BILLING)}
 </div></section>`;
 
   return page({
@@ -407,7 +428,7 @@ ${lignesMatrice().map((l) => `      <tr><th scope="row">${esc(l.label)}</th>${l.
     title: `Tarifs KAZONLY | Gestion locative Outre-mer dès ${plans[0].monthly} €/mois`,
     description: `Un bien gratuit, sans carte bancaire, puis trois formules dès ${plans[0].monthly} €/mois pour gérer vos locations en Outre-mer. Résiliable à tout moment, euro et franc Pacifique.`,
     body,
-    ld: [breadcrumbLd([["Accueil", "/"], ["Tarifs", "/tarifs/"]]), faqLd(FAQ_BILLING)],
+    ld: [breadcrumbLd([["Accueil", "/"], ["Tarifs", "/tarifs/"]]), faqLd(FAQ_TARIFS)],
   });
 }
 
