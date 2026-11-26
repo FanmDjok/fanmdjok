@@ -93,7 +93,7 @@
   if (imgs[0]) imgs[0].classList.add("on");
   if (!reduce && "IntersectionObserver" in window) {
     var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }); }, { threshold: .12 });
-    document.querySelectorAll(".card, .plan, section h2, .aud > *, .faq details, .lead").forEach(function (el) { if (el.getBoundingClientRect().top > innerHeight) { el.classList.add("rv"); io.observe(el); } });
+    document.querySelectorAll(".card, .plan, section h2:not(.sr-only), .aud > *, .faq details, .lead").forEach(function (el) { if (el.getBoundingClientRect().top > innerHeight) { el.classList.add("rv"); io.observe(el); } });
   }
   onScroll();
 })();

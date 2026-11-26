@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { territories } from "./layout.mjs";
 import { confirmeVeillePage, contactPage, faqPage, home, hub, notFound, pricing, resilierPage, territoryPage, tresoriePage } from "./pages.mjs";
 import { cgv, confidentialite, cookies, mentions } from "./legal.mjs";
+import fs from "node:fs";
+import { DEMO, montantDemo, soldeDemo } from "./pages.mjs";
 
 // Toutes les pages publiées : le test échoue si une note de travail ou un ancien argument commercial réapparaît.
 const pages = (): { nom: string; html: string }[] => [
@@ -78,5 +80,31 @@ describe("pages publiées : aucune note de travail, aucun argument retiré", () 
     const html = pricing().html;
     expect(html).toContain("Vos questions sur les prix et les formules.");
     expect(html).toContain("La formule Gratuite a-t-elle une limite de durée");
+  });
+});
+
+describe("tableau de bord d'exemple : calculs et feuille de style", () => {
+  it("le solde de chaque territoire est loyers − dépenses, affiché avec la bonne devise", () => {
+    expect(Object.keys(DEMO)).toHaveLength(11);
+    expect(DEMO.martinique.fore).toBe("+1 840 €");
+    expect(DEMO.martinique.rent).toBe("2 450 €");
+    expect(DEMO.martinique.spend).toBe("610 €");
+    for (const id of Object.keys(DEMO)) {
+      expect(DEMO[id].rent.startsWith("+") || DEMO[id].spend.startsWith("+"), id).toBe(false);
+    }
+    for (const id of Object.keys(DEMO)) {
+      const d = DEMO[id];
+      const devise = d.rent.endsWith("XPF") ? "XPF" : "EUR";
+      const loyers = Number(d.rent.replace(/[^0-9]/g, ""));
+      const depenses = Number(d.spend.replace(/[^0-9]/g, ""));
+      expect(d.fore, id).toBe(montantDemo(loyers - depenses, devise));
+    }
+  });
+  it("chaque territoire a un solde numérique cohérent", () => {
+    expect(soldeDemo({ loyers: 2450, depenses: 610 })).toBe(1840);
+  });
+  it("la feuille de style est équilibrée : aucune règle n'avale le reste du fichier", () => {
+    const css = fs.readFileSync("site-assets/site.css", "utf8");
+    expect(css.split("{").length - 1).toBe(css.split("}").length - 1);
   });
 });

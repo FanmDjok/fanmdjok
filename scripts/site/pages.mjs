@@ -64,19 +64,38 @@ const FAQ_BILLING = [
 const free_ = plansData.free;
 
 // Démonstration de l'accueil : données fictives, une entrée par territoire (les 11 sont couverts au lancement).
-const DEMO = {
-  martinique: { nom: "Martinique", rent: "2 450 €", spend: "610 €", fore: "+18 900 €", at: "Saison cyclonique", ad: "Vérifiez la garantie catastrophes naturelles de votre bien." },
-  guadeloupe: { nom: "Guadeloupe", rent: "1 980 €", spend: "540 €", fore: "+15 200 €", at: "Diagnostic à renouveler", ad: "Le diagnostic du studio arrive à échéance en mars." },
-  guyane: { nom: "Guyane", rent: "1 420 €", spend: "390 €", fore: "+11 600 €", at: "Humidité et entretien", ad: "Prévoyez l'entretien de la ventilation avant la saison des pluies." },
-  reunion: { nom: "La Réunion", rent: "2 130 €", spend: "575 €", fore: "+16 400 €", at: "Saison cyclonique", ad: "Vérifiez votre assurance pour le T2 de votre bien." },
-  mayotte: { nom: "Mayotte", rent: "1 360 €", spend: "410 €", fore: "+10 300 €", at: "Assurance", ad: "Relisez les garanties de votre bien avant l'échéance." },
-  "saint-martin": { nom: "Saint-Martin", rent: "2 280 €", spend: "620 €", fore: "+17 100 €", at: "Saison cyclonique", ad: "Vérifiez la garantie catastrophes naturelles de votre bien." },
-  "saint-barthelemy": { nom: "Saint-Barthélemy", rent: "3 150 €", spend: "880 €", fore: "+24 300 €", at: "Saison cyclonique", ad: "Contrôlez les fixations extérieures avant la saison." },
-  spm: { nom: "Saint-Pierre-et-Miquelon", rent: "1 240 €", spend: "430 €", fore: "+8 900 €", at: "Chauffage", ad: "Faites contrôler le chauffage avant l'hiver." },
-  "nouvelle-caledonie": { nom: "Nouvelle-Calédonie", rent: "262 000 XPF", spend: "71 000 XPF", fore: "+2 150 000 XPF", at: "Saison cyclonique", ad: "Vérifiez l'assurance de votre bien avant la saison des cyclones." },
-  polynesie: { nom: "Polynésie française", rent: "238 000 XPF", spend: "66 000 XPF", fore: "+1 980 000 XPF", at: "Entretien", ad: "Prévoyez l'entretien de la toiture avant la saison des pluies." },
-  "wallis-futuna": { nom: "Wallis-et-Futuna", rent: "149 000 XPF", spend: "42 000 XPF", fore: "+1 120 000 XPF", at: "Assurance", ad: "Vérifiez les garanties de votre bien." },
+// Les montants sont saisis en nombres ; le solde est calculé (loyers − dépenses), jamais saisi à la main.
+const DEMO_BRUT = {
+  martinique: { nom: "Martinique", devise: "EUR", loyers: 2450, depenses: 610, at: "Saison cyclonique", ad: "Vérifiez la garantie catastrophes naturelles de votre bien." },
+  guadeloupe: { nom: "Guadeloupe", devise: "EUR", loyers: 1980, depenses: 540, at: "Diagnostic à renouveler", ad: "Le diagnostic du studio arrive à échéance en mars." },
+  guyane: { nom: "Guyane", devise: "EUR", loyers: 1420, depenses: 390, at: "Humidité et entretien", ad: "Prévoyez l'entretien de la ventilation avant la saison des pluies." },
+  reunion: { nom: "La Réunion", devise: "EUR", loyers: 2130, depenses: 575, at: "Saison cyclonique", ad: "Vérifiez votre assurance pour le T2 de votre bien." },
+  mayotte: { nom: "Mayotte", devise: "EUR", loyers: 1360, depenses: 410, at: "Assurance", ad: "Relisez les garanties de votre bien avant l'échéance." },
+  "saint-martin": { nom: "Saint-Martin", devise: "EUR", loyers: 2280, depenses: 620, at: "Saison cyclonique", ad: "Vérifiez la garantie catastrophes naturelles de votre bien." },
+  "saint-barthelemy": { nom: "Saint-Barthélemy", devise: "EUR", loyers: 3150, depenses: 880, at: "Saison cyclonique", ad: "Contrôlez les fixations extérieures avant la saison." },
+  spm: { nom: "Saint-Pierre-et-Miquelon", devise: "EUR", loyers: 1240, depenses: 430, at: "Chauffage", ad: "Faites contrôler le chauffage avant l'hiver." },
+  "nouvelle-caledonie": { nom: "Nouvelle-Calédonie", devise: "XPF", loyers: 262000, depenses: 71000, at: "Saison cyclonique", ad: "Vérifiez l'assurance de votre bien avant la saison des cyclones." },
+  polynesie: { nom: "Polynésie française", devise: "XPF", loyers: 238000, depenses: 66000, at: "Entretien", ad: "Prévoyez l'entretien de la toiture avant la saison des pluies." },
+  "wallis-futuna": { nom: "Wallis-et-Futuna", devise: "XPF", loyers: 149000, depenses: 42000, at: "Assurance", ad: "Vérifiez les garanties de votre bien." },
 };
+/** Montant affiché : euros avec espace des milliers, ou francs Pacifique sans décimales. */
+export const montantDemo = (n, devise) => {
+  const signe = n < 0 ? "−" : n > 0 ? "+" : "";
+  const abs = Math.abs(n).toLocaleString("fr-FR").replace(/[\u202f\u00a0]/g, " ");
+  return `${signe}${abs} ${devise === "XPF" ? "XPF" : "€"}`.replace("+ ", "+").replace("− ", "−");
+};
+/** Solde = loyers − dépenses, calculé pour chaque territoire. */
+export const soldeDemo = (t) => t.loyers - t.depenses;
+/** Montant sans signe (loyers, dépenses) : 1 980 €, 262 000 XPF. */
+const montantNu = (n, devise) => `${Math.abs(n).toLocaleString("fr-FR").replace(/[\u202f\u00a0]/g, " ")} ${devise === "XPF" ? "XPF" : "€"}`;
+export const DEMO = Object.fromEntries(Object.entries(DEMO_BRUT).map(([id, t]) => [id, {
+  nom: t.nom,
+  rent: montantNu(t.loyers, t.devise),
+  spend: montantNu(t.depenses, t.devise),
+  fore: montantDemo(soldeDemo(t), t.devise),
+  at: t.at,
+  ad: t.ad,
+}]));
 const DEMO_DEFAUT = "martinique";
 
 function planCardsHome() {
@@ -154,12 +173,12 @@ export function home() {
       <aside class="dash-nav" aria-hidden="true"><span class="on">Vue d'ensemble</span><span>Mes biens</span><span>Loyers</span><span>Trésorerie</span><span>Alertes</span></aside>
       <div class="dash-main">
         <div class="kpis">
-          <div><small>Loyers reçus ce mois</small><b data-f="rent">2 450 €</b><em class="ok">Tout est encaissé</em></div>
-          <div><small>Dépenses du mois</small><b data-f="spend">610 €</b><em>Charges et entretien</em></div>
-          <div><small>Solde du mois</small><b class="blue" data-f="fore">+18 900 €</b><em>Exemple, données fictives</em></div>
+          <div><small>Loyers reçus ce mois</small><b data-f="rent">${DEMO[DEMO_DEFAUT].rent}</b><em class="ok">Tout est encaissé</em></div>
+          <div><small>Dépenses du mois</small><b data-f="spend">${DEMO[DEMO_DEFAUT].spend}</b><em>Charges et entretien</em></div>
+          <div><small>Solde du mois</small><b class="blue" data-f="fore">${DEMO[DEMO_DEFAUT].fore}</b><em>Exemple, données fictives</em></div>
         </div>
         <div class="chart"><div class="chart-t">Trésorerie mois par mois</div><div class="bars" aria-hidden="true">${bars}</div></div>
-        <div class="toast toast-amber" role="status"><small>Exemple d'alerte, non publiée</small><b data-f="at">Saison cyclonique</b><span data-f="ad">Vérifiez la garantie catastrophes naturelles de votre bien.</span></div>
+        <div class="toast toast-amber" role="status"><small>Exemple d'alerte</small><b data-f="at">Saison cyclonique</b><span data-f="ad">Vérifiez la garantie catastrophes naturelles de votre bien.</span></div>
       </div>
     </div>
   </div>
@@ -373,11 +392,11 @@ ${crumbs([["Accueil", "/"], ["Tarifs", "/tarifs/"]])}
   <p class="eyebrow">Tarifs</p>
   <h1>Des tarifs simples pour les propriétaires d'Outre-mer.</h1>
   <p class="lead">Un bien gratuit, sans carte bancaire et sans limite de durée. Les formules payantes se souscrivent en ligne, avec un paiement immédiat et résiliables à tout moment.</p>
-  <div class="toggle" data-billing-toggle role="group" aria-label="Période de facturation" hidden>
+  <div class="toggle" data-billing-toggle role="group" aria-label="Période de facturation">
     <button type="button" data-interval="month" aria-pressed="true">Mensuel</button>
     <button type="button" data-interval="year" aria-pressed="false">Annuel · ${freeMonths} mois offerts</button>
   </div>
-  <div class="toggle" data-currency-toggle role="group" aria-label="Devise" hidden>
+  <div class="toggle" data-currency-toggle role="group" aria-label="Devise">
     <button type="button" data-cur="eur" aria-pressed="true">Euro (€)</button>
     <button type="button" data-cur="xpf" aria-pressed="false">Franc Pacifique (XPF)</button>
   </div>
