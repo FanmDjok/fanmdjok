@@ -9,6 +9,7 @@ import Paywall from "./components/Paywall";
 import Resiliation from "./components/Resiliation";
 import MesDonnees from "./components/MesDonnees";
 import { MfaChallenge } from "./components/Mfa";
+import Admin from "./components/Admin";
 import Accueil from "./pages/Accueil";
 import Biens from "./pages/Biens";
 import Paiements from "./pages/Paiements";
@@ -49,6 +50,7 @@ export default function App() {
   }, []);
   if (session === undefined) return null;
   if (recovery) return <NouveauMotDePasse onDone={() => setRecovery(false)} />;
+  if (window.location.pathname.replace(/\/$/, "") === "/app/admin") return session ? <Admin /> : <Auth />;
   if (session && mfaRequis) return <MfaChallenge onDone={() => setMfaRequis(false)} onCancel={() => supabase?.auth.signOut()} />;
   if (!session) return <Auth />;
   return supabase ? <Gate /> : <Shell limit={Infinity} />;
@@ -83,6 +85,8 @@ function Gate() {
 }
 
 function Shell({ limit, sub, free, onPlans }: { limit: number; sub?: Subscription; free?: boolean; onPlans?: () => void }) {
+  const [estAdmin, setEstAdmin] = useState(false);
+  useEffect(() => { supabase?.rpc("est_admin").then(({ data }) => setEstAdmin(Boolean(data))); }, []);
   const [tab, setTab] = useState("accueil");
   const [properties, setProperties] = useState<Property[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -114,6 +118,7 @@ function Shell({ limit, sub, free, onPlans }: { limit: number; sub?: Subscriptio
           <div className="ml-auto flex gap-3 text-xs text-muted">
             {sub && <button onClick={manage}>Mon abonnement</button>}
             {free && <button className="font-semibold text-primary" onClick={manage}>Passer à une formule</button>}
+            {estAdmin && <a className="font-semibold text-primary" href="/app/admin">Admin</a>}
             <button onClick={() => supabase!.auth.signOut()}>Déconnexion</button>
           </div>
         )}
