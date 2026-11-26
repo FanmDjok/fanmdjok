@@ -20,7 +20,7 @@ export const FAQ = [
   [`KAZONLY est-il gratuit ?`,
     `La formule Gratuite permet de suivre ${free.maxProperties} bien, sans limite de durée et sans carte bancaire. Elle vous permet d'essayer KAZONLY avant de choisir une formule payante, qui démarrent à ${plans[0].monthly} € par mois.`],
   [`Puis-je essayer avant de payer ?`,
-    `Oui : la formule Gratuite, pour 1 bien, sert d'essai et ne demande aucune carte bancaire. Une formule payante se souscrit en ligne avec un paiement immédiat, et vous disposez d'un droit de rétractation de 14 jours, détaillé dans les conditions générales de vente.`],
+    `Oui. La formule Gratuite, pour 1 bien, reste sans carte et sans limite de durée. Pour une formule payante, la première souscription inclut 14 jours offerts : la carte est demandée, aucun débit n'intervient pendant l'essai, et vous êtes prévenu avant le premier paiement. L'essai n'est accordé qu'une seule fois par compte.`],
   ["KAZONLY remplace-t-il un comptable, un notaire ou une agence ?",
     "Non. KAZONLY est un outil de suivi et d'aide à la décision. Il ne fournit pas de conseil juridique, fiscal ou comptable et n'est pas une agence de gestion : pour vos déclarations ou un litige, rapprochez-vous d'un professionnel."],
   ["Mes données sont-elles protégées ?",
@@ -112,6 +112,7 @@ function planCardsHome() {
       <p class="muted">${esc(p.tagline)}</p>
       <p class="price"><span data-m>${p.monthly} €<small>/mois</small></span><span data-y hidden>${fmtPrice(p.yearly)} €<small>/an</small></span></p>
       <p class="fine"><span data-m>jusqu'à ${p.maxProperties} biens</span><span data-y hidden>${freeMonths} mois offerts, jusqu'à ${p.maxProperties} biens</span></p>
+      <p class="fine essai-note">14 jours offerts, carte demandée, aucun débit pendant l'essai.</p>
       <a class="btn btn-primary btn-block" data-plan href="${SIGNUP(p.id, "month")}">S'abonner à ${esc(p.name)}</a>
     </div>`).join("");
   return free + cards;
@@ -381,6 +382,7 @@ export function pricing() {
       <p class="price"><span data-m data-e>${p.monthly} €<small>/mois</small></span><span data-y data-e hidden>${fmtPrice(p.yearly)} €<small>/an</small></span></p>
       <p class="fine"><span data-m data-e>ou ${fmtPrice(p.yearly)} € par an (${freeMonths} mois offerts)</span><span data-y data-e hidden>soit ${fmtPrice(Math.round(p.yearly / 12 * 100) / 100)} €/mois</span></p>
       <ul>${p.features.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>
+      <p class="fine essai-note">14 jours offerts, carte demandée, aucun débit pendant l'essai.</p>
       <a class="btn ${p.highlight ? "btn-primary" : "btn-ghost"} btn-block" data-plan="${p.id}" href="${SIGNUP(p.id)}">S'abonner à ${esc(p.name)}</a>
     </div>`).join("");
 

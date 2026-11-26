@@ -40,6 +40,8 @@ export interface ParamsSession {
   interval: "month" | "year";
   currency: "EUR";
   base: string;
+  /** Vrai seulement pour un compte qui n'a jamais eu d'abonnement (voir server/essai.ts). */
+  essai: boolean;
 }
 
 export function paramsSessionCheckout(p: ParamsSession) {
@@ -65,7 +67,9 @@ export function paramsSessionCheckout(p: ParamsSession) {
       submit: { message: TEXTE_SOUMISSION },
     },
     metadata,
-    subscription_data: { metadata, trial_period_days: ESSAI_JOURS },
+    subscription_data: p.essai
+      ? { metadata, trial_period_days: ESSAI_JOURS, trial_settings: { end_behavior: { missing_payment_method: "cancel" as const } } }
+      : { metadata },
     success_url: `${p.base}/app/abonnement/merci/?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${p.base}/tarifs/`,
   };

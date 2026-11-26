@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { admin, bindEnv, env, json, planFromPriceId, readBounded, statutLocal, stripe, type Env } from "../../server/lib";
+import { hacheEmail } from "../../server/essai";
 
 const iso = (ts: number | null | undefined) => (ts ? new Date(ts * 1000).toISOString() : null);
 
@@ -74,6 +75,18 @@ async function traiterCheckout(session: Stripe.Checkout.Session): Promise<void> 
   }
 }
 
+/**
+ * Rappel à envoyer plus tard (Brevo) : enregistré avec l'adresse hachée, jamais en clair.
+ * Un rappel n'interrompt jamais l'accès : il informe seulement.
+ */
+async function enregistrerRappel(customerId: string, type: string): Promise<void> {
+  const client = await stripe().customers.retrieve(customerId);
+  if (!client || (client as { deleted?: boolean }).deleted) return;
+  const email = (client as Stripe.Customer).email;
+  if (!email) return;
+  await admin().from("email_log").insert({ type, destinataire_hash: await hacheEmail(email), statut: "a_envoyer" });
+}
+
 async function handle(req: Request): Promise<Response> {
   const signature = req.headers.get("stripe-signature");
   if (!signature) return json({ error: "signature_absente" }, 400);
@@ -100,18 +113,41 @@ async function handle(req: Request): Promise<Response> {
 
   try {
     switch (event.type) {
-      case "customer.subscription.created":
+      case "customer.subscription.created": {
+        const abo = event.data.object as Stripe.Subscription;
+        await syncSubscription(abo);
+        // Un abonnement a été créé : l'essai de 14 jours n'est plus accordable pour ce compte.
+        if (abo.metadata?.user_id) {
+          await admin().from("subscriptions").update({ essai_utilise: true }).eq("user_id", abo.metadata.user_id);
+        }
+        break;
+      }
       case "customer.subscription.updated":
       case "customer.subscription.deleted":
         await syncSubscription(event.data.object as Stripe.Subscription);
         break;
+      case "customer.subscription.trial_will_end": {
+        // Rappel 3 jours avant le premier débit : on met à jour la fin d'essai et on prépare l'e-mail.
+        const abo = event.data.object as Stripe.Subscription;
+        await syncSubscription(abo);
+        const client = typeof abo.customer === "string" ? abo.customer : abo.customer.id;
+        await enregistrerRappel(client, "rappel_fin_essai");
+        break;
+      }
       case "checkout.session.completed":
         await traiterCheckout(event.data.object as Stripe.Checkout.Session);
         break;
       case "invoice.paid":
-      case "invoice.payment_failed":
         await syncDepuisFacture(event.data.object as Stripe.Invoice);
         break;
+      case "invoice.payment_failed": {
+        // Compte passé en impayé (past_due) : l'accès reste ouvert, un rappel est préparé.
+        const facture = event.data.object as Stripe.Invoice;
+        await syncDepuisFacture(facture);
+        const client = typeof facture.customer === "string" ? facture.customer : facture.customer?.id;
+        if (client) await enregistrerRappel(client, "rappel_paiement_echoue");
+        break;
+      }
       default:
         break;
     }

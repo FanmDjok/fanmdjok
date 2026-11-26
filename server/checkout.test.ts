@@ -35,17 +35,24 @@ describe("prix EUR : 3 formules × mensuel/annuel", () => {
 });
 
 describe("paramètres de la session Checkout", () => {
-  const p = paramsSessionCheckout({ ...base, price: PRIX_EUR.essentiel.month, plan: "essentiel", interval: "month", currency: "EUR" });
+  const p = paramsSessionCheckout({ ...base, price: PRIX_EUR.essentiel.month, plan: "essentiel", interval: "month", currency: "EUR", essai: true });
   it("mode abonnement, page hébergée, français, adresse obligatoire", () => {
     expect(p.mode).toBe("subscription");
     expect(p.ui_mode).toBe("hosted_page");
     expect(p.locale).toBe("fr");
     expect(p.billing_address_collection).toBe("required");
   });
-  it("essai de 14 jours, carte collectée dès l'inscription", () => {
+  it("essai de 14 jours, carte collectée dès l'inscription, annulation si la carte manque à la fin", () => {
     expect(ESSAI_JOURS).toBe(14);
     expect(p.subscription_data.trial_period_days).toBe(14);
+    expect(p.subscription_data.trial_settings?.end_behavior.missing_payment_method).toBe("cancel");
     expect(p.payment_method_collection).toBe("always");
+  });
+  it("compte ayant déjà eu un abonnement : aucun essai, paiement immédiat", () => {
+    const sansEssai = paramsSessionCheckout({ ...base, price: PRIX_EUR.essentiel.month, plan: "essentiel", interval: "month", currency: "EUR", essai: false });
+    expect(sansEssai.subscription_data).not.toHaveProperty("trial_period_days");
+    expect(sansEssai.subscription_data).not.toHaveProperty("trial_settings");
+    expect(sansEssai.payment_method_collection).toBe("always");
   });
   it("aucun code promo, aucun consentement marketing ; CGV obligatoires", () => {
     expect(p.allow_promotion_codes).toBe(false);

@@ -89,7 +89,7 @@ export function cgv() {
 <h2>3. Prix et facturation</h2>
 <p>Les prix sont ceux affichés sur la page <a href="/tarifs/">Tarifs</a>, en euros, ${cfg.tvaMention ? cfg.tvaMention : val("tvaMention")}. L'abonnement, mensuel ou annuel, est reconduit tacitement. Le paiement est traité par Stripe.</p>
 <h2>4. Formule gratuite et souscription</h2>
-<p>La formule Gratuite, limitée à un bien et sans carte bancaire, est proposée sans limite de durée ; elle permet d'essayer le service. Il n'existe pas d'essai gratuit des formules payantes : leur souscription se fait en ligne, le paiement est immédiat, et l'accès démarre après votre demande expresse (case à cocher dédiée).</p>
+<p>La formule Gratuite, limitée à un bien et sans carte bancaire, est proposée sans limite de durée ; elle permet d'essayer le service. Les formules payantes bénéficient d'un essai gratuit de 14 jours, accordé une seule fois par compte. La carte bancaire est demandée dès la souscription, mais aucun débit n'intervient pendant l'essai. Sans résiliation avant la fin de l'essai, l'abonnement démarre et le premier paiement est prélevé. Vous êtes prévenu par e-mail trois jours avant ce premier débit.</p>
 <h2>5. Droit de rétractation</h2>
 <p>Le consommateur dispose de quatorze jours pour se rétracter d'un contrat à distance (article L.221-18 du Code de la consommation). Si l'utilisateur demande l'exécution immédiate du service pendant ce délai, il reconnaît que le droit de rétractation s'exerce dans les conditions de l'article L.221-25 (paiement du service déjà fourni).</p>
 <h2>6. Résiliation</h2>

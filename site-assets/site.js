@@ -339,3 +339,26 @@
   var v = lire();
   if (v) chargerMesure(v); else ouvrir(false);
 })();
+
+// Essai de 14 jours : affiché par défaut (nouveaux comptes). Un compte connecté qui a déjà eu un abonnement voit le prix normal.
+(function () {
+  var notes = document.querySelectorAll(".essai-note");
+  if (!notes.length) return;
+  var jeton = null;
+  try {
+    Object.keys(localStorage).forEach(function (k) {
+      if (!jeton && /^sb-.*-auth-token$/.test(k)) {
+        var v = JSON.parse(localStorage.getItem(k) || "null");
+        if (v && v.access_token) jeton = v.access_token;
+      }
+    });
+  } catch (e) { jeton = null; }
+  if (!jeton || !window.fetch) return;
+  fetch("/api/eligibility", { headers: { Authorization: "Bearer " + jeton } })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      if (!j || j.essai !== false) return;
+      notes.forEach(function (n) { n.textContent = "Prix normal dès le premier paiement."; });
+    })
+    .catch(function () { /* erreur réseau : la mention d'essai reste affichée */ });
+})();
