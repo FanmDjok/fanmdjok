@@ -30,8 +30,13 @@
   <section class="hero">
     <div class="entree">
       <p style="font-weight:700;color:var(--bleu);margin:0 0 12px">Pour les propriétaires d'outre-mer</p>
-      <h1>Vos locations d'outre-mer, bientôt pilotées d'un seul regard.</h1>
+      <h1>Vos locations d'outre&#8209;mer, bientôt pilotées d'un seul regard.</h1>
       <p class="lead">KAZONLY arrive : loyers, trésorerie et échéances de vos biens, territoire par territoire. Inscrivez-vous pour être prévenu du lancement et recevoir notre guide gratuit.</p>
+
+      <figure class="vignette entree">
+        <img src="/img/couverture.webp" width="600" height="742" alt="Couverture du guide : Le calendrier du bailleur outre-mer 2027" loading="eager">
+        <figcaption>Offert : 15 pages, sources officielles.</figcaption>
+      </figure>
 
       <form id="inscription" novalidate>
         <label>Adresse e-mail
@@ -39,6 +44,7 @@
         </label>
         <label>Votre territoire (facultatif)
           <select id="territoire" name="territoire">
+            <option value="" selected>Choisir…</option>
             <option value="aucun">Je n'ai pas encore de bien</option>
             <option value="guadeloupe">Guadeloupe</option>
             <option value="martinique">Martinique</option>
@@ -66,15 +72,11 @@
       </ul>
     </div>
 
-    <figure class="visuel entree" aria-label="Aperçu du guide" style="margin:0">
-      <div class="couverture" aria-hidden="true"><span class="marque">K</span><strong>Le calendrier du bailleur outre-mer 2027</strong></div>
-      <figcaption>Offert : Le calendrier du bailleur outre-mer 2027, avec ses sources officielles.</figcaption>
-    </figure>
   </section>
 </main>
 <footer>
   <div class="wrap">
-    <div>KAZONLY, la gestion locative pour les onze territoires d'Outre-mer.</div>
+    <div>KAZONLY, la gestion locative pour les onze territoires d'outre-mer.</div>
     <div>Contact : <a href="mailto:contact@kazonly.com">contact@kazonly.com</a></div>
     <nav><a href="/mentions-legales/">Mentions légales</a><a href="/confidentialite/">Confidentialité</a></nav>
   </div>
