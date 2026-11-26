@@ -59,15 +59,34 @@ Les images de `site-assets/shots/` viennent de l'application avec des données d
 ## Analyses (app)
 Les données financières facultatives d'un bien sont stockées dans `biens.finance` (jsonb). Niveaux : Essentiel = brut/cash-flow/patrimoine, Propriétaire = + net, score, financement, projections, Investisseur (id interne `investisseur`) = + vue consolidée par devise et classement.
 
-## Stripe (compte Karib Property, mode réel)
-Grille : Gratuit (1 bien) · Essentiel 9 €/90 € (2–5 biens) · Propriétaire 19 €/190 € (6–15) · Investisseur 39 €/390 € (16–50) · Agences sur devis. XPF : 1 100 / 2 300 / 4 700 par mois, ×10 par an.
-Produits : Essentiel `prod_VekIf5OFghyjBy`, Propriétaire `prod_VekIXdki8hSLk5`, Investisseur `prod_VekIgYhTigqyRN` (les variables `PORTEFEUILLE_*` existantes restent lues en repli).
-Variables `STRIPE_PRICE_*` :
-- ESSENTIEL_MONTHLY `price_1UdTT5EFtECOGV5Crr7Sf0SV` · ESSENTIEL_YEARLY `price_1UdTT6EFtECOGV5Cul6bL27T`
-- PROPRIETAIRE_MONTHLY `price_1UdTT7EFtECOGV5CHLPZKdlj` · PROPRIETAIRE_YEARLY `price_1UdTT8EFtECOGV5Cp16G8LCa`
-- PORTEFEUILLE_MONTHLY `price_1UdTT8EFtECOGV5CLaqtEzJp` · PORTEFEUILLE_YEARLY `price_1UdTT9EFtECOGV5CIqP7CcVD`
-- Francs Pacifique :
-  - ESSENTIEL_MONTHLY_XPF `price_1UdTTAEFtECOGV5CeyxclctY` · ESSENTIEL_YEARLY_XPF `price_1UdTTAEFtECOGV5CNfwyhxbt`
-  - PROPRIETAIRE_MONTHLY_XPF `price_1UdTTBEFtECOGV5CXtHpM30P` · PROPRIETAIRE_YEARLY_XPF `price_1UdTTBEFtECOGV5C0gRLXiYs`
-  - PORTEFEUILLE_MONTHLY_XPF `price_1UdTTCEFtECOGV5CoBthcCkV` · PORTEFEUILLE_YEARLY_XPF `price_1UdTTDEFtECOGV5CJ78cPXbD`
-Les anciens prix (12/29/69 € et anciens XPF) sont archivés. Limites de biens : 1 (gratuit) / 5 / 15 / 50. Offre Agences : sur devis, hors Stripe (page /contact/).
+## Stripe (compte KAZONLY)
+
+Compte : **KAZONLY** (`acct_1UfvLq8mMdKNLKBf`), distinct de tout autre compte. Les identifiants du **mode réel** seront créés une fois le compte vérifié.
+
+### Mode test (environnement Preview de Cloudflare Pages)
+Ces identifiants ne sont pas secrets. Carte de test : `4242 4242 4242 4242`, date future, code à 3 chiffres.
+
+```
+STRIPE_PRICE_ESSENTIEL_MONTHLY=price_1UfvNj8mMdKNLKBfW2NIc1Cm
+STRIPE_PRICE_ESSENTIEL_YEARLY=price_1UfvNm8mMdKNLKBf4nShlVdf
+STRIPE_PRICE_PROPRIETAIRE_MONTHLY=price_1UfvNq8mMdKNLKBf5UKLhods
+STRIPE_PRICE_PROPRIETAIRE_YEARLY=price_1UfvNu8mMdKNLKBfzNbQemoh
+STRIPE_PRICE_INVESTISSEUR_MONTHLY=price_1UfvNx8mMdKNLKBfDpdIzr0w
+STRIPE_PRICE_INVESTISSEUR_YEARLY=price_1UfvO48mMdKNLKBf3ErI6hHh
+STRIPE_PRICE_ESSENTIEL_MONTHLY_XPF=price_1UfvOH8mMdKNLKBfRGNGkRjH
+STRIPE_PRICE_ESSENTIEL_YEARLY_XPF=price_1UfvOL8mMdKNLKBfMHLwMhdS
+STRIPE_PRICE_PROPRIETAIRE_MONTHLY_XPF=price_1UfvOP8mMdKNLKBfDKOMjfXW
+STRIPE_PRICE_PROPRIETAIRE_YEARLY_XPF=price_1UfvOT8mMdKNLKBfnwQPEeXO
+STRIPE_PRICE_INVESTISSEUR_MONTHLY_XPF=price_1UfvOX8mMdKNLKBfcR6DtJgh
+STRIPE_PRICE_INVESTISSEUR_YEARLY_XPF=price_1UfvOb8mMdKNLKBfCEGw41sO
+```
+
+- Produits test : Essentiel `prod_VhK1bjOonik1hu`, Propriétaire `prod_VhK19YMRxU5F6c`, Investisseur `prod_VhK1iN9HGM9JMC`.
+- Montants (TVA incluse) : 9 / 19 / 39 € par mois, 90 / 190 / 390 € par an ; 1 100 / 2 300 / 4 700 XPF par mois, 11 000 / 23 000 / 47 000 XPF par an.
+- Portail client test : `bpc_1UfvPb8mMdKNLKBf0Bp1fd95`.
+- Secrets à saisir **dans Cloudflare, environnement Preview** (jamais ici) : `STRIPE_SECRET_KEY` (`sk_test_…` du compte KAZONLY) et `STRIPE_WEBHOOK_SECRET` (secret de l'endpoint de test).
+- Webhook test : créer un endpoint dans Stripe (mode test) vers l'URL de preview `/api/stripe-webhook`, avec `customer.subscription.created|updated|deleted` et `checkout.session.completed`. Pour tester en local : `stripe listen --forward-to localhost:8788/api/stripe-webhook`.
+- Les identifiants de prix sont vérifiés par `server/stripe.test.ts` (mapping des 12 prix) et la signature du webhook est testée avec des signatures générées localement.
+
+### Mode réel
+À renseigner une fois le compte vérifié : mêmes 12 variables avec les nouveaux identifiants, `STRIPE_SECRET_KEY` en `sk_live_…`, et un nouvel endpoint de webhook sur `https://kazonly.com/api/stripe-webhook`.
