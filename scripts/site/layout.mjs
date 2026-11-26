@@ -110,13 +110,15 @@ export function page({ path, title, description, body, ld = [], noindex = false,
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(description)}">
 <meta name="twitter:image" content="${abs("/og-image.png")}">
+<link rel="preload" href="/fonts/nunito-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/nunito-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${assets.css}">
 ${[orgLd(), siteLd(), ...ld].map(jsonLd).join("\n")}
 </head>
 <body${noindex || path === "/404.html" ? "" : ' class="has-cta"'}>
 <a class="skip" href="#contenu">Aller au contenu</a>
 <header class="hdr"><div class="wrap">
-  <a class="logo" href="/" aria-label="KAZONLY, accueil"><b aria-hidden="true">K</b>KAZONLY</a>
+  <a class="logo" href="/"><b aria-hidden="true">K</b>KAZONLY</a>
   <nav class="nav" aria-label="Navigation principale">${nav}<a href="/app/">Se connecter</a><a class="btn btn-primary btn-sm" href="${SIGNUP_FREE}">Créer mon compte gratuit</a></nav>
   <details class="menu"><summary>Menu</summary><div class="panel">${nav}<a href="/app/">Se connecter</a><a class="btn btn-primary" href="${SIGNUP_FREE}">Créer mon compte gratuit</a></div></details>
 </div></header>

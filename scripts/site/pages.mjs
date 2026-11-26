@@ -42,15 +42,16 @@ const FAQ_BILLING = [
     `Oui : l'abonnement annuel équivaut à ${12 - freeMonths} mois au prix de 12, soit ${freeMonths} mois offerts.`],
 ];
 
-/* ---------- Accueil : création de compte gratuit, territoires, arguments, tarifs, confiance, FAQ ---------- */
+/* ---------- Accueil « Lagon calme » : création de compte gratuit, démonstration, arguments, tarifs ---------- */
 const TERR_HOME = ["martinique", "guadeloupe", "guyane", "reunion"];
+const free_ = plansData.free;
 
 function planCardsHome() {
   const free = `
     <div class="plan">
       <h2 class="plan-h">${esc(free_.name)}</h2>
       <p class="muted">${esc(free_.tagline)}</p>
-      <p class="price">0 €<small>/mois</small></p>
+      <p class="price"><span data-m>0 €<small>/mois</small></span><span data-y hidden>0 €<small>/an</small></span></p>
       <p class="fine">Sans carte bancaire</p>
       <a class="btn btn-ghost btn-block" href="${SIGNUP_FREE}">Créer mon compte gratuit</a>
     </div>`;
@@ -65,7 +66,10 @@ function planCardsHome() {
     </div>`).join("");
   return free + cards;
 }
-const free_ = plansData.free;
+
+// Hauteurs des barres de l'exemple (données fictives, en pourcentage).
+const BARRES = [34, 40, 37, 50, 46, 58, 55, 66, 62, 74, 71, 86];
+const MOIS = ["Déc.", "Janv.", "Févr.", "Mars", "Avr.", "Mai", "Juin", "Juil.", "Août", "Sept.", "Oct.", "Nov."];
 
 export function home() {
   const softwareLd = {
@@ -77,100 +81,127 @@ export function home() {
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     inLanguage: "fr-FR",
-    description: "Suivi des loyers, dépenses et projections de patrimoine pour propriétaires bailleurs des Outre-mer, en euros et en francs Pacifique.",
+    description: "Suivi des loyers, trésorerie et alertes pour propriétaires bailleurs des départements d'outre-mer, en euros et en francs Pacifique.",
     areaServed: territories.map((t) => t.label),
     offers: [{ "@type": "Offer", name: free_.name, price: 0, priceCurrency: "EUR", url: abs("/tarifs/") }].concat(plans.map((p) => ({
       "@type": "Offer", name: p.name, price: p.monthly, priceCurrency: "EUR", url: abs("/tarifs/"),
     }))),
   };
-  const terr = TERR_HOME.map((slug, i) => {
+  const pills = TERR_HOME.map((slug, i) => {
     const t = territories.find((x) => x.slug === `gestion-locative-${slug}`);
-    return `<li><a class="pill" style="--i:${i}" href="/${t.slug}/">${esc(t.label)}</a></li>`;
+    return `<button type="button" class="k-chip" data-t="${slug}" aria-pressed="${i === 0}">${esc(t.label)}</button>`;
   }).join("");
+  const bars = BARRES.map((h, i) => `<i style="--h:${h}%;--d:${(i * 0.06).toFixed(2)}s" title="${MOIS[i]}"></i>`).join("");
+  const trust = [
+    ["Double authentification", "Un code à usage unique protège chaque connexion.", "M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"],
+    ["Données chiffrées", "En transit et au repos, sur des serveurs sécurisés.", "M6 11h12v9H6zM8 11V8a4 4 0 018 0v3"],
+    ["Sources officielles", "Chaque repère renvoie au texte qui le fonde.", "M5 4h10l4 4v12H5zM14 4v5h5"],
+    ["Vos données vous suivent", "Export gratuit à tout moment, suppression en un clic.", "M12 4v11M7 10l5 5 5-5M5 20h14"],
+  ].map(([t, d, icon]) => `<div class="trust-item"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${icon}"/></svg><h3>${t}</h3><p>${d}</p></div>`).join("");
 
   const body = `
-<section class="hero"><div class="wrap grid">
-  <div>
-    <h1>La gestion locative pensée pour les départements d'outre-mer.</h1>
-    <p class="lead">Suivez vos loyers, anticipez vos dépenses et recevez les repères propres à votre territoire. Gratuit pour un bien, sans carte bancaire.</p>
-    <div class="cta-row">
-      <a class="btn btn-primary" href="${SIGNUP_FREE}">Créer mon compte gratuit</a>
-      <a class="btn btn-ghost" href="/tarifs/">Voir les tarifs</a>
+<section class="hero2" aria-labelledby="hero-title">
+  <div class="blob b1" aria-hidden="true"></div><div class="blob b2" aria-hidden="true"></div>
+  <div class="wrap hero2-in">
+    <p class="eyebrow k-rise">Pour les propriétaires d'outre-mer</p>
+    <h1 id="hero-title" class="h1-xl k-rise">Vos locations d'outre-mer, pilotées d'un seul regard.</h1>
+    <p class="lead lead-xl k-rise">Loyers, trésorerie et alertes propres à votre territoire. Que vous viviez sur place ou dans l'Hexagone.</p>
+    <div class="cta-row k-rise">
+      <a class="btn btn-primary btn-lg" href="${SIGNUP_FREE}">Créer mon compte gratuit</a>
+      <a class="btn btn-ghost btn-lg" href="/tarifs/">Voir les tarifs</a>
     </div>
-    <p class="fine">Gratuit pour 1 bien, sans carte bancaire.</p>
+    <p class="fine k-rise">Gratuit pour 1 bien, sans carte bancaire.</p>
   </div>
-  <figure class="hero-fig">
-    <div class="phone">${img("app-accueil", "Tableau de bord KAZONLY : loyers reçus, attendus et en attente", 520, 1040, false)}</div>
-    <div class="fchip fc1" aria-hidden="true"><small>Loyers du mois</small><b>Reçus et attendus</b></div>
-    <div class="fchip fc2" aria-hidden="true"><small>Données</small><b>Euro ou XPF</b></div>
-  </figure>
-</div></section>
+</section>
 
-<section class="terr-band" aria-label="Territoires couverts"><div class="wrap">
-  <p class="terr-title">Pour les propriétaires de</p>
-  <ul class="pills">${terr}</ul>
-</div></section>
-
-<section id="probleme"><div class="wrap">
-  <p class="eyebrow">Le quotidien du propriétaire</p>
-  <h2>Trois situations que tout propriétaire connaît.</h2>
-  <div class="cards c3" style="margin-top:28px">
-    <div class="card"><h3>Un loyer en attente passe inaperçu</h3><p class="muted">Sans tableau à jour, un loyer qui n'arrive pas est vu trop tard, parfois un mois après.</p></div>
-    <div class="card"><h3>Une échéance oubliée</h3><p class="muted">Assurance, taxe foncière, fin de bail : une date manquée peut coûter bien plus cher que l'outil qui la rappelle.</p></div>
-    <div class="card"><h3>Une saison cyclonique anticipée trop tard</h3><p class="muted">Aux Antilles et en Guyane, la saison cyclonique revient chaque année. Mieux vaut préparer ses biens avant qu'elle n'arrive.</p></div>
+<section class="demo-sec" aria-labelledby="demo-title"><div class="wrap">
+  <div class="terr-switch" role="group" aria-label="Territoire de l'exemple">
+    <span class="terr-lbl">Voir pour :</span>${pills}<span class="fine">Mayotte arrive bientôt</span>
   </div>
-</div></section>
-
-<section class="soft" id="fonctionnalites"><div class="wrap">
-  <p class="eyebrow">Pourquoi KAZONLY</p>
-  <h2>Trois raisons de gérer vos biens ici.</h2>
-  <div class="sshow">
-    <div class="ssteps"><div class="srail" aria-hidden="true"><i id="sfill"></i></div>
-      <article class="sstep on" data-i="0">
-        <h3>Pensé pour votre territoire</h3>
-        <p class="lead">Martinique, Guadeloupe, Guyane, La Réunion et les autres collectivités : chaque bien prend la devise et le code postal de son territoire.</p>
-        <ul class="ticks"><li>Euro ou franc Pacifique, sans conversion</li><li>Code postal contrôlé selon le territoire</li><li>Indicatif téléphonique adapté</li></ul>
-      </article>
-      <article class="sstep" data-i="1">
-        <h3>Votre trésorerie sous les yeux</h3>
-        <p class="lead">Loyers reçus et attendus, dépenses et solde du mois, sur un seul écran.</p>
-        <ul class="ticks"><li>Solde net calculé bien par bien</li><li>Projections de patrimoine à 5, 10, 15 et 20 ans</li></ul>
-      </article>
-      <article class="sstep" data-i="2">
-        <h3>Rien n'est oublié</h3>
-        <p class="lead">Les loyers en attente remontent à l'accueil, avec un message de relance prêt à copier.</p>
-        <ul class="ticks"><li>Loyers en attente repérés d'un coup d'œil</li><li>Messages de relance prêts à envoyer</li><li>Rappels d'échéances : bientôt</li></ul>
-      </article>
+  <div class="dash" id="dash" aria-live="polite">
+    <div class="dash-bar"><span></span><span></span><span></span><b>Tableau de bord · <span data-f="nom">Martinique</span></b></div>
+    <div class="dash-body">
+      <aside class="dash-nav" aria-hidden="true"><span class="on">Vue d'ensemble</span><span>Mes biens</span><span>Loyers</span><span>Trésorerie</span><span>Alertes</span></aside>
+      <div class="dash-main">
+        <div class="kpis">
+          <div><small>Loyers reçus ce mois</small><b data-f="rent">2 450 €</b><em class="ok">Tout est encaissé</em></div>
+          <div><small>Dépenses du mois</small><b data-f="spend">610 €</b><em>Charges et entretien</em></div>
+          <div><small>Solde prévu dans 12 mois</small><b class="blue" data-f="fore">+18 900 €</b><em>Scénario central</em></div>
+        </div>
+        <div class="chart"><div class="chart-t">Trésorerie mois par mois</div><div class="bars" aria-hidden="true">${bars}</div></div>
+        <div class="toast toast-amber" role="status"><b data-f="at">Saison cyclonique</b><span data-f="ad">Vérifiez la garantie catastrophes naturelles de votre bien.</span></div>
+      </div>
     </div>
-    <div class="sstage" aria-hidden="true"><div class="phone pstack">${img("app-biens", "Liste des biens : territoire, devise et loyer de chaque logement", 520, 1040, false)}${img("app-accueil", "Tableau de bord : loyers reçus, dépenses et solde du mois", 520, 1040, false)}${img("app-paiements", "Suivi des loyers : reçu, attendu ou en attente", 520, 1040, false)}</div></div>
   </div>
-  <p class="fine" style="text-align:center">Captures de l'application avec des données d'exemple.</p>
+  <h2 id="demo-title" class="sr-only">Exemple de tableau de bord</h2>
+  <p class="fine center">Données d'exemple, pour illustrer l'application.</p>
 </div></section>
 
-<section><div class="wrap">
-  <p class="eyebrow">Comment ça marche</p>
-  <h2>Opérationnel en quelques minutes.</h2>
-  <ol class="steps howto" style="margin-top:24px">
-    <li><h3>1. Ajoutez votre bien</h3><p class="muted">Adresse, territoire, type de location : la devise et les indicatifs se règlent seuls.</p></li>
-    <li><h3>2. Renseignez le loyer et le locataire</h3><p class="muted">Le loyer mensuel, le locataire et son téléphone, directement sur le bien.</p></li>
-    <li><h3>3. KAZONLY suit tout</h3><p class="muted">Marquez les loyers reçus, saisissez vos dépenses, consultez vos analyses.</p></li>
-  </ol>
+<section class="trust-sec" aria-labelledby="trust-title"><div class="wrap">
+  <h2 id="trust-title" class="sr-only">Confiance</h2>
+  <div class="trust-grid">${trust}</div>
 </div></section>
 
-<section class="soft" id="tarifs-apercu"><div class="wrap">
-  <p class="eyebrow">Tarifs</p>
-  <h2>Gratuit pour 1 bien, puis dès ${plans[0].monthly} € par mois.</h2>
-  <div class="seg" data-billing-toggle role="group" aria-label="Période de facturation" style="margin:20px 0 24px">
-    <button type="button" data-interval="month" aria-pressed="true">Mensuel</button>
-    <button type="button" data-interval="year" aria-pressed="false">Annuel · ${freeMonths} mois offerts</button>
+<section class="feat-sec" id="fonctionnalites" aria-labelledby="feat-title"><div class="wrap">
+  <h2 id="feat-title" class="h2-xl">Tout ce qu'un bailleur d'outre-mer doit suivre, au même endroit.</h2>
+  <div class="feat-row">
+    <div class="feat-txt">
+      <h3>Chaque loyer suivi, sans tableur.</h3>
+      <p>Vous voyez qui a payé, qui est en attente, et vous envoyez une relance ou une quittance en un clic.</p>
+      <a class="link-u" href="/tarifs/">Voir les formules</a>
+    </div>
+    <div class="feat-card">
+      <div class="mini"><span><b>T3 Bellevue</b><small>Fort-de-France</small></span><em>920 €</em><i class="pill ok">Payé</i></div>
+      <div class="mini"><span><b>Studio Bas-du-Fort</b><small>Le Gosier</small></span><em>850 €</em><i class="pill ok">Payé</i></div>
+      <div class="mini"><span><b>T2 Saint-Gilles</b><small>Saint-Paul</small></span><em>680 €</em><i class="pill wait">Attendu le 5</i></div>
+    </div>
+  </div>
+  <div class="feat-row rev">
+    <div class="feat-txt">
+      <h3>Votre trésorerie, douze mois à l'avance.</h3>
+      <p>Taxe foncière, travaux, vacance locative : KAZONLY les place dans le calendrier et montre votre solde futur, mois par mois.</p>
+      <a class="link-u" href="/fonctionnalites/tresorerie/">Découvrir la trésorerie</a>
+    </div>
+    <div class="feat-card">
+      <div class="mini"><span><b>Taxe foncière</b><small>Octobre</small></span><em>−1 240 €</em><i class="pill ok">Provisionnée</i></div>
+      <div class="mini"><span><b>Peinture T2</b><small>Mars</small></span><em>−800 €</em><i class="pill info">Prévue</i></div>
+      <div class="mini"><span><b>Solde en novembre</b><small>Scénario central</small></span><em>+18 900 €</em><i class="pill info">Estimé</i></div>
+    </div>
+  </div>
+  <div class="feat-row">
+    <div class="feat-txt">
+      <h3>Les règles de votre territoire, sans les chercher.</h3>
+      <p>Cyclones, indices de loyer, diagnostics : le bon repère au bon moment, avec le lien vers le texte officiel. Bientôt disponible.</p>
+      <a class="link-u" href="/outre-mer/">Voir les territoires</a>
+    </div>
+    <div class="feat-card">
+      <div class="mini"><span><b>Saison cyclonique</b><small>Martinique, La Réunion</small></span><i class="pill wait">À vérifier</i></div>
+      <div class="mini"><span><b>Nouvel indice de loyer</b><small>Tous territoires</small></span><i class="pill info">Publié</i></div>
+      <div class="mini"><span><b>Diagnostic à renouveler</b><small>Guadeloupe</small></span><i class="pill wait">Mars</i></div>
+    </div>
+  </div>
+  <p class="fine center">Maquettes avec des données fictives. Les repères réglementaires seront publiés avec leur source officielle.</p>
+  <p class="aussi"><span>Et aussi :</span><a href="/tarifs/">Fiche par bien</a><a href="/tarifs/">Simulateur de rentabilité</a><a href="/tarifs/">Quittances PDF</a><a href="/tarifs/">Coffre-fort documents</a></p>
+</div></section>
+
+<section class="tarifs-sec" id="tarifs-apercu" aria-labelledby="tarifs-title"><div class="wrap">
+  <div class="tarifs-head">
+    <div>
+      <h2 id="tarifs-title" class="h2-xl">Votre formule, en deux minutes.</h2>
+      <p class="lead">Choisissez, payez en ligne, votre espace est prêt.</p>
+    </div>
+    <div class="seg" data-billing-toggle role="group" aria-label="Période de facturation">
+      <button type="button" data-interval="month" aria-pressed="true">Mensuel</button>
+      <button type="button" data-interval="year" aria-pressed="false">Annuel, ${freeMonths} mois offerts</button>
+    </div>
   </div>
   <div class="plans">${planCardsHome()}</div>
-  <p class="muted" style="margin:20px 0 0">Agence ou gros portefeuille ? Une offre <a href="/contact/?sujet=agence">Agence / Scale sur devis</a> est disponible.</p>
+  <p class="fine">Paiement sécurisé par Stripe. Résiliation en ligne. Export de vos données gratuit. Agences et gros portefeuilles : <a href="/contact/?sujet=agence">sur devis</a>.</p>
 </div></section>
 
-<section class="confiance" id="confiance"><div class="wrap">
+<section class="confiance-sec" id="confiance" aria-labelledby="eng-title"><div class="wrap">
   <p class="eyebrow">Nos engagements</p>
-  <h2>Ce que KAZONLY s'engage à tenir.</h2>
+  <h2 id="eng-title" class="h2-xl">Ce que KAZONLY s'engage à tenir.</h2>
   <div class="trust" style="margin-top:24px">
     <div class="card"><h3>Gratuit pour un bien</h3><p class="muted">Un bien suivi sans carte bancaire et sans limite de durée.</p></div>
     <div class="card"><h3>Prix clairs, résiliables en ligne</h3><p class="muted">Des prix affichés avant tout paiement, et une résiliation possible en ligne à tout moment.</p></div>
@@ -196,7 +227,7 @@ export function home() {
     <input id="nl-email" name="email" type="email" autocomplete="email" placeholder="vous@exemple.fr" required maxlength="320">
     <label class="nl-consent"><input type="checkbox" name="consent" value="1"> J'accepte de recevoir la veille KAZONLY. Désinscription en un clic. Voir la <a href="/confidentialite/">politique de confidentialité</a>.</label>
     <div id="newsletter-ts" class="ts-slot"></div>
-    <button class="btn btn-primary" type="submit">Recevoir la veille</button>
+    <button class="btn btn-amber" type="submit">Recevoir la veille</button>
   </form>
   <p class="err" id="newsletter-msg" role="status" aria-live="polite"></p>
 </div></section>
@@ -204,15 +235,82 @@ export function home() {
 <section class="final-band"><div class="wrap">
   <h2>Prêt à suivre votre premier bien ?</h2>
   <p>Gratuit pour 1 bien, sans carte bancaire.</p>
-  <a class="btn btn-primary" href="${SIGNUP_FREE}">Créer mon compte gratuit</a>
+  <a class="btn btn-lg btn-white" href="${SIGNUP_FREE}">Créer mon compte gratuit</a>
 </div></section>`;
 
   return page({
     path: "/",
     title: "KAZONLY | Gestion locative pour les départements d'outre-mer",
-    description: "La gestion locative pensée pour les départements d'outre-mer. Suivez vos loyers et dépenses, en euros ou en francs Pacifique. Gratuit pour un bien, sans carte bancaire.",
+    description: "Vos locations d'outre-mer, pilotées d'un seul regard : loyers, trésorerie et alertes propres à votre territoire. Gratuit pour 1 bien.",
     body,
     ld: [softwareLd, faqLd(FAQ.slice(0, 5))],
+  });
+}
+
+/* ---------- Page pilote « Trésorerie » : modèle des pages fonctionnalités ---------- */
+export function tresoriePage() {
+  const mois = MOIS.map((m, i) => `<div class="tr-col"><i style="--h:${BARRES[i]}%;--d:${(i * 0.06).toFixed(2)}s"></i><small>${m}</small></div>`).join("");
+  const body = `
+<section class="hero2 hero2-sm" aria-labelledby="tr-title"><div class="blob b1" aria-hidden="true"></div>
+  <div class="wrap hero2-in">
+    <p class="eyebrow">Fonctionnalité · Trésorerie</p>
+    <h1 id="tr-title" class="h1-xl">Votre trésorerie, douze mois à l'avance.</h1>
+    <p class="lead lead-xl">Taxe foncière, travaux et vacance locative placés dans le calendrier : vous voyez votre solde futur, mois par mois.</p>
+    <div class="cta-row"><a class="btn btn-primary btn-lg" href="${SIGNUP_FREE}">Créer mon compte gratuit</a><a class="btn btn-ghost btn-lg" href="/tarifs/">Voir les formules</a></div>
+  </div>
+</section>
+
+<section class="demo-sec"><div class="wrap">
+  <div class="chart chart-lg" data-reveal>
+    <div class="chart-t">Solde prévu, exemple sur douze mois (données fictives)</div>
+    <div class="tr-cols" aria-hidden="true">${mois}</div>
+  </div>
+</div></section>
+
+<section class="feat-sec"><div class="wrap">
+  <h2 class="h2-xl">Comment ça marche, en trois étapes.</h2>
+  <ol class="steps3">
+    <li><span class="num">1</span><h3>Vous saisissez vos dépenses prévues</h3><p>Taxe foncière, assurance, travaux, copropriété : chacune à sa date.</p></li>
+    <li><span class="num">2</span><h3>Vous indiquez vos loyers</h3><p>Le loyer de chaque bien, la date d'échéance, la vacance que vous anticipez.</p></li>
+    <li><span class="num">3</span><h3>KAZONLY calcule votre solde</h3><p>Un solde par mois, pour chaque bien et pour l'ensemble de votre patrimoine.</p></li>
+  </ol>
+</div></section>
+
+<section class="feat-sec"><div class="wrap prose">
+  <h2 class="h2-xl">Trois scénarios, pour décider avec des chiffres.</h2>
+  <ul class="ticks">
+    <li><b>Scénario bas</b> : une vacance plus longue que prévu.</li>
+    <li><b>Scénario central</b> : vos loyers et dépenses habituels.</li>
+    <li><b>Scénario haut</b> : une revalorisation de loyer et des dépenses maîtrisées.</li>
+  </ul>
+  <p class="fine">Les scénarios sont des estimations que vous réglez vous-même. KAZONLY ne prévoit pas d'évolution de l'économie locale.</p>
+  <h2 class="h2-md">Par territoire</h2>
+  <p>Les charges et la fiscalité ne sont pas les mêmes d'un territoire à l'autre. La devise de chaque bien reste celle de son territoire : euro ou franc Pacifique, jamais additionnés. Repères par territoire : <a href="/outre-mer/">voir les territoires</a>.</p>
+</div></section>
+
+<section class="confiance-sec"><div class="wrap prose">
+  <h2 class="h2-md">Questions fréquentes</h2>
+  ${faqHtml([
+    ["La trésorerie prévoit-elle l'impôt ?", "Non. Elle compte vos loyers et vos dépenses. KAZONLY ne calcule aucun impôt : pour votre fiscalité, rapprochez-vous de votre service des impôts ou d'un professionnel."],
+    ["Mes loyers passent-ils par KAZONLY ?", "Non. KAZONLY ne reçoit, ne détient et ne prélève aucun loyer."],
+    ["Puis-je l'utiliser gratuitement ?", `Oui, pour 1 bien, sans carte bancaire. Les formules payantes démarrent à ${plans[0].monthly} € par mois.`],
+  ])}
+</div></section>
+
+<section class="final-band"><div class="wrap">
+  <h2>Voyez votre solde sur douze mois.</h2>
+  <p>Gratuit pour 1 bien, sans carte bancaire.</p>
+  <a class="btn btn-lg btn-white" href="${SIGNUP_FREE}">Créer mon compte gratuit</a>
+</div></section>`;
+  return page({
+    path: "/fonctionnalites/tresorerie/",
+    title: "Trésorerie et prévisions sur 12 mois | KAZONLY",
+    description: "Anticipez votre trésorerie de propriétaire bailleur d'outre-mer : dépenses, vacance et solde sur douze mois. Gratuit pour 1 bien.",
+    body,
+    ld: [faqLd([
+      ["La trésorerie prévoit-elle l'impôt ?", "Non. Elle compte vos loyers et vos dépenses."],
+      ["Mes loyers passent-ils par KAZONLY ?", "Non. KAZONLY ne reçoit, ne détient et ne prélève aucun loyer."],
+    ])],
   });
 }
 

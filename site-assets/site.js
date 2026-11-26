@@ -227,3 +227,36 @@
       });
   });
 })();
+
+// Démonstration « Lagon calme » : le tableau de bord change selon le territoire choisi (données fictives).
+(function () {
+  var dash = document.getElementById("dash");
+  if (dash) {
+    var T = {
+      martinique: { nom: "Martinique", rent: "2 450 €", spend: "610 €", fore: "+18 900 €", at: "Saison cyclonique", ad: "Vérifiez la garantie catastrophes naturelles de votre bien." },
+      guadeloupe: { nom: "Guadeloupe", rent: "1 980 €", spend: "540 €", fore: "+15 200 €", at: "Diagnostic à renouveler", ad: "Le diagnostic du studio arrive à échéance en mars." },
+      guyane: { nom: "Guyane", rent: "1 420 €", spend: "390 €", fore: "+11 600 €", at: "Humidité et entretien", ad: "Prévoyez l'entretien de la ventilation avant la saison des pluies." },
+      reunion: { nom: "La Réunion", rent: "2 130 €", spend: "575 €", fore: "+16 400 €", at: "Saison cyclonique", ad: "Vérifiez votre assurance pour le T2 de votre bien." }
+    };
+    var boutons = [].slice.call(document.querySelectorAll(".k-chip[data-t]"));
+    function montrer(k) {
+      var d = T[k]; if (!d) return;
+      boutons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.t === k)); });
+      dash.querySelectorAll("[data-f]").forEach(function (el) {
+        var cle = { nom: "nom", rent: "rent", spend: "spend", fore: "fore", at: "at", ad: "ad" }[el.dataset.f];
+        if (cle) el.textContent = d[cle];
+      });
+    }
+    boutons.forEach(function (b) { b.addEventListener("click", function () { montrer(b.dataset.t); }); });
+    var reduit = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if ("IntersectionObserver" in window && !reduit) {
+      var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { dash.classList.add("in"); io.disconnect(); } }); }, { threshold: 0.3 });
+      io.observe(dash);
+    } else dash.classList.add("in");
+  }
+  var reveal = document.querySelector("[data-reveal]");
+  if (reveal && "IntersectionObserver" in window) {
+    var io2 = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { reveal.classList.add("in"); io2.disconnect(); } }); }, { threshold: 0.3 });
+    io2.observe(reveal);
+  } else if (reveal) reveal.classList.add("in");
+})();
