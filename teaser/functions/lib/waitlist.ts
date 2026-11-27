@@ -1,8 +1,9 @@
+import { ipDeConfiance, type OptionsTurnstile, type Verdict } from "../../../server/turnstile";
+
 // Inscription à la liste d'attente KAZONLY (teaser) : double opt-in Brevo.
 // Aucune donnée n'est stockée par le teaser ; Brevo tient la liste. Les journaux ne contiennent jamais l'e-mail.
 
 export const BREVO_DOI = "https://api.brevo.com/v3/contacts/doubleOptinConfirmation";
-export const TURNSTILE_VERIFY = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 export const TERRITOIRES = [
   "guadeloupe", "martinique", "guyane", "reunion", "mayotte", "saint-martin", "saint-barthelemy",
   "spm", "nouvelle-caledonie", "polynesie", "wallis-futuna", "aucun",
@@ -14,7 +15,7 @@ const LIMITE_PAR_MINUTE = 5;
 export type Env = Record<string, string | undefined>;
 export interface Dependances {
   fetch: (url: string, init: RequestInit) => Promise<Response>;
-  verifierTurnstile: (token: string, secret: string, ip: string | null) => Promise<boolean>;
+  verifierTurnstile: (o: OptionsTurnstile) => Promise<Verdict>;
   maintenant: () => number;
 }
 
@@ -30,21 +31,8 @@ export function depasseLimite(ip: string, maintenant: number): boolean {
   return c.n > LIMITE_PAR_MINUTE;
 }
 
-export async function verifierTurnstile(token: string, secret: string, ip: string | null): Promise<boolean> {
-  if (!token || token.length > 2048 || !secret) return false;
-  const body = new URLSearchParams({ secret, response: token });
-  if (ip) body.set("remoteip", ip);
-  try {
-    const r = await fetch(TURNSTILE_VERIFY, { method: "POST", body });
-    if (!r.ok) return false;
-    return ((await r.json()) as { success?: boolean }).success === true;
-  } catch {
-    return false;
-  }
-}
-
 export async function traiterInscription(req: Request, env: Env, deps: Dependances): Promise<Response> {
-  const ip = req.headers.get("CF-Connecting-IP");
+  const ip = ipDeConfiance(req.headers);
   if (ip && depasseLimite(ip, deps.maintenant())) return reponse({ error: "trop_de_demandes" }, 429);
 
   let b: { email?: unknown; territoire?: unknown; consent?: unknown; turnstileToken?: unknown };
@@ -59,8 +47,14 @@ export async function traiterInscription(req: Request, env: Env, deps: Dependanc
   const cle = env.BREVO_API_KEY, liste = Number(env.BREVO_WAITLIST_LIST_ID), modele = Number(env.BREVO_DOI_TEMPLATE_ID);
   if (!cle || !liste || !modele) return reponse({ error: "bientot_ouvert" }, 503);
 
-  const humain = await deps.verifierTurnstile(typeof b.turnstileToken === "string" ? b.turnstileToken : "", env.TURNSTILE_SECRET_KEY ?? "", ip);
-  if (!humain) return reponse({ error: "verification_echouee" }, 403);
+  // Widget « guide » : action et hôtes vérifiés. Échec fermé : sans configuration ou sans réponse, rien n'est envoyé.
+  const verdict = await deps.verifierTurnstile({
+    jeton: b.turnstileToken, action: "guide", secret: env.TURNSTILE_SECRET_KEY, hostnames: env.TURNSTILE_HOSTNAMES, ip,
+  });
+  if (!verdict.ok) {
+    if (verdict.motif === "configuration" || verdict.motif === "reseau") return reponse({ error: "verification_indisponible" }, 503);
+    return reponse({ error: "verification_echouee" }, 403);
+  }
 
   try {
     const r = await deps.fetch(BREVO_DOI, {

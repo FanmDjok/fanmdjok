@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import { abs, assets, cfg, plansData, territories, warnings } from "./site/layout.mjs";
+import { abs, assets, cfg, plansData, territories, warnings, TURNSTILE_SITE_KEY } from "./site/layout.mjs";
 import { confirmeVeillePage, contactPage, faqPage, home, hub, notFound, pricing, resilierPage, territoryPage, tresoriePage } from "./site/pages.mjs";
 import { cgv, confidentialite, cookies, mentions } from "./site/legal.mjs";
 
@@ -99,6 +99,11 @@ for (const entree of ["index.html", "style.css", "app.js", "merci", "confidentia
   const source = path.join(TEASER, entree);
   if (fs.existsSync(source)) fs.cpSync(source, path.join(DIST, "_teaser", entree), { recursive: true });
 }
+// Clé de site Turnstile (publique) : injectée dans le teaser ; vide = bouton désactivé. Le secret n'est jamais lu ici.
+const teaserIndex = path.join(DIST, "_teaser", "index.html");
+const indexTeaser = fs.readFileSync(teaserIndex, "utf8").replaceAll("__TURNSTILE_SITE_KEY__", TURNSTILE_SITE_KEY);
+if (indexTeaser.includes("__TURNSTILE_SITE_KEY__")) { console.error("Marqueur de clé Turnstile non remplacé dans le teaser."); process.exit(1); }
+fs.writeFileSync(teaserIndex, indexTeaser);
 write("_headers", `/*
   Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com; style-src-elem 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://cloudflareinsights.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload

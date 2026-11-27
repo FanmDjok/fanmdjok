@@ -1,5 +1,5 @@
 import { bindEnv, json, readBounded, type Env } from "../../server/lib";
-import { verifyTurnstile } from "../../server/turnstile";
+import { ipDeConfiance, statutRefus, verifierTurnstile } from "../../server/turnstile";
 
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 export const BREVO_CONTACTS = "https://api.brevo.com/v3/contacts/doubleOptinConfirmation";
@@ -19,8 +19,8 @@ async function handle(req: Request, env: Record<string, string | undefined>): Pr
   const cle = env.BREVO_API_KEY, liste = Number(env.BREVO_LIST_ID_VEILLE), modele = Number(env.BREVO_DOI_TEMPLATE_ID);
   if (!cle || !liste || !modele) return json({ error: "bientot_ouvert" }, 503);
 
-  const humain = await verifyTurnstile(typeof b.turnstileToken === "string" ? b.turnstileToken : "", env.TURNSTILE_SECRET_KEY ?? "", null);
-  if (!humain) return json({ error: "verification_echouee" }, 403);
+  const verdict = await verifierTurnstile({ jeton: b.turnstileToken, action: "newsletter", secret: env.TURNSTILE_SECRET_KEY, hostnames: env.TURNSTILE_HOSTNAMES, ip: ipDeConfiance(req.headers) });
+  if (!verdict.ok) { const r = statutRefus(verdict); return json({ error: r.erreur }, r.statut); }
 
   try {
     const r = await fetch(BREVO_CONTACTS, {

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { bindEnv } from "./lib";
-import { verifyTurnstile } from "./turnstile";
+import { verifierTurnstile } from "./turnstile";
 import { onRequestPost as contact } from "../functions/api/contact";
 
-const ENV = { TURNSTILE_SECRET_KEY: "secret_test", SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "k" };
+const ENV = { TURNSTILE_SECRET_KEY: "secret_test", TURNSTILE_HOSTNAMES: "kazonly.test", SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "k" };
 const post = (body: unknown) => new Request("https://kazonly.test/api/contact", { method: "POST", body: JSON.stringify(body) });
 const valide = { name: "Marie", email: "marie@example.com", message: "Bonjour", turnstileToken: "" };
 
@@ -25,7 +25,13 @@ describe("formulaire de contact", () => {
     const r = await contact({ request: post({ ...valide, message: "x".repeat(9000) }), env: ENV });
     expect(r.status).toBe(413);
   });
-  it("une vérification sans jeton renvoie faux sans requête sortante", async () => {
-    expect(await verifyTurnstile("", "secret", null)).toBe(false);
+  it("une vérification sans jeton est refusée sans requête sortante", async () => {
+    expect(await verifierTurnstile({ jeton: "", action: "contact", secret: "secret", hostnames: "kazonly.test", ip: null })).toEqual({ ok: false, motif: "jeton" });
+  });
+  it("sans TURNSTILE_HOSTNAMES : 503, échec fermé", async () => {
+    const sans = { ...ENV, TURNSTILE_HOSTNAMES: undefined };
+    bindEnv(sans);
+    const r = await contact({ request: post({ ...valide, turnstileToken: "jeton" }), env: sans });
+    expect(r.status).toBe(503);
   });
 });

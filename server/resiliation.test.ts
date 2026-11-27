@@ -3,7 +3,7 @@ import { bindEnv } from "./lib";
 import { onRequestPost as resiliation } from "../functions/api/resiliation";
 import { onRequestPost as lien } from "../functions/api/resiliation-lien";
 
-const ENV = { SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "k", TURNSTILE_SECRET_KEY: "s", SITE_URL: "https://kazonly.test" };
+const ENV = { SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "k", TURNSTILE_SECRET_KEY: "s", TURNSTILE_HOSTNAMES: "kazonly.test", SITE_URL: "https://kazonly.test" };
 const post = (url: string, body: unknown, headers: Record<string, string> = {}) =>
   new Request(`https://kazonly.test${url}`, { method: "POST", body: JSON.stringify(body), headers });
 

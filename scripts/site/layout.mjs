@@ -172,3 +172,6 @@ ${cfWebAnalyticsToken()}</body>
 </html>`;
   return { path, noindex, html };
 }
+
+/** Clé de site Turnstile (publique) : lue depuis TURNSTILE_SITE_KEY au build. Jamais le secret. Vide = formulaires désactivés. */
+export const TURNSTILE_SITE_KEY = /^0x[A-Za-z0-9_-]{10,}$/.test((process.env.TURNSTILE_SITE_KEY || "").trim()) ? process.env.TURNSTILE_SITE_KEY.trim() : "";

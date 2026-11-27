@@ -32,6 +32,9 @@ export const env = (key: string): string => {
   return v;
 };
 
+/** Variable optionnelle : undefined si absente (les routes décident elles-mêmes de l'échec fermé). */
+export const envOptionnel = (key: string): string | undefined => ENV[key] || undefined;
+
 export const stripe = (): Stripe =>
   new Stripe(env("STRIPE_SECRET_KEY"), { httpClient: Stripe.createFetchHttpClient() });
 

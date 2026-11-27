@@ -1,7 +1,7 @@
 import { admin, bindEnv, json, readBounded, siteUrl, stripe, type Env } from "../../server/lib";
 import { paramsSessionCheckout, resoudrePrix, validerDemandePublique } from "../../server/checkout";
 import { essaiEligible } from "../../server/essai";
-import { verifyTurnstile } from "../../server/turnstile";
+import { ipDeConfiance, statutRefus, verifierTurnstile } from "../../server/turnstile";
 
 /**
  * Achat sans compte : la page de paiement Stripe demande la carte ; le compte est créé après le paiement,
@@ -19,10 +19,9 @@ async function handle(req: Request, ENV: Env): Promise<Response> {
   const v = validerDemandePublique(body);
   if (!v.ok) return json({ error: v.erreur }, 400);
 
-  // Sans clé Turnstile, on ne crée aucune session : pas de protection, pas d'achat.
-  if (!ENV.TURNSTILE_SECRET_KEY) return json({ error: "bientot_ouvert" }, 503);
-  const humain = await verifyTurnstile(typeof body.turnstileToken === "string" ? body.turnstileToken : "", ENV.TURNSTILE_SECRET_KEY, null);
-  if (!humain) return json({ error: "verification_echouee" }, 403);
+  // Widget « checkout » : action et hôtes vérifiés. Sans configuration ou sans réponse, aucune session n'est créée.
+  const verdict = await verifierTurnstile({ jeton: body.turnstileToken, action: "checkout", secret: ENV.TURNSTILE_SECRET_KEY, hostnames: ENV.TURNSTILE_HOSTNAMES, ip: ipDeConfiance(req.headers) });
+  if (!verdict.ok) { const r = statutRefus(verdict); return json({ error: r.erreur }, r.statut); }
 
   const prix = resoudrePrix(v.plan, v.interval, ENV as unknown as Record<string, string | undefined>);
   if (!prix.ok) return json({ error: prix.erreur }, prix.erreur === "configuration_incoherente" ? 500 : 400);

@@ -1,5 +1,5 @@
-import { bindEnv, env, json, readBounded, type Env } from "../../server/lib";
-import { verifyTurnstile } from "../../server/turnstile";
+import { bindEnv, env, envOptionnel, json, readBounded, type Env } from "../../server/lib";
+import { ipDeConfiance, statutRefus, verifierTurnstile } from "../../server/turnstile";
 
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
@@ -13,8 +13,8 @@ async function handle(req: Request): Promise<Response> {
   const email = typeof b.email === "string" ? b.email.trim().slice(0, 320) : "";
   if (!EMAIL.test(email)) return json({ error: "champs_invalides" }, 400);
 
-  const humain = await verifyTurnstile(typeof b.turnstileToken === "string" ? b.turnstileToken : "", env("TURNSTILE_SECRET_KEY"), req.headers.get("cf-connecting-ip"));
-  if (!humain) return json({ error: "verification_echouee" }, 403);
+  const verdict = await verifierTurnstile({ jeton: b.turnstileToken, action: "resiliation", secret: envOptionnel("TURNSTILE_SECRET_KEY"), hostnames: envOptionnel("TURNSTILE_HOSTNAMES"), ip: ipDeConfiance(req.headers) });
+  if (!verdict.ok) { const r = statutRefus(verdict); return json({ error: r.erreur }, r.statut); }
 
   const base = env("SUPABASE_URL").replace(/\/$/, "");
   const cle = env("SUPABASE_SERVICE_ROLE_KEY");

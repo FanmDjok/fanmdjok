@@ -1,4 +1,4 @@
-import { SIGNUP_FREE, freeMonths, fmtPrice, abs, breadcrumbLd, cfg, crumbs, esc, faqHtml, faqLd, fmtXpf, img, page, plansData, SIGNUP, territories, val } from "./layout.mjs";
+import { TURNSTILE_SITE_KEY, SIGNUP_FREE, freeMonths, fmtPrice, abs, breadcrumbLd, cfg, crumbs, esc, faqHtml, faqLd, fmtXpf, img, page, plansData, SIGNUP, territories, val } from "./layout.mjs";
 import { colonnes, lignesMatrice } from "./formules.mjs";
 
 import fs from "node:fs";
@@ -100,12 +100,12 @@ const DEMO_DEFAUT = "martinique";
 function checkoutPanel() {
   return `
   <div class="checkout-panel" id="checkout-panel" hidden>
-    <form class="cform" id="checkout-form" novalidate data-sitekey="${esc(process.env.TURNSTILE_SITE_KEY || "")}">
+    <form class="cform" id="checkout-form" novalidate>
       <h2 class="h3">Souscrire : <span id="co-plan"></span></h2>
       <p class="fine">14 jours offerts, carte demandée, aucun débit pendant l'essai. Votre espace KAZONLY se crée à partir de cette adresse : un e-mail vous permettra de choisir votre mot de passe.</p>
       <div class="fld"><label for="co-email">Adresse e-mail</label><input id="co-email" name="email" type="email" autocomplete="email" required maxlength="200"></div>
       <div class="fld consent"><label><input id="co-consent" name="consent" type="checkbox"> <span>Je demande à commencer l'accès tout de suite. Je sais que mon droit de rétractation de 14 jours prend fin lorsque le service est entièrement exécuté.</span></label></div>
-      <div id="ts-checkout" class="ts-slot"></div>
+      <div class="cf-turnstile ts-slot" id="ts-checkout" data-sitekey="${esc(TURNSTILE_SITE_KEY)}" data-action="checkout"></div>
       <p class="err" id="co-err" role="alert"></p>
       <button class="btn btn-primary btn-block" type="submit" id="co-send">Continuer vers le paiement sécurisé</button>
       <p class="fine">Paiement traité par Stripe. Voir les <a href="/cgv/">conditions générales de vente</a>.</p>
@@ -288,11 +288,11 @@ export function home() {
 <section class="newsletter" aria-labelledby="nl-title"><div class="wrap">
   <h2 id="nl-title">Les règles changent. Vous serez prévenu.</h2>
   <p class="lead">Une lettre par mois : lois, indices et obligations qui évoluent dans votre territoire, et les nouveautés de KAZONLY.</p>
-  <form class="nl-form" id="newsletter-form" novalidate data-sitekey="${esc(process.env.TURNSTILE_SITE_KEY || "")}">
+  <form class="nl-form" id="newsletter-form" novalidate>
     <label for="nl-email" class="sr-only">Adresse e-mail</label>
     <input id="nl-email" name="email" type="email" autocomplete="email" placeholder="vous@exemple.fr" required maxlength="320">
     <label class="nl-consent"><input type="checkbox" name="consent" value="1"> J'accepte de recevoir la veille KAZONLY. Désinscription en un clic. Voir la <a href="/confidentialite/">politique de confidentialité</a>.</label>
-    <div id="newsletter-ts" class="ts-slot"></div>
+    <div class="cf-turnstile ts-slot" id="newsletter-ts" data-sitekey="${esc(TURNSTILE_SITE_KEY)}" data-action="newsletter"></div>
     <button class="btn btn-amber" type="submit">Recevoir la veille</button>
   </form>
   <p class="err" id="newsletter-msg" role="status" aria-live="polite"></p>
@@ -649,7 +649,7 @@ ${crumbs([["Accueil", "/"], ["Contact", "/contact/"]])}
       <ul class="ticks"><li>Combien de biens vous suivez, et dans quels territoires.</li><li>Combien de personnes utiliseront l'outil.</li><li>Vos outils actuels et les données à reprendre.</li><li>Ce qui vous manque aujourd'hui.</li></ul>
       <p>Vous pouvez aussi écrire directement à ${val("contactEmail")}.</p>
     </div>
-    <form class="cform" id="contact-form" novalidate data-sitekey="${esc(process.env.TURNSTILE_SITE_KEY || "")}">
+    <form class="cform" id="contact-form" novalidate>
       <div class="fld"><label for="c-topic">Votre demande</label>
         <select id="c-topic" name="topic"><option value="agence">Offre Agence / Scale</option><option value="question">Une question</option><option value="autre">Autre</option></select></div>
       <div class="fld"><label for="c-name">Nom</label><input id="c-name" name="name" autocomplete="name" required maxlength="120"></div>
@@ -660,7 +660,7 @@ ${crumbs([["Accueil", "/"], ["Contact", "/contact/"]])}
       </div>
       <div class="fld"><label for="c-msg">Votre message</label><textarea id="c-msg" name="message" rows="5" required maxlength="3000"></textarea></div>
       <div class="hp" aria-hidden="true"><label>Ne pas remplir<input name="website" tabindex="-1" autocomplete="off"></label></div>
-      <div id="ts-contact" class="ts-slot"></div>
+      <div class="cf-turnstile ts-slot" id="ts-contact" data-sitekey="${esc(TURNSTILE_SITE_KEY)}" data-action="contact"></div>
       <p class="err" id="c-err" role="alert"></p>
       <button class="btn btn-primary btn-block" type="submit" id="c-send">Envoyer ma demande</button>
       <p class="fine">Vos informations ne servent qu'à répondre à votre demande. Voir la <a href="/confidentialite/">politique de confidentialité</a>.</p>
@@ -684,9 +684,9 @@ export function resilierPage() {
   <p class="eyebrow">Résiliation</p>
   <h1>Résilier mon abonnement</h1>
   <p class="lead">Indiquez l'adresse e-mail de votre compte. Si un compte existe, nous vous envoyons un lien de connexion qui ouvre directement la page de résiliation. Vous n'avez pas besoin d'être connecté.</p>
-  <form class="cform" id="resil-form" novalidate data-sitekey="${esc(process.env.TURNSTILE_SITE_KEY || "")}">
+  <form class="cform" id="resil-form" novalidate>
     <div class="fld"><label for="r-email">Adresse e-mail de votre compte</label><input id="r-email" name="email" type="email" autocomplete="email" required maxlength="320"></div>
-    <div id="resil-ts" class="ts-slot"></div>
+    <div class="cf-turnstile ts-slot" id="resil-ts" data-sitekey="${esc(TURNSTILE_SITE_KEY)}" data-action="resiliation"></div>
     <button class="btn btn-primary btn-block" type="submit">Envoyer le lien</button>
   </form>
   <p class="err" id="resil-msg" role="status" aria-live="polite"></p>

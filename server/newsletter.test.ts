@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { onRequestPost as newsletter } from "../functions/api/newsletter";
 
-const CONFIG = { BREVO_API_KEY: "x", BREVO_LIST_ID_VEILLE: "3", BREVO_DOI_TEMPLATE_ID: "7", TURNSTILE_SECRET_KEY: "s", SITE_URL: "https://kazonly.test" };
+const CONFIG = { BREVO_API_KEY: "x", BREVO_LIST_ID_VEILLE: "3", BREVO_DOI_TEMPLATE_ID: "7", TURNSTILE_SECRET_KEY: "s", TURNSTILE_HOSTNAMES: "kazonly.test", SITE_URL: "https://kazonly.test" };
 const post = (corps: unknown) => new Request("https://kazonly.test/api/newsletter", { method: "POST", body: JSON.stringify(corps) });
 
 describe("inscription à la veille", () => {

@@ -20,22 +20,52 @@
   apply();
 })();
 
-// Formulaire de contact : jeton Turnstile vérifié côté serveur par /api/contact (aucune donnée écrite depuis le navigateur).
+// Turnstile : api.js chargé une seule fois, en mode explicite (?render=explicit) : chaque formulaire rend son widget
+// dans son conteneur .cf-turnstile, avec son action (data-action). Le jeton est à usage unique : reset() avant chaque reprise.
+var turnstileCharge = null;
+function chargerTurnstile() {
+  if (window.turnstile) return Promise.resolve(window.turnstile);
+  if (!turnstileCharge) {
+    turnstileCharge = new Promise(function (ok, ko) {
+      var s = document.createElement("script");
+      s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      s.async = true; s.defer = true;
+      s.onload = function () { ok(window.turnstile); };
+      s.onerror = function () { turnstileCharge = null; ko(new Error("turnstile")); };
+      document.head.appendChild(s);
+    });
+  }
+  return turnstileCharge;
+}
+/** Rend le widget du conteneur. Renvoie { token(), reset() } ou null si la clé de site est absente (formulaire désactivé). */
+function monterTurnstile(conteneur) {
+  var cle = conteneur ? conteneur.dataset.sitekey : "";
+  if (!cle) return Promise.resolve(null);
+  return chargerTurnstile().then(function (ts) {
+    var etat = { jeton: "", id: null };
+    etat.id = ts.render(conteneur, {
+      sitekey: cle, action: conteneur.dataset.action,
+      callback: function (t) { etat.jeton = t; },
+      "expired-callback": function () { etat.jeton = ""; },
+      "error-callback": function () { etat.jeton = ""; }
+    });
+    return {
+      token: function () { return etat.jeton; },
+      reset: function () { etat.jeton = ""; if (etat.id !== null) ts.reset(etat.id); }
+    };
+  });
+}
+
+// Formulaire de contact : jeton Turnstile (action « contact ») vérifié côté serveur par /api/contact.
 (function () {
   var f = document.getElementById("contact-form");
   if (!f) return;
   var err = document.getElementById("c-err"), btn = document.getElementById("c-send"), slot = document.getElementById("ts-contact");
-  var sitekey = f.dataset.sitekey, token = "", wid = null, tries = 0;
-  function reset() { token = ""; if (wid !== null && window.turnstile) window.turnstile.reset(wid); }
-  function mount() {
-    if (!sitekey) { err.textContent = "Le formulaire n'est pas encore disponible. Écrivez-nous à l'adresse de contact."; btn.disabled = true; return; }
-    if (!window.turnstile) { if (++tries < 40) setTimeout(mount, 250); else err.textContent = "La vérification anti-robot est indisponible. Réessayez plus tard."; return; }
-    wid = window.turnstile.render(slot, { sitekey: sitekey, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; }, "error-callback": function () { token = ""; } });
-  }
-  var s = document.createElement("script");
-  s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js"; s.async = true;
-  document.head.appendChild(s);
-  mount();
+  var widget = null;
+  monterTurnstile(slot).then(function (w) {
+    widget = w;
+    if (!w) { err.textContent = "Le formulaire n'est pas encore disponible. Écrivez-nous à l'adresse de contact."; btn.disabled = true; }
+  }).catch(function () { err.textContent = "La vérification anti-robot est indisponible. Réessayez plus tard."; });
   f.addEventListener("submit", function (e) {
     e.preventDefault(); err.textContent = "";
     var d = new FormData(f);
@@ -43,12 +73,13 @@
     if (!name) { err.textContent = "Indiquez votre nom."; return; }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent = "Entrez une adresse e-mail valide pour que nous puissions vous répondre."; return; }
     if (!msg) { err.textContent = "Écrivez quelques mots sur votre besoin."; return; }
-    if (!token) { err.textContent = "Validez la vérification anti-robot avant d'envoyer."; return; }
+    var jeton = widget ? widget.token() : "";
+    if (!jeton) { err.textContent = "Validez la vérification anti-robot avant d'envoyer."; return; }
     btn.disabled = true; btn.textContent = "Envoi…";
     fetch("/api/contact", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name, email: email, topic: d.get("topic") || "question", territory: d.get("territory") || "", properties: d.get("properties") || "", message: msg, website: d.get("website") || "", turnstileToken: token })
+      body: JSON.stringify({ name: name, email: email, topic: d.get("topic") || "question", territory: d.get("territory") || "", properties: d.get("properties") || "", message: msg, website: d.get("website") || "", turnstileToken: jeton })
     }).then(function (r) {
       if (r.status === 429) throw new Error("trop");
       if (r.status === 403) throw new Error("robot");
@@ -58,7 +89,7 @@
       err.textContent = e.message === "trop" ? "Trop de demandes pour le moment. Réessayez plus tard."
         : e.message === "robot" ? "La vérification a expiré. Validez-la à nouveau puis réessayez."
         : "L'envoi a échoué. Vérifiez votre connexion et réessayez.";
-      btn.disabled = false; btn.textContent = "Envoyer ma demande"; reset();
+      btn.disabled = false; btn.textContent = "Envoyer ma demande"; if (widget) widget.reset();
     });
   });
 })();
@@ -163,26 +194,23 @@
   var f = document.getElementById("resil-form");
   if (!f) return;
   var msg = document.getElementById("resil-msg"), btn = f.querySelector("button"), slot = document.getElementById("resil-ts");
-  var key = f.dataset.sitekey, token = "", wid = null, tries = 0;
-  var s = document.createElement("script");
-  s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js"; s.async = true; document.head.appendChild(s);
-  function mount() {
-    if (!key) { msg.textContent = "Le formulaire n'est pas encore disponible. Résiliez depuis « Mon abonnement » dans l'application."; btn.disabled = true; return; }
-    if (!window.turnstile) { if (++tries < 40) setTimeout(mount, 250); return; }
-    wid = window.turnstile.render(slot, { sitekey: key, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; }, "error-callback": function () { token = ""; } });
-  }
-  mount();
+  var widget = null;
+  monterTurnstile(slot).then(function (w) {
+    widget = w;
+    if (!w) { msg.textContent = "Le formulaire n'est pas encore disponible. Résiliez depuis « Mon abonnement » dans l'application."; btn.disabled = true; }
+  }).catch(function () { msg.textContent = "La vérification anti-robot est indisponible. Réessayez plus tard."; });
   f.addEventListener("submit", function (e) {
     e.preventDefault(); msg.textContent = "";
     var email = String(new FormData(f).get("email") || "").trim();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = "Entrez une adresse e-mail valide."; return; }
-    if (!token) { msg.textContent = "Validez la vérification anti-robot."; return; }
+    var jeton = widget ? widget.token() : "";
+    if (!jeton) { msg.textContent = "Validez la vérification anti-robot."; return; }
     btn.disabled = true;
-    fetch("/api/resiliation-lien", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email, turnstileToken: token }) })
+    fetch("/api/resiliation-lien", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email, turnstileToken: jeton }) })
       .then(function (r) { if (r.status === 403) throw new Error("robot"); if (!r.ok && r.status !== 400) throw new Error("http"); f.hidden = true; msg.textContent = "Si un compte existe pour cette adresse, un lien de connexion vient d'être envoyé. Ouvrez-le pour accéder à la résiliation."; })
       .catch(function (err) {
         msg.textContent = err.message === "robot" ? "La vérification a expiré. Validez-la à nouveau." : "Envoi impossible. Réessayez dans un instant.";
-        btn.disabled = false; token = ""; if (wid !== null && window.turnstile) window.turnstile.reset(wid);
+        btn.disabled = false; if (widget) widget.reset();
       });
   });
 })();
@@ -192,23 +220,20 @@
   var f = document.getElementById("newsletter-form");
   if (!f) return;
   var msg = document.getElementById("newsletter-msg"), btn = f.querySelector("button"), slot = document.getElementById("newsletter-ts");
-  var key = f.dataset.sitekey, token = "", wid = null, tries = 0;
-  var s = document.createElement("script");
-  s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js"; s.async = true; document.head.appendChild(s);
-  function mount() {
-    if (!key) { msg.textContent = "Inscriptions bientôt ouvertes."; btn.disabled = true; return; }
-    if (!window.turnstile) { if (++tries < 40) setTimeout(mount, 250); return; }
-    wid = window.turnstile.render(slot, { sitekey: key, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; }, "error-callback": function () { token = ""; } });
-  }
-  mount();
+  var widget = null;
+  monterTurnstile(slot).then(function (w) {
+    widget = w;
+    if (!w) { msg.textContent = "Inscriptions bientôt ouvertes."; btn.disabled = true; }
+  }).catch(function () { msg.textContent = "La vérification anti-robot est indisponible. Réessayez plus tard."; });
   f.addEventListener("submit", function (e) {
     e.preventDefault(); msg.textContent = "";
     var d = new FormData(f), email = String(d.get("email") || "").trim();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = "Entrez une adresse e-mail valide."; return; }
     if (!d.get("consent")) { msg.textContent = "Cochez la case pour recevoir la veille."; return; }
-    if (!token) { msg.textContent = "Validez la vérification anti-robot."; return; }
+    var jeton = widget ? widget.token() : "";
+    if (!jeton) { msg.textContent = "Validez la vérification anti-robot."; return; }
     btn.disabled = true;
-    fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email, consent: true, turnstileToken: token }) })
+    fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email, consent: true, turnstileToken: jeton }) })
       .then(function (r) {
         if (r.status === 503) throw new Error("bientot");
         if (r.status === 403) throw new Error("robot");
@@ -217,7 +242,7 @@
       })
       .catch(function (err) {
         msg.textContent = err.message === "bientot" ? "Inscriptions bientôt ouvertes." : err.message === "robot" ? "La vérification a expiré. Validez-la à nouveau." : "Envoi impossible. Réessayez dans un instant.";
-        btn.disabled = false; token = ""; if (wid !== null && window.turnstile) window.turnstile.reset(wid);
+        btn.disabled = false; if (widget) widget.reset();
       });
   });
 })();
@@ -357,22 +382,17 @@
     .catch(function () { /* erreur réseau : la mention d'essai reste affichée */ });
 })();
 
-// Achat direct sans compte : e-mail + consentement explicite + Turnstile, puis redirection vers Stripe Checkout.
+// Achat direct sans compte : e-mail + consentement explicite + Turnstile (action « checkout »), puis redirection vers Stripe.
 (function () {
   var panel = document.getElementById("checkout-panel");
   if (!panel) return;
   var form = document.getElementById("checkout-form"), err = document.getElementById("co-err"), btn = document.getElementById("co-send"), slot = document.getElementById("ts-checkout");
   var email = document.getElementById("co-email"), consent = document.getElementById("co-consent"), label = document.getElementById("co-plan");
-  var sitekey = form.dataset.sitekey, token = "", wid = null, tries = 0, plan = null;
-  var s = document.createElement("script");
-  s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js"; s.async = true; document.head.appendChild(s);
-  function mount() {
-    if (!sitekey) { err.textContent = "Les paiements ouvrent bientôt. Écrivez-nous à l'adresse de contact."; btn.disabled = true; return; }
-    if (!window.turnstile) { if (++tries < 40) setTimeout(mount, 250); return; }
-    wid = window.turnstile.render(slot, { sitekey: sitekey, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; }, "error-callback": function () { token = ""; } });
-  }
-  function reset() { token = ""; if (wid !== null && window.turnstile) window.turnstile.reset(wid); }
-  mount();
+  var widget = null, plan = null;
+  monterTurnstile(slot).then(function (w) {
+    widget = w;
+    if (!w) { err.textContent = "Les paiements ouvrent bientôt. Écrivez-nous à l'adresse de contact."; btn.disabled = true; }
+  }).catch(function () { err.textContent = "La vérification anti-robot est indisponible. Réessayez plus tard."; });
   document.querySelectorAll("[data-checkout]").forEach(function (b) {
     b.addEventListener("click", function () {
       plan = b.dataset.checkout; label.textContent = b.dataset.name || "";
@@ -383,6 +403,7 @@
   var messages = {
     abonnement_existant: "Un abonnement est déjà actif pour cette adresse. Connectez-vous à votre espace pour le gérer.",
     verification_echouee: "La vérification anti-robot a échoué. Réessayez.",
+    verification_indisponible: "La vérification anti-robot est indisponible. Réessayez dans un instant.",
     bientot_ouvert: "Les paiements ouvrent bientôt. Écrivez-nous à l'adresse de contact.",
     email_invalide: "Saisissez une adresse e-mail valide.",
     consentement_requis: "Cochez la case pour commencer l'accès tout de suite."
@@ -392,18 +413,19 @@
     var adresse = email.value.trim();
     if (!plan) { err.textContent = "Choisissez d'abord une formule."; return; }
     if (!consent.checked) { err.textContent = messages.consentement_requis; return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(adresse)) { err.textContent = messages.email_invalide; return; }
-    if (!token) { err.textContent = "Validez la vérification anti-robot ci-dessus."; return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(adresse)) { err.textContent = messages.email_invalide; return; }
+    var jeton = widget ? widget.token() : "";
+    if (!jeton) { err.textContent = "Validez la vérification anti-robot ci-dessus."; return; }
     var actif = document.querySelector("[data-billing-toggle] button[aria-pressed=\"true\"]");
     var interval = actif && actif.dataset.interval === "year" ? "year" : "month";
     btn.disabled = true;
-    fetch("/api/checkout-public", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan: plan, interval: interval, startNow: true, email: adresse, currency: "EUR", turnstileToken: token }) })
+    fetch("/api/checkout-public", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan: plan, interval: interval, startNow: true, email: adresse, currency: "EUR", turnstileToken: jeton }) })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (res) {
         if (res.ok && res.j.url) { window.location.assign(res.j.url); return; }
         err.textContent = messages[res.j.error] || "Une erreur est survenue. Réessayez dans quelques instants.";
-        btn.disabled = false; reset();
+        btn.disabled = false; if (widget) widget.reset();
       })
-      .catch(function () { err.textContent = "Connexion impossible. Réessayez."; btn.disabled = false; reset(); });
+      .catch(function () { err.textContent = "Connexion impossible. Réessayez."; btn.disabled = false; if (widget) widget.reset(); });
   });
 })();

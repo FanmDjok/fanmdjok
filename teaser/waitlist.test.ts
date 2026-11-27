@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { traiterInscription, depasseLimite, type Dependances } from "./functions/lib/waitlist";
 
-const ENV = { BREVO_API_KEY: "cle-test", BREVO_WAITLIST_LIST_ID: "7", BREVO_DOI_TEMPLATE_ID: "3", TURNSTILE_SECRET_KEY: "secret-test" };
+const ENV = { BREVO_API_KEY: "cle-test", BREVO_WAITLIST_LIST_ID: "7", BREVO_DOI_TEMPLATE_ID: "3", TURNSTILE_SECRET_KEY: "secret-test", TURNSTILE_HOSTNAMES: "kazonly.com" };
 let ipSeq = 0;
 const requete = (corps: unknown, ip = `10.0.0.${++ipSeq}`) =>
   new Request("https://kazonly.com/api/waitlist", { method: "POST", headers: { "CF-Connecting-IP": ip, "Content-Type": "application/json" }, body: JSON.stringify(corps) });
@@ -9,7 +9,7 @@ const requete = (corps: unknown, ip = `10.0.0.${++ipSeq}`) =>
 function deps(over: Partial<Dependances> = {}): Dependances & { fetch: ReturnType<typeof vi.fn> } {
   return {
     fetch: vi.fn(async () => new Response(null, { status: 201 })),
-    verifierTurnstile: vi.fn(async () => true),
+    verifierTurnstile: vi.fn(async () => ({ ok: true as const })),
     maintenant: () => Date.UTC(2026, 10, 26),
     ...over,
   } as Dependances & { fetch: ReturnType<typeof vi.fn> };
@@ -45,7 +45,7 @@ describe("liste d'attente : validations", () => {
 
 describe("liste d'attente : sécurité et envoi", () => {
   it("refuse si Turnstile échoue, sans appeler Brevo", async () => {
-    const d = deps({ verifierTurnstile: vi.fn(async () => false) });
+    const d = deps({ verifierTurnstile: vi.fn(async () => ({ ok: false as const, motif: "rejet" as const })) });
     const r = await traiterInscription(requete(valide), ENV, d);
     expect(r.status).toBe(403);
     expect(d.fetch).not.toHaveBeenCalled();
@@ -79,5 +79,31 @@ describe("liste d'attente : sécurité et envoi", () => {
     expect(resultats.slice(0, 5).every((x) => x === false)).toBe(true);
     expect(resultats[5]).toBe(true);
     expect(depasseLimite(ip, t + 61_000)).toBe(false);
+  });
+});
+
+describe("liste d'attente : Turnstile (action « guide », échec fermé)", () => {
+  it("transmet l'action attendue, le secret, la liste d'hôtes et l'IP de confiance", async () => {
+    const v = vi.fn(async () => ({ ok: true as const }));
+    await traiterInscription(requete(valide, "198.51.100.44"), ENV, deps({ verifierTurnstile: v }));
+    expect(v).toHaveBeenCalledWith({ jeton: "jeton", action: "guide", secret: "secret-test", hostnames: "kazonly.com", ip: "198.51.100.44" });
+  });
+  it("sans TURNSTILE_HOSTNAMES : 503 et aucun envoi Brevo", async () => {
+    const d = deps({ verifierTurnstile: vi.fn(async () => ({ ok: false as const, motif: "configuration" as const })) });
+    const r = await traiterInscription(requete(valide), { ...ENV, TURNSTILE_HOSTNAMES: undefined }, d);
+    expect(r.status).toBe(503);
+    expect(d.fetch).not.toHaveBeenCalled();
+  });
+  it("jeton réutilisé ou mauvaise action : 403, aucun envoi", async () => {
+    const d = deps({ verifierTurnstile: vi.fn(async () => ({ ok: false as const, motif: "rejet" as const })) });
+    const r = await traiterInscription(requete(valide), ENV, d);
+    expect(r.status).toBe(403);
+    expect(d.fetch).not.toHaveBeenCalled();
+  });
+  it("erreur réseau vers siteverify : 503, aucun envoi", async () => {
+    const d = deps({ verifierTurnstile: vi.fn(async () => ({ ok: false as const, motif: "reseau" as const })) });
+    const r = await traiterInscription(requete(valide), ENV, d);
+    expect(r.status).toBe(503);
+    expect(d.fetch).not.toHaveBeenCalled();
   });
 });
