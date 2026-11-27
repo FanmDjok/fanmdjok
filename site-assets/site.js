@@ -1,4 +1,4 @@
-// Bascules mensuel/annuel et euro/franc Pacifique sur la page tarifs. Sans JavaScript, le tarif mensuel
+// Bascule mensuel/annuel sur les pages accueil et tarifs (euros uniquement). Sans JavaScript, le tarif mensuel
 // en euros reste affiché avec le prix annuel en clair : la page reste utilisable.
 (function () {
   var group = document.querySelector("[data-billing-toggle]");
@@ -12,12 +12,6 @@
       var iv = el.hasAttribute("data-m") ? "month" : "year";
       var cu = el.hasAttribute("data-x") ? "xpf" : "eur";
       el.hidden = !(iv === state.interval && cu === state.cur);
-    });
-    document.querySelectorAll("a[data-plan]").forEach(function (a) {
-      var u = new URL(a.getAttribute("href"), location.origin);
-      u.searchParams.set("interval", state.interval);
-      if (state.cur === "xpf") u.searchParams.set("cur", "xpf"); else u.searchParams.delete("cur");
-      a.setAttribute("href", u.pathname + u.search);
     });
   }
   group.querySelectorAll("button[data-interval]").forEach(function (b) { b.addEventListener("click", function () { state.interval = b.dataset.interval; apply(); }); });
@@ -361,4 +355,55 @@
       notes.forEach(function (n) { n.textContent = "Prix normal dès le premier paiement."; });
     })
     .catch(function () { /* erreur réseau : la mention d'essai reste affichée */ });
+})();
+
+// Achat direct sans compte : e-mail + consentement explicite + Turnstile, puis redirection vers Stripe Checkout.
+(function () {
+  var panel = document.getElementById("checkout-panel");
+  if (!panel) return;
+  var form = document.getElementById("checkout-form"), err = document.getElementById("co-err"), btn = document.getElementById("co-send"), slot = document.getElementById("ts-checkout");
+  var email = document.getElementById("co-email"), consent = document.getElementById("co-consent"), label = document.getElementById("co-plan");
+  var sitekey = form.dataset.sitekey, token = "", wid = null, tries = 0, plan = null;
+  var s = document.createElement("script");
+  s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js"; s.async = true; document.head.appendChild(s);
+  function mount() {
+    if (!sitekey) { err.textContent = "Les paiements ouvrent bientôt. Écrivez-nous à l'adresse de contact."; btn.disabled = true; return; }
+    if (!window.turnstile) { if (++tries < 40) setTimeout(mount, 250); return; }
+    wid = window.turnstile.render(slot, { sitekey: sitekey, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; }, "error-callback": function () { token = ""; } });
+  }
+  function reset() { token = ""; if (wid !== null && window.turnstile) window.turnstile.reset(wid); }
+  mount();
+  document.querySelectorAll("[data-checkout]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      plan = b.dataset.checkout; label.textContent = b.dataset.name || "";
+      panel.hidden = false; err.textContent = "";
+      panel.scrollIntoView({ behavior: "smooth", block: "start" }); email.focus();
+    });
+  });
+  var messages = {
+    abonnement_existant: "Un abonnement est déjà actif pour cette adresse. Connectez-vous à votre espace pour le gérer.",
+    verification_echouee: "La vérification anti-robot a échoué. Réessayez.",
+    bientot_ouvert: "Les paiements ouvrent bientôt. Écrivez-nous à l'adresse de contact.",
+    email_invalide: "Saisissez une adresse e-mail valide.",
+    consentement_requis: "Cochez la case pour commencer l'accès tout de suite."
+  };
+  form.addEventListener("submit", function (e) {
+    e.preventDefault(); err.textContent = "";
+    var adresse = email.value.trim();
+    if (!plan) { err.textContent = "Choisissez d'abord une formule."; return; }
+    if (!consent.checked) { err.textContent = messages.consentement_requis; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(adresse)) { err.textContent = messages.email_invalide; return; }
+    if (!token) { err.textContent = "Validez la vérification anti-robot ci-dessus."; return; }
+    var actif = document.querySelector("[data-billing-toggle] button[aria-pressed=\"true\"]");
+    var interval = actif && actif.dataset.interval === "year" ? "year" : "month";
+    btn.disabled = true;
+    fetch("/api/checkout-public", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan: plan, interval: interval, startNow: true, email: adresse, currency: "EUR", turnstileToken: token }) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (res.ok && res.j.url) { window.location.assign(res.j.url); return; }
+        err.textContent = messages[res.j.error] || "Une erreur est survenue. Réessayez dans quelques instants.";
+        btn.disabled = false; reset();
+      })
+      .catch(function () { err.textContent = "Connexion impossible. Réessayez."; btn.disabled = false; reset(); });
+  });
 })();

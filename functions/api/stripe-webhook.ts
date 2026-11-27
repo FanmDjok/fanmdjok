@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { admin, bindEnv, env, json, planFromPriceId, readBounded, statutLocal, stripe, type Env } from "../../server/lib";
+import { admin, bindEnv, env, json, planFromPriceId, readBounded, siteUrl, statutLocal, stripe, type Env } from "../../server/lib";
 import { hacheEmail } from "../../server/essai";
 
 const iso = (ts: number | null | undefined) => (ts ? new Date(ts * 1000).toISOString() : null);
@@ -52,33 +52,52 @@ async function syncDepuisFacture(invoice: Stripe.Invoice): Promise<void> {
   await syncSubscription(await stripe().subscriptions.retrieve(id));
 }
 
-/** Checkout terminé : rattachement par client_reference_id, puis par e-mail, sinon « à rattacher ». */
+/**
+ * Checkout terminé. Qui est le client ?
+ * 1) identifiant Supabase transmis (achat connecté) ; 2) compte existant pour l'e-mail ;
+ * 3) sinon création du compte par invitation (lien pour choisir son mot de passe), puis rattachement.
+ */
 async function traiterCheckout(session: Stripe.Checkout.Session): Promise<void> {
   if (session.mode !== "subscription" || typeof session.subscription !== "string") return;
   const s = stripe();
   const abo = await s.subscriptions.retrieve(session.subscription);
-  let userId: string | null = session.client_reference_id ?? abo.metadata?.user_id ?? null;
-  if (!userId && session.customer_details?.email) {
-    const { data } = await admin().from("profiles").select("id").eq("email", session.customer_details.email).maybeSingle();
+  const db = admin();
+  const email = session.customer_details?.email ?? null;
+
+  let userId: string | null = null;
+  const refUtilisateur = session.client_reference_id && session.client_reference_id !== "sans_compte" ? session.client_reference_id : null;
+  userId = refUtilisateur ?? abo.metadata?.user_id ?? null;
+  if (!userId && email) {
+    const { data } = await db.from("profiles").select("id").eq("email", email).maybeSingle();
     userId = data?.id ?? null;
   }
+  if (!userId && email) {
+    const { data: invite, error } = await db.auth.admin.inviteUserByEmail(email, { redirectTo: `${siteUrl()}/app/` });
+    userId = invite?.user?.id ?? null;
+    if (!userId && error) {
+      // Compte déjà créé entre-temps : on le retrouve par e-mail.
+      const { data } = await db.from("profiles").select("id").eq("email", email).maybeSingle();
+      userId = data?.id ?? null;
+    }
+  }
+
   const resultat = await syncSubscription(abo, userId);
   if (resultat === "a_rattacher") {
-    await admin().from("paiements_a_rattacher").upsert({
+    await db.from("paiements_a_rattacher").upsert({
       stripe_session_id: session.id,
       stripe_customer_id: typeof session.customer === "string" ? session.customer : session.customer?.id ?? null,
       stripe_subscription_id: abo.id,
-      email: session.customer_details?.email ?? null,
+      email,
       plan: planFromPriceId(abo.items.data[0]?.price.id ?? "")?.plan ?? null,
       devise: session.currency ?? null,
     }, { onConflict: "stripe_session_id" });
+  } else {
+    // Rattaché : l'essai est consommé, et l'éventuel signalement « à rattacher » est résolu.
+    await db.from("subscriptions").update({ essai_utilise: true }).eq("user_id", userId as string);
+    await db.from("paiements_a_rattacher").update({ traite: true }).eq("stripe_subscription_id", abo.id);
   }
 }
 
-/**
- * Rappel à envoyer plus tard (Brevo) : enregistré avec l'adresse hachée, jamais en clair.
- * Un rappel n'interrompt jamais l'accès : il informe seulement.
- */
 async function enregistrerRappel(customerId: string, type: string): Promise<void> {
   const client = await stripe().customers.retrieve(customerId);
   if (!client || (client as { deleted?: boolean }).deleted) return;

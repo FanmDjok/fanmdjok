@@ -33,8 +33,11 @@ export const TEXTE_CGV =
 export const TEXTE_SOUMISSION = "Abonnement renouvelé automatiquement, résiliable à tout moment depuis votre compte.";
 
 export interface ParamsSession {
-  userId: string;
-  customer: string;
+  /** Identifiant Supabase, ou null pour un achat sans compte (le compte est créé après le paiement). */
+  userId: string | null;
+  /** Client Stripe existant ; sinon l'e-mail est transmis et Stripe crée le client. */
+  customer?: string;
+  email?: string;
   price: string;
   plan: string;
   interval: "month" | "year";
@@ -45,13 +48,16 @@ export interface ParamsSession {
 }
 
 export function paramsSessionCheckout(p: ParamsSession) {
-  const metadata = { user_id: p.userId, plan: p.plan, interval: p.interval, currency: "EUR", app: "kazonly" };
+  const metadata = {
+    ...(p.userId ? { user_id: p.userId } : {}),
+    plan: p.plan, interval: p.interval, currency: "EUR", app: "kazonly",
+  };
   return {
     mode: "subscription" as const,
     ui_mode: "hosted_page" as const,
     locale: "fr" as const,
-    customer: p.customer,
-    client_reference_id: p.userId,
+    ...(p.customer ? { customer: p.customer } : { customer_email: p.email }),
+    client_reference_id: p.userId ?? "sans_compte",
     line_items: [{ price: p.price, quantity: 1 }],
     billing_address_collection: "required" as const,
     name_collection: {
@@ -73,4 +79,16 @@ export function paramsSessionCheckout(p: ParamsSession) {
     success_url: `${p.base}/app/abonnement/merci/?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${p.base}/tarifs/`,
   };
+}
+
+/** Validation d'une demande publique (sans compte) : formule, intervalle, consentement et e-mail. */
+export function validerDemandePublique(b: { plan?: unknown; interval?: unknown; startNow?: unknown; email?: unknown }):
+  { ok: true; plan: string; interval: "month" | "year"; email: string } | { ok: false; erreur: string } {
+  if (b.startNow !== true) return { ok: false, erreur: "consentement_requis" };
+  const plan = typeof b.plan === "string" ? b.plan : "";
+  if (!PRIX_EUR[plan]) return { ok: false, erreur: "formule_invalide" };
+  const interval = b.interval === "year" ? "year" : "month";
+  const email = typeof b.email === "string" ? b.email.trim().slice(0, 320) : "";
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { ok: false, erreur: "email_invalide" };
+  return { ok: true, plan, interval, email };
 }

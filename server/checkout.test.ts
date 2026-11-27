@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PRIX_EUR, ESSAI_JOURS, paramsSessionCheckout, resoudrePrix, TEXTE_CGV } from "./checkout";
+import { PRIX_EUR, ESSAI_JOURS, paramsSessionCheckout, resoudrePrix, TEXTE_CGV, validerDemandePublique } from "./checkout";
 
 const base = { userId: "u-1", customer: "cus_1", base: "https://kazonly.pages.dev" };
 const ATTENDUS: [string, "month" | "year", string][] = [
@@ -66,7 +66,7 @@ describe("paramètres de la session Checkout", () => {
   });
   it("identifiant utilisateur, client, métadonnées EUR", () => {
     expect(p.client_reference_id).toBe("u-1");
-    expect(p.customer).toBe("cus_1");
+    expect((p as Record<string, unknown>).customer).toBe("cus_1");
     expect(p).not.toHaveProperty("customer_email");
     expect(p.metadata).toMatchObject({ user_id: "u-1", plan: "essentiel", interval: "month", currency: "EUR" });
     expect(p.subscription_data.metadata).toEqual(p.metadata);
@@ -74,5 +74,27 @@ describe("paramètres de la session Checkout", () => {
   it("retours vers la page de merci et vers les tarifs", () => {
     expect(p.success_url).toBe("https://kazonly.pages.dev/app/abonnement/merci/?session_id={CHECKOUT_SESSION_ID}");
     expect(p.cancel_url).toBe("https://kazonly.pages.dev/tarifs/");
+  });
+});
+
+describe("achat sans compte", () => {
+  const sans = paramsSessionCheckout({ userId: null, email: "nouveau@exemple.fr", price: PRIX_EUR.proprietaire.year, plan: "proprietaire", interval: "year", currency: "EUR", essai: true, base: "https://kazonly.pages.dev" });
+  it("pas d'identifiant utilisateur dans les métadonnées, e-mail transmis à Stripe", () => {
+    expect(sans.metadata).not.toHaveProperty("user_id");
+    expect(sans.subscription_data.metadata).not.toHaveProperty("user_id");
+    expect((sans as Record<string, unknown>).customer_email).toBe("nouveau@exemple.fr");
+    expect((sans as Record<string, unknown>).customer).toBeUndefined();
+    expect(sans.client_reference_id).toBe("sans_compte");
+  });
+  it("l'essai et la carte restent demandés", () => {
+    expect(sans.subscription_data.trial_period_days).toBe(14);
+    expect(sans.payment_method_collection).toBe("always");
+  });
+  it("validation de la demande publique", () => {
+    expect(validerDemandePublique({ plan: "essentiel", interval: "month", startNow: true, email: "a@b.fr" })).toEqual({ ok: true, plan: "essentiel", interval: "month", email: "a@b.fr" });
+    expect(validerDemandePublique({ plan: "essentiel", interval: "month", startNow: false, email: "a@b.fr" })).toEqual({ ok: false, erreur: "consentement_requis" });
+    expect(validerDemandePublique({ plan: "gratuit", interval: "month", startNow: true, email: "a@b.fr" })).toEqual({ ok: false, erreur: "formule_invalide" });
+    expect(validerDemandePublique({ plan: "essentiel", interval: "year", startNow: true, email: "pas-un-mail" })).toEqual({ ok: false, erreur: "email_invalide" });
+    expect(validerDemandePublique({ plan: "investisseur", interval: "year", startNow: true, email: "c@d.fr" })).toEqual({ ok: true, plan: "investisseur", interval: "year", email: "c@d.fr" });
   });
 });

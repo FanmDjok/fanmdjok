@@ -454,3 +454,8 @@ html:not(.js) [data-billing-toggle],html:not(.js) [data-currency-toggle]{visibil
 .kz-cat{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
 .kz-lien{font:inherit;background:none;border:0;color:#fff;text-decoration:underline;cursor:pointer;padding:0}
 @media (max-width:560px){.kz-actions{grid-template-columns:1fr}}
+
+/* Achat direct : panneau sous les formules */
+.checkout-panel { margin-top: 28px; max-width: 560px; }
+.checkout-panel .consent label { display: flex; gap: 10px; align-items: flex-start; font-size: 0.95rem; }
+.checkout-panel .consent input { margin-top: 4px; flex: none; }

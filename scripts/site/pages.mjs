@@ -96,6 +96,23 @@ export const DEMO = Object.fromEntries(Object.entries(DEMO_BRUT).map(([id, t]) =
 }]));
 const DEMO_DEFAUT = "martinique";
 
+/** Achat direct sans compte : e-mail, consentement exprès à commencer tout de suite, jeton Turnstile. Le compte KAZONLY est créé après le paiement. */
+function checkoutPanel() {
+  return `
+  <div class="checkout-panel" id="checkout-panel" hidden>
+    <form class="cform" id="checkout-form" novalidate data-sitekey="${esc(process.env.TURNSTILE_SITE_KEY || "")}">
+      <h2 class="h3">Souscrire : <span id="co-plan"></span></h2>
+      <p class="fine">14 jours offerts, carte demandée, aucun débit pendant l'essai. Votre espace KAZONLY se crée à partir de cette adresse : un e-mail vous permettra de choisir votre mot de passe.</p>
+      <div class="fld"><label for="co-email">Adresse e-mail</label><input id="co-email" name="email" type="email" autocomplete="email" required maxlength="200"></div>
+      <div class="fld consent"><label><input id="co-consent" name="consent" type="checkbox"> <span>Je demande à commencer l'accès tout de suite. Je sais que mon droit de rétractation de 14 jours prend fin lorsque le service est entièrement exécuté.</span></label></div>
+      <div id="ts-checkout" class="ts-slot"></div>
+      <p class="err" id="co-err" role="alert"></p>
+      <button class="btn btn-primary btn-block" type="submit" id="co-send">Continuer vers le paiement sécurisé</button>
+      <p class="fine">Paiement traité par Stripe. Voir les <a href="/cgv/">conditions générales de vente</a>.</p>
+    </form>
+  </div>`;
+}
+
 function planCardsHome() {
   const free = `
     <div class="plan">
@@ -113,7 +130,7 @@ function planCardsHome() {
       <p class="price"><span data-m>${p.monthly} €<small>/mois</small></span><span data-y hidden>${fmtPrice(p.yearly)} €<small>/an</small></span></p>
       <p class="fine"><span data-m>jusqu'à ${p.maxProperties} biens</span><span data-y hidden>${freeMonths} mois offerts, jusqu'à ${p.maxProperties} biens</span></p>
       <p class="fine essai-note">14 jours offerts, carte demandée, aucun débit pendant l'essai.</p>
-      <a class="btn btn-primary btn-block" data-plan href="${SIGNUP(p.id, "month")}">S'abonner à ${esc(p.name)}</a>
+      <button type="button" class="btn btn-primary btn-block" data-checkout="${p.id}" data-name="${esc(p.name)}">S'abonner à ${esc(p.name)}</button>
     </div>`).join("");
   return free + cards;
 }
@@ -244,6 +261,7 @@ export function home() {
     </div>
   </div>
   <div class="plans">${planCardsHome()}</div>
+  ${checkoutPanel()}
   <p class="fine">Paiement sécurisé par Stripe. Résiliation en ligne. Export de vos données gratuit. Agences et gros portefeuilles : <a href="/contact/?sujet=agence">sur devis</a>.</p>
 </div></section>
 
@@ -383,7 +401,7 @@ export function pricing() {
       <p class="fine"><span data-m data-e>ou ${fmtPrice(p.yearly)} € par an (${freeMonths} mois offerts)</span><span data-y data-e hidden>soit ${fmtPrice(Math.round(p.yearly / 12 * 100) / 100)} €/mois</span></p>
       <ul>${p.features.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>
       <p class="fine essai-note">14 jours offerts, carte demandée, aucun débit pendant l'essai.</p>
-      <a class="btn ${p.highlight ? "btn-primary" : "btn-ghost"} btn-block" data-plan="${p.id}" href="${SIGNUP(p.id)}">S'abonner à ${esc(p.name)}</a>
+      <button type="button" class="btn ${p.highlight ? "btn-primary" : "btn-ghost"} btn-block" data-checkout="${p.id}" data-name="${esc(p.name)}">S'abonner à ${esc(p.name)}</button>
     </div>`).join("");
 
   const body = `
@@ -397,6 +415,7 @@ ${crumbs([["Accueil", "/"], ["Tarifs", "/tarifs/"]])}
     <button type="button" data-interval="year" aria-pressed="false">Annuel · ${freeMonths} mois offerts</button>
   </div>
   <div class="plans">${cards}</div>
+  ${checkoutPanel()}
   <div class="band left" style="margin-top:24px">
     <p class="eyebrow" style="color:#fff;opacity:.85">Agence / Scale · sur devis</p>
     <h2 style="margin-top:4px">Plus de ${plans[2].maxProperties} biens, ou un besoin spécifique ?</h2>

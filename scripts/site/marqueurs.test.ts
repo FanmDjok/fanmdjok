@@ -42,8 +42,11 @@ describe("pages publiées : aucune note de travail, aucun argument retiré", () 
     expect(home().html).toContain("Recommandé pour 6 à 15 biens");
     expect(pricing().html).toContain("Recommandé pour 6 à 15 biens");
   });
-  it("les boutons d'abonnement sont des liens vers l'inscription, avec la période choisie par défaut", () => {
-    expect(pricing().html).toMatch(/data-plan="essentiel" href="\/app\/\?mode=inscription&amp;plan=essentiel&amp;interval=month"/);
+  it("les boutons d'abonnement ouvrent le paiement direct, sans compte préalable", () => {
+    const html = pricing().html;
+    expect(html).toMatch(/<button type="button" class="[^"]*" data-checkout="essentiel"/);
+    expect(html).toContain('id="checkout-panel"');
+    expect(html).not.toMatch(/data-plan=/);
   });
   it("la démonstration de l'accueil couvre les 11 territoires, avec leur devise", () => {
     const html = home().html;
