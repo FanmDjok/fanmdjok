@@ -91,7 +91,14 @@ if (cfg.contactEmail) {
 // Cloudflare Pages lit ces deux fichiers à la publication (en-têtes de sécurité, cache, réécriture de l'application)
 // Adresses de l'ancien plan « /outre-mer/<territoire>/ » : redirigées vers la page territoire.
 const redirections = territories.map((t) => `/outre-mer/${t.id}/  /${t.slug}/  301`).join("\n");
-write("_redirects", `/app/*  /app/index.html  200\n${redirections}\n`);
+write("_redirects", `/app/*  /app/  200\n${redirections}\n`);
+
+// Teaser (kazonly.com jusqu'au lancement) : copié dans _teaser, servi par functions/_middleware.ts selon l'hôte.
+const TEASER = "teaser";
+for (const entree of ["index.html", "style.css", "app.js", "merci", "confidentialite", "mentions-legales", "img", "fonts", "guide"]) {
+  const source = path.join(TEASER, entree);
+  if (fs.existsSync(source)) fs.cpSync(source, path.join(DIST, "_teaser", entree), { recursive: true });
+}
 write("_headers", `/*
   Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com; style-src-elem 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://cloudflareinsights.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
@@ -107,6 +114,8 @@ write("_headers", `/*
   Cache-Control: public, max-age=31536000, immutable
 /site.*
   Cache-Control: public, max-age=31536000, immutable
+/_teaser/guide/*
+  X-Robots-Tag: noindex, nofollow
 /api/*
   Cache-Control: no-store
 `);
