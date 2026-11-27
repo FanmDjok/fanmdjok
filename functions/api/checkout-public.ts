@@ -1,7 +1,7 @@
 import { admin, bindEnv, json, readBounded, siteUrl, stripe, type Env } from "../../server/lib";
 import { paramsSessionCheckout, resoudrePrix, validerDemandePublique } from "../../server/checkout";
 import { essaiEligible } from "../../server/essai";
-import { verifyTurnstile } from "../../server/turnstile";
+import { listeHostnames, verifyTurnstile } from "../../server/turnstile";
 
 /**
  * Achat sans compte : la page de paiement Stripe demande la carte ; le compte est créé après le paiement,
@@ -21,7 +21,14 @@ async function handle(req: Request, ENV: Env): Promise<Response> {
 
   // Sans clé Turnstile, on ne crée aucune session : pas de protection, pas d'achat.
   if (!ENV.TURNSTILE_SECRET_KEY) return json({ error: "bientot_ouvert" }, 503);
-  const humain = await verifyTurnstile(typeof body.turnstileToken === "string" ? body.turnstileToken : "", ENV.TURNSTILE_SECRET_KEY, null);
+  const hostnames = listeHostnames(ENV.TURNSTILE_HOSTNAMES);
+  if (hostnames.length === 0) return json({ error: "verification_indisponible" }, 503);
+  const humain = await verifyTurnstile(
+    typeof body.turnstileToken === "string" ? body.turnstileToken : "",
+    ENV.TURNSTILE_SECRET_KEY,
+    req.headers.get("cf-connecting-ip"),
+    { action: "checkout", hostnames },
+  );
   if (!humain) return json({ error: "verification_echouee" }, 403);
 
   const prix = resoudrePrix(v.plan, v.interval, ENV as unknown as Record<string, string | undefined>);

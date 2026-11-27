@@ -32,6 +32,9 @@ export const env = (key: string): string => {
   return v;
 };
 
+/** Variante sans exception : chaîne vide si la variable est absente (pour répondre 503 proprement). */
+export const envOptionnelle = (key: string): string => ENV[key] ?? "";
+
 export const stripe = (): Stripe =>
   new Stripe(env("STRIPE_SECRET_KEY"), { httpClient: Stripe.createFetchHttpClient() });
 

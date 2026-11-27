@@ -1,5 +1,5 @@
-import { admin, bindEnv, env, json, readBounded, type Env } from "../../server/lib";
-import { verifyTurnstile } from "../../server/turnstile";
+import { admin, bindEnv, env, envOptionnelle, json, readBounded, type Env } from "../../server/lib";
+import { listeHostnames, verifyTurnstile } from "../../server/turnstile";
 
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const clip = (v: unknown, max: number): string => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -24,7 +24,14 @@ async function handle(req: Request): Promise<Response> {
 
   if (!name || !EMAIL.test(email) || !message) return json({ error: "champs_invalides" }, 400);
 
-  const humain = await verifyTurnstile(clip(b.turnstileToken, 2048), env("TURNSTILE_SECRET_KEY"), req.headers.get("cf-connecting-ip"));
+  const hostnames = listeHostnames(envOptionnelle("TURNSTILE_HOSTNAMES"));
+  if (hostnames.length === 0) return json({ error: "verification_indisponible" }, 503);
+  const humain = await verifyTurnstile(
+    clip(b.turnstileToken, 2048),
+    env("TURNSTILE_SECRET_KEY"),
+    req.headers.get("cf-connecting-ip"),
+    { action: "contact", hostnames },
+  );
   if (!humain) return json({ error: "verification_echouee" }, 403);
 
   const { error } = await admin().from("contact_requests").insert({ name, email, topic, territory, properties, message });

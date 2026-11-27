@@ -9,7 +9,7 @@
   document.head.appendChild(s);
   function monter() {
     if (!window.turnstile) { setTimeout(monter, 250); return; }
-    widget = window.turnstile.render(slot, { sitekey: SITEKEY, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; } });
+    widget = window.turnstile.render(slot, { sitekey: SITEKEY, action: slot.dataset.action, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; } });
   }
   monter();
   function erreur(texte) { msg.innerHTML = ""; var d = document.createElement("span"); d.className = "alerte"; d.textContent = "⚠ " + texte; msg.appendChild(d); }

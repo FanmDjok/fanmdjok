@@ -30,7 +30,7 @@
   function mount() {
     if (!sitekey) { err.textContent = "Le formulaire n'est pas encore disponible. Écrivez-nous à l'adresse de contact."; btn.disabled = true; return; }
     if (!window.turnstile) { if (++tries < 40) setTimeout(mount, 250); else err.textContent = "La vérification anti-robot est indisponible. Réessayez plus tard."; return; }
-    wid = window.turnstile.render(slot, { sitekey: sitekey, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; }, "error-callback": function () { token = ""; } });
+    wid = window.turnstile.render(slot, { sitekey: sitekey, action: slot.dataset.action, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; }, "error-callback": function () { token = ""; } });
   }
   var s = document.createElement("script");
   s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js"; s.async = true;
@@ -169,7 +169,7 @@
   function mount() {
     if (!key) { msg.textContent = "Le formulaire n'est pas encore disponible. Résiliez depuis « Mon abonnement » dans l'application."; btn.disabled = true; return; }
     if (!window.turnstile) { if (++tries < 40) setTimeout(mount, 250); return; }
-    wid = window.turnstile.render(slot, { sitekey: key, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; }, "error-callback": function () { token = ""; } });
+    wid = window.turnstile.render(slot, { sitekey: key, action: slot.dataset.action, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; }, "error-callback": function () { token = ""; } });
   }
   mount();
   f.addEventListener("submit", function (e) {
@@ -198,7 +198,7 @@
   function mount() {
     if (!key) { msg.textContent = "Inscriptions bientôt ouvertes."; btn.disabled = true; return; }
     if (!window.turnstile) { if (++tries < 40) setTimeout(mount, 250); return; }
-    wid = window.turnstile.render(slot, { sitekey: key, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; }, "error-callback": function () { token = ""; } });
+    wid = window.turnstile.render(slot, { sitekey: key, action: slot.dataset.action, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; }, "error-callback": function () { token = ""; } });
   }
   mount();
   f.addEventListener("submit", function (e) {
@@ -369,7 +369,7 @@
   function mount() {
     if (!sitekey) { err.textContent = "Les paiements ouvrent bientôt. Écrivez-nous à l'adresse de contact."; btn.disabled = true; return; }
     if (!window.turnstile) { if (++tries < 40) setTimeout(mount, 250); return; }
-    wid = window.turnstile.render(slot, { sitekey: sitekey, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; }, "error-callback": function () { token = ""; } });
+    wid = window.turnstile.render(slot, { sitekey: sitekey, action: slot.dataset.action, callback: function (t) { token = t; }, "expired-callback": function () { token = ""; }, "error-callback": function () { token = ""; } });
   }
   function reset() { token = ""; if (wid !== null && window.turnstile) window.turnstile.reset(wid); }
   mount();

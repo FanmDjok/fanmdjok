@@ -105,7 +105,7 @@ function checkoutPanel() {
       <p class="fine">14 jours offerts, carte demandée, aucun débit pendant l'essai. Votre espace KAZONLY se crée à partir de cette adresse : un e-mail vous permettra de choisir votre mot de passe.</p>
       <div class="fld"><label for="co-email">Adresse e-mail</label><input id="co-email" name="email" type="email" autocomplete="email" required maxlength="200"></div>
       <div class="fld consent"><label><input id="co-consent" name="consent" type="checkbox"> <span>Je demande à commencer l'accès tout de suite. Je sais que mon droit de rétractation de 14 jours prend fin lorsque le service est entièrement exécuté.</span></label></div>
-      <div id="ts-checkout" class="ts-slot"></div>
+      <div id="ts-checkout" class="ts-slot" data-action="checkout"></div>
       <p class="err" id="co-err" role="alert"></p>
       <button class="btn btn-primary btn-block" type="submit" id="co-send">Continuer vers le paiement sécurisé</button>
       <p class="fine">Paiement traité par Stripe. Voir les <a href="/cgv/">conditions générales de vente</a>.</p>
@@ -292,7 +292,7 @@ export function home() {
     <label for="nl-email" class="sr-only">Adresse e-mail</label>
     <input id="nl-email" name="email" type="email" autocomplete="email" placeholder="vous@exemple.fr" required maxlength="320">
     <label class="nl-consent"><input type="checkbox" name="consent" value="1"> J'accepte de recevoir la veille KAZONLY. Désinscription en un clic. Voir la <a href="/confidentialite/">politique de confidentialité</a>.</label>
-    <div id="newsletter-ts" class="ts-slot"></div>
+    <div id="newsletter-ts" class="ts-slot" data-action="newsletter"></div>
     <button class="btn btn-amber" type="submit">Recevoir la veille</button>
   </form>
   <p class="err" id="newsletter-msg" role="status" aria-live="polite"></p>
@@ -660,7 +660,7 @@ ${crumbs([["Accueil", "/"], ["Contact", "/contact/"]])}
       </div>
       <div class="fld"><label for="c-msg">Votre message</label><textarea id="c-msg" name="message" rows="5" required maxlength="3000"></textarea></div>
       <div class="hp" aria-hidden="true"><label>Ne pas remplir<input name="website" tabindex="-1" autocomplete="off"></label></div>
-      <div id="ts-contact" class="ts-slot"></div>
+      <div id="ts-contact" class="ts-slot" data-action="contact"></div>
       <p class="err" id="c-err" role="alert"></p>
       <button class="btn btn-primary btn-block" type="submit" id="c-send">Envoyer ma demande</button>
       <p class="fine">Vos informations ne servent qu'à répondre à votre demande. Voir la <a href="/confidentialite/">politique de confidentialité</a>.</p>
@@ -686,7 +686,7 @@ export function resilierPage() {
   <p class="lead">Indiquez l'adresse e-mail de votre compte. Si un compte existe, nous vous envoyons un lien de connexion qui ouvre directement la page de résiliation. Vous n'avez pas besoin d'être connecté.</p>
   <form class="cform" id="resil-form" novalidate data-sitekey="${esc(process.env.TURNSTILE_SITE_KEY || "")}">
     <div class="fld"><label for="r-email">Adresse e-mail de votre compte</label><input id="r-email" name="email" type="email" autocomplete="email" required maxlength="320"></div>
-    <div id="resil-ts" class="ts-slot"></div>
+    <div id="resil-ts" class="ts-slot" data-action="resiliation"></div>
     <button class="btn btn-primary btn-block" type="submit">Envoyer le lien</button>
   </form>
   <p class="err" id="resil-msg" role="status" aria-live="polite"></p>
