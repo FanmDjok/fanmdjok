@@ -2,9 +2,12 @@
 @font-face{font-family:"Nunito";src:url(/fonts/nunito-latin-700-normal.woff2) format("woff2");font-weight:700;font-display:swap}
 @font-face{font-family:"Nunito";src:url(/fonts/nunito-latin-800-normal.woff2) format("woff2");font-weight:800;font-display:swap}
 @font-face{font-family:"Nunito";src:url(/fonts/nunito-latin-900-normal.woff2) format("woff2");font-weight:900;font-display:swap}
-:root{--fond:#f6f9fd;--texte:#14181f;--muted:#4b5360;--bleu:#1976d2;--bleu-fonce:#1565c0;--nuit:#0f2a4a;--ambre:#f5a524;--ligne:#dbe4ef;--erreur-fond:#fff4d6;--erreur-texte:#6b4e00}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--fond:#0f1a2a;--texte:#eef3fa}}
-:root[data-theme="dark"]{--fond:#0f1a2a;--texte:#eef3fa}
+/* Contraste WCAG AA (4,5:1 minimum pour le texte normal) : voir teaser/contraste.test.ts.
+   Convention des encadrés : fond blanc, texte foncé (couleurs fixes, indépendantes du thème).
+   Bandeau d'introduction : fond bleu marine, texte clair. */
+:root{--fond:#f6f9fd;--texte:#14181f;--muted:#4b5360;--bleu:#1976d2;--bleu-fonce:#1565c0;--bleu-survol:#0d47a1;--nuit:#0f2a4a;--ambre:#f5a524;--ligne:#dbe4ef;--erreur-fond:#fff4d6;--erreur-texte:#6b4e00;--carte:#ffffff;--carte-texte:#14181f;--carte-muted:#4b5360}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--fond:#0f1a2a;--texte:#eef3fa;--muted:#c5cfdd}}
+:root[data-theme="dark"]{--fond:#0f1a2a;--texte:#eef3fa;--muted:#c5cfdd}
 *{box-sizing:border-box}
 body{margin:0;background:var(--fond);color:var(--texte);font-family:"Nunito",system-ui,sans-serif;line-height:1.55;min-height:100vh}
 .wrap{max-width:1040px;margin:0 auto;padding:0 16px}
@@ -15,27 +18,28 @@ main{padding:24px 0 48px}
 .hero{display:grid;gap:28px}
 @media(min-width:860px){.hero{grid-template-columns:1.1fr .9fr;align-items:center;gap:56px}}
 h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.1;margin:0 0 16px;font-weight:900}
-.lead{font-size:1.1rem;color:var(--muted);margin:0 0 24px}
+.intro{background:var(--nuit);color:#ffffff;border-radius:18px;padding:24px 22px}
+.intro h1{color:#ffffff}
+.kicker{font-weight:700;color:#a9d4ff;margin:0 0 12px}
+.lead{font-size:1.1rem;color:#e4ecf7;margin:0}
 .visuel{position:relative;justify-self:center;max-width:360px;width:100%}
 .visuel figure{margin:0;transform:rotate(-2deg);box-shadow:0 30px 60px -28px rgba(15,42,74,.55);border-radius:14px;overflow:hidden;background:var(--nuit);aspect-ratio:3/4;display:grid;place-items:center;color:#fff;padding:24px;text-align:center}
 .visuel figure strong{display:block;font-size:1.4rem;font-weight:900;margin-top:12px}
 .visuel figcaption{margin-top:12px;font-size:.92rem;color:var(--muted)}
-form{display:grid;gap:14px;background:#fff;border:1px solid var(--ligne);border-radius:18px;padding:22px;max-width:520px}
-[data-theme="dark"] form{background:#15233a}
+form{display:grid;gap:14px;background:var(--carte);color:var(--carte-texte);border:1px solid var(--ligne);border-radius:18px;padding:22px;max-width:520px}
 label{font-weight:700;font-size:.95rem;display:grid;gap:6px}
-input,select{font:inherit;font-size:1rem;padding:12px 14px;border:1px solid var(--ligne);border-radius:12px;background:#fff;color:var(--texte);min-height:48px;width:100%}
+input,select{font:inherit;font-size:1rem;padding:12px 14px;border:1px solid #8a94a3;border-radius:12px;background:#ffffff;color:#14181f;min-height:48px;width:100%}
 .consent{display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:.92rem}
 .consent input{width:20px;min-height:20px;margin-top:3px;flex:none}
-.btn{font:inherit;font-weight:800;font-size:1rem;padding:14px 20px;border-radius:14px;border:0;background:var(--bleu);color:#fff;cursor:pointer;min-height:52px}
-.btn:hover{background:var(--bleu-fonce)}
+.btn{font:inherit;font-weight:800;font-size:1rem;padding:14px 20px;border-radius:14px;border:0;background:var(--bleu-fonce);color:#ffffff;cursor:pointer;min-height:52px}
+.btn:hover{background:var(--bleu-survol)}
 .btn:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--bleu);outline-offset:3px}
-.msg{min-height:1.4em;margin:0;font-size:.95rem}
+.msg{min-height:1.4em;margin:0;font-size:.95rem;color:var(--carte-texte)}
 .alerte{background:var(--erreur-fond);color:var(--erreur-texte);border-left:4px solid var(--ambre);padding:10px 12px;border-radius:10px;display:flex;gap:8px;align-items:flex-start}
 .reassurance{display:grid;gap:10px;margin:28px 0 0;padding:0;list-style:none;max-width:520px}
-.reassurance li{background:#fff;border:1px solid var(--ligne);border-radius:12px;padding:12px 14px}
-[data-theme="dark"] .reassurance li{background:#15233a}
-footer{background:var(--nuit);color:#fff;padding:28px 0;font-size:.92rem}
-footer a{color:#fff}
+.reassurance li{background:var(--carte);color:var(--carte-texte);border:1px solid var(--ligne);border-radius:12px;padding:12px 14px}
+footer{background:var(--nuit);color:#ffffff;padding:28px 0;font-size:.92rem}
+footer a{color:#ffffff}
 footer nav{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px}
 .page{max-width:720px;margin:0 auto;padding:24px 16px 48px}
 .page h1{font-size:2rem}
@@ -47,10 +51,11 @@ footer nav{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px}
   @keyframes entree{to{opacity:1;transform:none}}
 }
 .couverture{position:relative;aspect-ratio:3/4;border-radius:14px;background:linear-gradient(160deg,#1976d2,#0f2a4a);color:#fff;padding:28px;display:flex;flex-direction:column;justify-content:flex-end;transform:rotate(-2deg);box-shadow:0 30px 60px -28px rgba(15,42,74,.55)}
-.couverture .marque{position:absolute;top:24px;left:24px;font-weight:900;font-size:1.6rem;background:#fff;color:var(--bleu);width:44px;height:44px;border-radius:12px;display:grid;place-items:center}
+.couverture .marque{position:absolute;top:24px;left:24px;font-weight:900;font-size:1.6rem;background:#fff;color:var(--bleu-fonce);width:44px;height:44px;border-radius:12px;display:grid;place-items:center}
 .couverture strong{font-size:1.5rem;font-weight:900;line-height:1.2}
-.vignette{margin:0 0 4px;width:40%;max-width:170px;justify-self:start}
+/* Couverture du guide : pleine largeur sur mobile, centrée, sans vide à droite. */
+.vignette{margin:0 auto;width:100%;max-width:360px;justify-self:center;text-align:center}
 .vignette img{display:block;width:100%;height:auto;border-radius:10px;transform:rotate(-2deg);box-shadow:0 18px 36px -20px rgba(15,42,74,.6)}
-.vignette figcaption{margin-top:12px;font-size:.88rem;color:var(--muted)}
+.vignette figcaption{margin-top:14px;font-size:.92rem;color:var(--muted)}
 .msg:empty{display:none}
 .hero>div{display:grid;gap:20px}
